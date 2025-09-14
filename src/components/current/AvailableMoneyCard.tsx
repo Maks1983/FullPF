@@ -106,5 +106,3 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
 };
 
 export default AvailableMoneyCard;
-</parameter>
-</invoke>

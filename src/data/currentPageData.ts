@@ -208,5 +208,3 @@ export const mockCurrentPageData: CurrentPageData = {
   overdueCount: 1,
   todaySpending: 485.50
 };
-</parameter>
-</invoke>
