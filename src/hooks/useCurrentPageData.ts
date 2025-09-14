@@ -1,0 +1,50 @@
+import { useMemo } from 'react';
+import { mockCurrentPageData } from '../data/currentPageData';
+import type { CurrentPageData } from '../types/current';
+
+export const useCurrentPageData = (): CurrentPageData & {
+  criticalAlerts: number;
+  isDeficitProjected: boolean;
+  daysUntilDeficit: number;
+  highPriorityPayments: number;
+} => {
+  return useMemo(() => {
+    const data = mockCurrentPageData;
+    
+    // Calculate critical alerts
+    const lowBalanceAccounts = data.accounts.filter(acc => 
+      acc.type !== 'credit' && acc.minimumBalance && acc.balance < acc.minimumBalance
+    ).length;
+    
+    const highCreditUtilization = data.accounts.filter(acc => 
+      acc.type === 'credit' && acc.creditLimit && 
+      (Math.abs(acc.balance) / acc.creditLimit) > 0.8
+    ).length;
+    
+    const criticalAlerts = data.overdueCount + lowBalanceAccounts + highCreditUtilization;
+    
+    // Check if deficit is projected
+    const isDeficitProjected = data.netLeftoverUntilPaycheck < 0;
+    
+    // Find days until deficit
+    const deficitProjection = data.cashflowProjections.find(proj => proj.projectedBalance < 0);
+    const daysUntilDeficit = deficitProjection ? 
+      Math.ceil((new Date(deficitProjection.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 
+      999;
+    
+    // Count high priority payments
+    const highPriorityPayments = data.upcomingPayments.filter(payment => 
+      payment.priority === 'high' && payment.status !== 'paid'
+    ).length;
+    
+    return {
+      ...data,
+      criticalAlerts,
+      isDeficitProjected,
+      daysUntilDeficit,
+      highPriorityPayments
+    };
+  }, []);
+};
+</parameter>
+</invoke>
