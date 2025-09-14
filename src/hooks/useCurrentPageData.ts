@@ -46,5 +46,3 @@ export const useCurrentPageData = (): CurrentPageData & {
     };
   }, []);
 };
-</parameter>
-</invoke>
