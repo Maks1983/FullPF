@@ -147,7 +147,7 @@ const CurrentPage = () => {
       {/* Main Content Grid - Enhanced Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column - Money Status */}
-        <div className="xl:col-span-2 space-y-6">
+        <div className="space-y-6">
           {/* Available Money - Enhanced */}
           <AvailableMoneyCard
             accounts={accounts}
@@ -155,7 +155,9 @@ const CurrentPage = () => {
             netLeftover={netLeftoverUntilPaycheck}
             paycheckInfo={paycheckInfo}
           />
+        </div>
 
+        <div className="xl:col-span-2 space-y-6">
           {/* Cashflow Projection - Full Width */}
           <CashflowProjectionChart
             projections={cashflowProjections}
