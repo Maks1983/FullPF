@@ -33,75 +33,75 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const currentSaldo = totalAvailable + upcomingPaymentsTotal;
 
   return (
-    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group ${
+    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
       isDeficit ? 'ring-2 ring-red-400' : ''
     }`}>
-      <div className="flex items-start justify-between">
-        {/* Left side - Main content */}
-        <div className="flex-1">
-          <div className="text-sm text-slate-300 mb-1">
-            Left over until next payday
-          </div>
-          
-          <div className="text-sm text-slate-400 mb-2">
-            NOK {totalAvailable.toLocaleString()}
-          </div>
-          
-          <div className={`text-4xl font-bold mb-3 ${
-            isDeficit ? 'text-red-400' : 'text-white'
-          }`}>
-            {currentSaldo < 0 ? '-' : ''}NOK {Math.abs(currentSaldo).toLocaleString('no-NO', { 
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2 
-            })}
-          </div>
-          
-          <div className="text-sm text-slate-400">
-            NOK {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} remaining payments
-          </div>
+      {/* Main content */}
+      <div className="text-center">
+        <div className="text-sm text-slate-300 mb-1">
+          Left over until next payday
         </div>
-
-        {/* Right side - Circular progress */}
-        <div className="relative">
-          <div className="w-20 h-20">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              {/* Background circle */}
-              <path
-                className="text-slate-600"
-                stroke="currentColor"
-                strokeWidth="3"
-                fill="transparent"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              {/* Progress circle */}
-              <path
-                className="text-blue-400"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeDasharray={`${progress}, 100`}
-                strokeLinecap="round"
-                fill="transparent"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
-            
-            {/* Center content */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-2xl font-bold text-white">
-                {paycheckInfo.daysUntilPaycheck}
-              </div>
-              <div className="text-xs text-slate-300">
-                {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
-              </div>
-              <div className="text-xs text-slate-400">
-                to pay
+        
+        <div className="text-sm text-slate-400 mb-2">
+          NOK {totalAvailable.toLocaleString()}
+        </div>
+        
+        {/* Circular progress indicator - centered */}
+        <div className="flex justify-center mb-4">
+          <div className="relative">
+            <div className="w-32 h-32">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                {/* Background circle */}
+                <path
+                  className="text-slate-600"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  fill="transparent"
+                  d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                {/* Progress circle */}
+                <path
+                  className="text-blue-400"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeDasharray={`${progress}, 100`}
+                  strokeLinecap="round"
+                  fill="transparent"
+                  d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              
+              {/* Center content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="text-3xl font-bold text-white">
+                  {paycheckInfo.daysUntilPaycheck}
+                </div>
+                <div className="text-sm text-slate-300">
+                  {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
+                </div>
+                <div className="text-sm text-slate-400">
+                  to pay
+                </div>
               </div>
             </div>
           </div>
+        </div>
+        
+        <div className={`text-4xl font-bold mb-3 ${
+          isDeficit ? 'text-red-400' : 'text-white'
+        }`}>
+          {currentSaldo < 0 ? '-' : ''}NOK {Math.abs(currentSaldo).toLocaleString('no-NO', { 
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2 
+          })}
+        </div>
+        
+        <div className="text-sm text-slate-400">
+          NOK {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} remaining payments
         </div>
       </div>
 
