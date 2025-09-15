@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ArrowUpRight, ArrowDownRight, Filter, Star, Lock } from 'lucide-react';
+import { Activity, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
 import type { RecentTransaction } from '../../types/current';
 
 interface RecentTransactionsCardProps {

@@ -144,37 +144,6 @@ export const mockCurrentPageData: CurrentPageData = {
       category: 'Cash',
       accountId: 'acc1',
       status: 'completed'
-    },
-    // Premium transactions (6+)
-    {
-      id: 'tx6',
-      description: 'Restaurant Dinner',
-      amount: -420.00,
-      date: '2024-01-12',
-      category: 'Food',
-      accountId: 'acc1',
-      status: 'completed',
-      merchant: 'Frognerseteren'
-    },
-    {
-      id: 'tx7',
-      description: 'Pharmacy',
-      amount: -185.50,
-      date: '2024-01-12',
-      category: 'Healthcare',
-      accountId: 'acc1',
-      status: 'completed',
-      merchant: 'Apotek 1'
-    },
-    {
-      id: 'tx8',
-      description: 'Streaming Service',
-      amount: -159.00,
-      date: '2024-01-11',
-      category: 'Entertainment',
-      accountId: 'acc1',
-      status: 'completed',
-      merchant: 'Netflix'
     }
   ],
 
