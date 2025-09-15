@@ -185,6 +185,18 @@ const UpcomingPaymentsModal: React.FC<UpcomingPaymentsModalProps> = ({
               })}
             </div>
           )}
+                    <div className="flex items-center space-x-3 mt-2">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(payment.priority)}`}>
+                        {payment.priority}
+                      </span>
+                      <button className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
+                        payment.status === 'overdue' 
+                          ? 'bg-red-600 text-white hover:bg-red-700' 
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}>
+                        {payment.status === 'overdue' ? 'Pay Now' : 'Schedule'}
+                      </button>
+                    </div>
         </div>
 
         {/* Modal Footer */}
