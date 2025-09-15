@@ -78,7 +78,7 @@ const CurrentPage = () => {
                 <div className={`text-2xl font-bold mb-1 ${
                   overdueCount > 0 ? 'text-red-400' : 'text-white'
                 }`}>
-                  {upcomingPayments
+                  -{upcomingPayments
                     .filter(p => p.status !== 'paid')
                     .reduce((sum, p) => sum + Math.abs(p.amount), 0)
                     .toLocaleString('no-NO', { 
@@ -157,12 +157,14 @@ const CurrentPage = () => {
                   Account balances (in NOK)
                 </div>
                 <div className="text-2xl font-bold mb-1 text-white">
-                  {accounts
+                  {(() => {
+                    const total = accounts
                     .reduce((sum, acc) => sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0)
-                    .toLocaleString('no-NO', { 
+                    return (total < 0 ? '-' : '') + Math.abs(total).toLocaleString('no-NO', { 
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0 
-                    })}
+                    })
+                  })()}
                 </div>
                 <div className="text-xs text-slate-400">
                   {accounts.length} accounts total
