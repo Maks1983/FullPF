@@ -9,6 +9,7 @@ import MoneyFlowInsights from './current/MoneyFlowInsights';
 import FinancialHealthCheck from './current/FinancialHealthCheck';
 import SmartSuggestions from './current/SmartSuggestions';
 import { AlertTriangle, TrendingUp, TrendingDown, Clock, Eye, Brain, Heart, Calendar } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 const CurrentPage = () => {
   const {
