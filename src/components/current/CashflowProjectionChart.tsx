@@ -205,3 +205,4 @@ const CashflowProjectionChart: React.FC<CashflowProjectionChartProps> = ({
     </div>
   );
 };
+export default CashflowProjectionChart;
