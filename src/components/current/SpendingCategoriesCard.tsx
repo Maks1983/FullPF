@@ -128,5 +128,3 @@ const SpendingCategoriesCard: React.FC<SpendingCategoriesCardProps> = ({
 };
 
 export default SpendingCategoriesCard;
-</parameter>
-</invoke>

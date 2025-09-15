@@ -172,5 +172,3 @@ const CashflowProjectionChart: React.FC<CashflowProjectionChartProps> = ({
 };
 
 export default CashflowProjectionChart;
-</parameter>
-</invoke>

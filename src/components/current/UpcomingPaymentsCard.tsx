@@ -174,5 +174,3 @@ const UpcomingPaymentsCard: React.FC<UpcomingPaymentsCardProps> = ({
 };
 
 export default UpcomingPaymentsCard;
-</parameter>
-</invoke>

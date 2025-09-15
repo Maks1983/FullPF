@@ -126,5 +126,3 @@ const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
 };
 
 export default RecentTransactionsCard;
-</parameter>
-</invoke>
