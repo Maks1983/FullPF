@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wallet, AlertTriangle, TrendingDown, Clock, TrendingUp, ChevronRight, Eye } from 'lucide-react';
+import { Wallet, AlertTriangle, TrendingDown, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import type { CurrentAccount, PaycheckInfo } from '../../types/current';
 
 interface AvailableMoneyCardProps {
@@ -9,7 +9,6 @@ interface AvailableMoneyCardProps {
   paycheckInfo: PaycheckInfo;
   upcomingPayments?: Array<{ amount: number; status: string }>;
   onViewDetails?: () => void;
-  onViewAccounts?: () => void;
 }
 
 const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
@@ -18,8 +17,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   netLeftover,
   paycheckInfo,
   upcomingPayments = [],
-  onViewDetails,
-  onViewAccounts
+  onViewDetails
 }) => {
   const isDeficit = netLeftover < 0;
   
@@ -113,21 +111,8 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
 
       {/* Hover indicator */}
       <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="flex items-center space-x-3">
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewAccounts?.();
-            }}
-            className="flex items-center text-xs text-slate-400 hover:text-slate-200 transition-colors"
-          >
-            <Eye className="h-3 w-3 mr-1" />
-            Accounts
-          </button>
-          <span className="text-xs text-slate-400">|</span>
-          <span className="text-xs text-slate-400 mr-2">Income/Expenses</span>
-          <ChevronRight className="h-4 w-4 text-slate-400" />
-        </div>
+        <span className="text-xs text-slate-400 mr-2">View details</span>
+        <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
   );

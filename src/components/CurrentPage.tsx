@@ -2,7 +2,6 @@ import React from 'react';
 import { useCurrentPageData } from '../hooks/useCurrentPageData';
 import AvailableMoneyCard from './current/AvailableMoneyCard';
 import DetailedModal from './current/DetailedModal';
-import AccountsModal from './current/AccountsModal';
 import UpcomingPaymentsModal from './current/UpcomingPaymentsModal';
 import CashflowProjectionChart from './current/CashflowProjectionChart';
 import SpendingCategoriesCard from './current/SpendingCategoriesCard';
@@ -14,7 +13,6 @@ import { ChevronRight } from 'lucide-react';
 
 const CurrentPage = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [isAccountsModalOpen, setIsAccountsModalOpen] = React.useState(false);
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = React.useState(false);
   
   const {
@@ -42,14 +40,6 @@ const CurrentPage = () => {
     cat.spent > max.spent ? cat : max, spendingCategories[0]);
   const dailyAverageSpending = totalMonthlyExpenses / 30;
 
-  // Mock income categories data (sorted by amount, highest to lowest)
-  const incomeCategories = [
-    { name: 'Salary', amount: 45000 },
-    { name: 'Freelance Work', amount: 5000 },
-    { name: 'Investment Returns', amount: 1500 },
-    { name: 'Side Business', amount: 500 }
-  ].sort((a, b) => b.amount - a.amount);
-
   return (
     <div className="space-y-8 pb-8">
       {/* Page Header with Financial Awareness Focus */}
@@ -73,7 +63,6 @@ const CurrentPage = () => {
             paycheckInfo={paycheckInfo}
             upcomingPayments={upcomingPayments}
             onViewDetails={() => setIsModalOpen(true)}
-            onViewAccounts={() => setIsAccountsModalOpen(true)}
           />
           
           {/* Upcoming Payments Card */}
@@ -365,17 +354,11 @@ const CurrentPage = () => {
       <DetailedModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        accounts={accounts}
+        upcomingPayments={upcomingPayments}
         spendingCategories={spendingCategories}
         monthlyIncome={totalMonthlyIncome}
         monthlyExpenses={totalMonthlyExpenses}
-        incomeCategories={incomeCategories}
-      />
-
-      {/* Accounts Modal */}
-      <AccountsModal
-        isOpen={isAccountsModalOpen}
-        onClose={() => setIsAccountsModalOpen(false)}
-        accounts={accounts}
       />
 
       {/* Upcoming Payments Modal */}
