@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight, TrendingUp, PieChart, Calendar } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp, PieChart, Calendar, Star, Lock } from 'lucide-react';
 import type { SpendingCategory, RecentTransaction } from '../../types/current';
 
 interface MoneyFlowInsightsProps {
@@ -136,6 +136,47 @@ const MoneyFlowInsights: React.FC<MoneyFlowInsightsProps> = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Premium AI Insights Section */}
+      <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <Star className="h-5 w-5 text-indigo-600" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900">AI-Powered Money Insights</h4>
+              <p className="text-sm text-gray-600">
+                Get personalized spending predictions and optimization tips
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="text-right">
+              <p className="text-sm font-medium text-indigo-600">Advanced Analytics</p>
+              <p className="text-xs text-gray-500">Premium feature</p>
+            </div>
+            <Lock className="h-5 w-5 text-indigo-600" />
+          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
+            <h5 className="font-medium text-gray-900 mb-1">Spending Prediction</h5>
+            <p className="text-sm text-gray-600">Based on your patterns, you'll likely spend NOK 8,200 next week</p>
+          </div>
+          <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
+            <h5 className="font-medium text-gray-900 mb-1">Optimization Tip</h5>
+            <p className="text-sm text-gray-600">Switch to Store Brand groceries to save NOK 450/month</p>
+          </div>
+          <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
+            <h5 className="font-medium text-gray-900 mb-1">Bill Alert</h5>
+            <p className="text-sm text-gray-600">Your phone bill increased 15% - consider switching plans</p>
+          </div>
+        </div>
+        <button className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+          Unlock AI Insights
+        </button>
       </div>
 
       {/* Money Flow Visualization */}

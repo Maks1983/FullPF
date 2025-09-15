@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
+import { Activity, ArrowUpRight, ArrowDownRight, Filter, Star, Lock } from 'lucide-react';
 import type { RecentTransaction } from '../../types/current';
 
 interface RecentTransactionsCardProps {
@@ -11,11 +11,15 @@ const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
 }) => {
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
   
+  // Show only last 5 transactions for free users
+  const freeTransactions = transactions.slice(0, 5);
+  const premiumTransactions = transactions.slice(5);
+  
   const filteredTransactions = transactions.filter(transaction => {
     if (filter === 'income') return transaction.amount > 0;
     if (filter === 'expense') return transaction.amount < 0;
     return true;
-  });
+  }).slice(0, 5); // Limit to 5 for free users
 
   const getCategoryColor = (category: string) => {
     const colors = {
@@ -43,6 +47,11 @@ const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
               <p className="text-sm text-gray-600">
                 Last {transactions.length} transactions
               </p>
+              {premiumTransactions.length > 0 && (
+                <span className="ml-2 px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
+                  +{premiumTransactions.length} more with Premium
+                </span>
+              )}
             </div>
           </div>
           
@@ -121,6 +130,35 @@ const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
           </div>
         )}
       </div>
+      
+      {/* Premium Upgrade Section */}
+      {premiumTransactions.length > 0 && (
+        <div className="border-t bg-gradient-to-r from-green-50 to-blue-50 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Star className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Complete Transaction History</h4>
+                <p className="text-sm text-gray-600">
+                  View unlimited transactions with advanced filtering and search
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="text-right">
+                <p className="text-sm font-medium text-green-600">+{premiumTransactions.length} more</p>
+                <p className="text-xs text-gray-500">Premium feature</p>
+              </div>
+              <Lock className="h-5 w-5 text-green-600" />
+            </div>
+          </div>
+          <button className="mt-3 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+            Upgrade to Premium
+          </button>
+        </div>
+      )}
     </div>
   );
 };

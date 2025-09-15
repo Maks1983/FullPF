@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lightbulb, Target, AlertCircle, TrendingUp, DollarSign, Calendar } from 'lucide-react';
+import { Lightbulb, Target, AlertCircle, TrendingUp, DollarSign, Calendar, Star, Lock } from 'lucide-react';
 import type { SpendingCategory } from '../../types/current';
 
 interface SmartSuggestionsProps {
@@ -153,6 +153,10 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
     }
   };
 
+  // Show only 2 suggestions for free users
+  const freeSuggestions = topSuggestions.slice(0, 2);
+  const premiumSuggestions = topSuggestions.slice(2);
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex items-center space-x-3 mb-6">
@@ -162,7 +166,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {topSuggestions.map((suggestion, index) => {
+        {freeSuggestions.map((suggestion, index) => {
           const Icon = suggestion.icon;
           return (
             <div
@@ -182,6 +186,33 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
             </div>
           );
         })}
+        
+        {/* Premium Suggestions Teaser */}
+        {premiumSuggestions.length > 0 && (
+          <div className="md:col-span-2">
+            <div className="p-4 rounded-lg border border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Star className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Advanced AI Insights</h4>
+                    <p className="text-sm text-gray-600">
+                      Get {premiumSuggestions.length} more personalized recommendations with premium
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Lock className="h-5 w-5 text-purple-600" />
+                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+                    Upgrade
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Financial Awareness Tips */}
