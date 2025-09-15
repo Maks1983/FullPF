@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentPageData } from '../hooks/useCurrentPageData';
 import AvailableMoneyCard from './current/AvailableMoneyCard';
+import DetailedModal from './current/DetailedModal';
 import UpcomingPaymentsCard from './current/UpcomingPaymentsCard';
 import CashflowProjectionChart from './current/CashflowProjectionChart';
 import SpendingCategoriesCard from './current/SpendingCategoriesCard';
@@ -12,6 +13,8 @@ import { AlertTriangle, TrendingUp, TrendingDown, Clock, Eye, Brain, Heart, Cale
 import { ChevronRight } from 'lucide-react';
 
 const CurrentPage = () => {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  
   const {
     accounts,
     upcomingPayments,
@@ -59,6 +62,7 @@ const CurrentPage = () => {
             netLeftover={netLeftoverUntilPaycheck}
             paycheckInfo={paycheckInfo}
             upcomingPayments={upcomingPayments}
+            onViewDetails={() => setIsModalOpen(true)}
           />
           
           {/* Upcoming Payments Card */}
@@ -359,6 +363,17 @@ const CurrentPage = () => {
           </ul>
         </div>
       </div>
+
+      {/* Detailed Modal */}
+      <DetailedModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        accounts={accounts}
+        upcomingPayments={upcomingPayments}
+        spendingCategories={spendingCategories}
+        monthlyIncome={totalMonthlyIncome}
+        monthlyExpenses={totalMonthlyExpenses}
+      />
     </div>
   );
 };

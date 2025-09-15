@@ -8,6 +8,7 @@ interface AvailableMoneyCardProps {
   netLeftover: number;
   paycheckInfo: PaycheckInfo;
   upcomingPayments?: Array<{ amount: number; status: string }>;
+  onViewDetails?: () => void;
 }
 
 const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
@@ -15,7 +16,8 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   totalAvailable,
   netLeftover,
   paycheckInfo,
-  upcomingPayments = []
+  upcomingPayments = [],
+  onViewDetails
 }) => {
   const isDeficit = netLeftover < 0;
   
@@ -33,9 +35,12 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const currentSaldo = totalAvailable + upcomingPaymentsTotal;
 
   return (
-    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+    <div 
+      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
       isDeficit ? 'ring-2 ring-red-400' : ''
-    }`}>
+    }`}
+      onClick={onViewDetails}
+    >
       {/* Main content */}
       <div className="text-center">
         <div className="text-sm text-slate-300 mb-1">
