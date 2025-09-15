@@ -56,6 +56,7 @@ const CurrentPage = () => {
             totalAvailable={totalAvailable}
             netLeftover={netLeftoverUntilPaycheck}
             paycheckInfo={paycheckInfo}
+            upcomingPayments={upcomingPayments}
           />
           
           <div className="bg-white p-4 rounded-lg border border-blue-200">
