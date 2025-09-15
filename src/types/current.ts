@@ -1,65 +1,44 @@
-export interface CurrentAccount {
-  id: string;
-  name: string;
-  type: 'checking' | 'savings' | 'credit';
+export interface CurrentBalance {
+  account: string;
   balance: number;
-  availableBalance: number;
-  currency: string;
-  lastUpdated: string;
-  status: 'active' | 'low' | 'overdrawn' | 'frozen';
+  available: number;
+  pending: number;
+  type: 'checking' | 'savings' | 'credit';
 }
 
-export interface UpcomingPayment {
+export interface UpcomingTransaction {
   id: string;
-  dueDate: string;
   description: string;
   amount: number;
-  category: string;
-  priority: 'high' | 'medium' | 'low';
-  status: 'scheduled' | 'overdue' | 'paid';
-  isRecurring: boolean;
-  daysOverdue?: number;
-}
-
-export interface RecentTransaction {
-  id: string;
   date: string;
-  description: string;
-  amount: number;
   category: string;
-  merchant?: string;
-  status: 'completed' | 'pending';
+  type: 'income' | 'expense' | 'transfer';
+  status: 'scheduled' | 'pending' | 'overdue';
+  account: string;
+  isRecurring?: boolean;
 }
 
-export interface PaycheckInfo {
-  nextPaycheckDate: string;
-  daysUntilPaycheck: number;
-  estimatedAmount: number;
-}
-
-export interface SpendingCategory {
+export interface BudgetCategory {
   name: string;
   spent: number;
   budget: number;
-  percentUsed: number;
-  remaining: number;
-  isOverBudget: boolean;
   color: string;
+  trend: 'up' | 'down' | 'neutral';
+  daysLeft: number;
 }
 
 export interface CashflowProjection {
   date: string;
-  projectedBalance: number;
+  balance: number;
+  income: number;
+  expenses: number;
   netFlow: number;
+  isProjected: boolean;
 }
 
-export interface MoneyRecommendation {
-  id: string;
-  type: 'save' | 'invest' | 'pay_debt' | 'emergency' | 'spend';
-  title: string;
-  description: string;
+export interface PaydayInfo {
+  daysUntil: number;
   amount: number;
-  priority: 'high' | 'medium' | 'low';
-  impact: string;
-  action: string;
+  date: string;
+  confidence: 'high' | 'medium' | 'low';
 }
