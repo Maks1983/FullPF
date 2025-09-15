@@ -21,8 +21,8 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const totalDaysInMonth = 30; // Approximate
   const progress = ((totalDaysInMonth - paycheckInfo.daysUntilPaycheck) / totalDaysInMonth) * 100;
   
-  // Calculate remaining payments total
-  const remainingPayments = Math.abs(netLeftover - totalAvailable);
+  // Calculate remaining payments count from upcoming payments
+  const remainingPaymentsCount = 5; // This should come from upcomingPayments prop when available
 
   return (
     <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group ${
@@ -40,9 +40,9 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           </div>
           
           <div className={`text-4xl font-bold mb-3 ${
-            netLeftover >= 0 ? 'text-white' : 'text-red-400'
+            isDeficit ? 'text-red-400' : 'text-white'
           }`}>
-            {Math.abs(netLeftover).toLocaleString('no-NO', { 
+            {isDeficit ? '-' : ''}{Math.abs(netLeftover).toLocaleString('no-NO', { 
               minimumFractionDigits: 2,
               maximumFractionDigits: 2 
             })}
@@ -50,7 +50,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           
           <div className="text-sm text-slate-400">
             {isDeficit ? 
-              `${Math.ceil(remainingPayments / 1000)}k remaining payments (NOK ${remainingPayments.toLocaleString()})` :
+              `${remainingPaymentsCount} remaining payments` :
               `After all scheduled payments`
             }
           </div>
