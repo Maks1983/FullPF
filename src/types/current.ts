@@ -7,71 +7,65 @@ export interface CurrentAccount {
   currency: string;
   lastUpdated: string;
   status: 'active' | 'low' | 'overdrawn' | 'frozen';
-  creditLimit?: number;
-  minimumBalance?: number;
-  overdraftLimit?: number;
 }
 
-export interface UpcomingPayment {
+export interface UpcomingTransaction {
   id: string;
+  date: string;
   description: string;
   amount: number;
-  dueDate: string;
   category: string;
-  status: 'scheduled' | 'overdue' | 'paid';
+  type: 'income' | 'expense';
   isRecurring: boolean;
-  accountId: string;
-  daysOverdue?: number;
-  priority: 'high' | 'medium' | 'low';
+}
+
+export interface OverduePayment {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  daysOverdue: number;
+  category: string;
 }
 
 export interface RecentTransaction {
   id: string;
+  date: string;
+  account: string;
+  transactionType: 'income' | 'expense' | 'transfer';
   description: string;
   amount: number;
-  date: string;
   category: string;
-  accountId: string;
-  status: 'completed' | 'pending';
-  merchant?: string;
 }
 
-export interface PaycheckInfo {
-  nextPaycheckDate: string;
-  daysUntilPaycheck: number;
-  expectedAmount: number;
-  isEstimated: boolean;
-}
-
-export interface CashflowProjection {
-  date: string;
-  projectedBalance: number;
-  scheduledIncome: number;
-  scheduledExpenses: number;
-  netFlow: number;
-}
-
-export interface SpendingCategory {
+export interface CategoryData {
   name: string;
-  spent: number;
-  budget: number;
-  remaining: number;
-  percentUsed: number;
+  amount: number;
+  type: 'income' | 'expense';
   color: string;
-  isOverBudget: boolean;
+}
+
+export interface MonthlyData {
+  month: string;
+  income: number;
+  expenses: number;
+  cashflow: number;
+}
+
+export interface PaydayInfo {
+  nextPaydayDate: string;
+  daysUntilPayday: number;
+  currentSaldo: number;
+  remainingPayments: number;
+  remainingPaymentsTotal: number;
+  netLeftover: number;
 }
 
 export interface CurrentPageData {
-  accounts: CurrentAccount[];
-  upcomingPayments: UpcomingPayment[];
+  paydayInfo: PaydayInfo;
+  upcomingTransactions: UpcomingTransaction[];
+  overduePayments: OverduePayment[];
+  categoryData: CategoryData[];
+  monthlyData: MonthlyData[];
   recentTransactions: RecentTransaction[];
-  paycheckInfo: PaycheckInfo;
-  cashflowProjections: CashflowProjection[];
-  spendingCategories: SpendingCategory[];
-  totalAvailable: number;
-  netLeftoverUntilPaycheck: number;
-  overdueCount: number;
-  todaySpending: number;
 }
-</parameter>
-</invoke>

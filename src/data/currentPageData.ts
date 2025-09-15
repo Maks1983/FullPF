@@ -1,210 +1,153 @@
 import type { CurrentPageData } from '../types/current';
 
 export const mockCurrentPageData: CurrentPageData = {
-  accounts: [
+  paydayInfo: {
+    nextPaydayDate: '2025-01-31',
+    daysUntilPayday: 16,
+    currentSaldo: 425.70,
+    remainingPayments: 5,
+    remainingPaymentsTotal: -24359.75,
+    netLeftover: -23934.05
+  },
+
+  upcomingTransactions: [
     {
-      id: 'acc1',
-      name: 'Main Checking',
-      type: 'checking',
-      balance: 2847.50,
-      availableBalance: 2847.50,
-      currency: 'NOK',
-      lastUpdated: '2024-01-15T14:30:00Z',
-      status: 'active',
-      minimumBalance: 500,
-      overdraftLimit: 1000
+      id: 'ut1',
+      date: '2025-01-18',
+      description: 'Phone',
+      amount: -99.00,
+      category: 'Utilities',
+      type: 'expense',
+      isRecurring: true
     },
     {
-      id: 'acc2',
-      name: 'Emergency Savings',
-      type: 'savings',
-      balance: 8420.00,
-      availableBalance: 8420.00,
-      currency: 'NOK',
-      lastUpdated: '2024-01-15T14:30:00Z',
-      status: 'active'
+      id: 'ut2',
+      date: '2025-01-24',
+      description: 'Phone',
+      amount: -273.75,
+      category: 'Utilities',
+      type: 'expense',
+      isRecurring: true
     },
     {
-      id: 'acc3',
-      name: 'Credit Card',
-      type: 'credit',
-      balance: -1250.00,
-      availableBalance: 8750.00,
-      currency: 'NOK',
-      lastUpdated: '2024-01-15T14:30:00Z',
-      status: 'active',
-      creditLimit: 10000
+      id: 'ut3',
+      date: '2025-01-25',
+      description: 'Salary',
+      amount: 60000.00,
+      category: 'Salary',
+      type: 'income',
+      isRecurring: true
+    },
+    {
+      id: 'ut4',
+      date: '2025-01-20',
+      description: 'Rent',
+      amount: -12000.00,
+      category: 'Housing',
+      type: 'expense',
+      isRecurring: true
+    },
+    {
+      id: 'ut5',
+      date: '2025-01-22',
+      description: 'Car Insurance',
+      amount: -2500.00,
+      category: 'Insurance',
+      type: 'expense',
+      isRecurring: false
     }
   ],
 
-  upcomingPayments: [
+  overduePayments: [
     {
-      id: 'pay1',
-      description: 'Rent Payment',
-      amount: -12000,
-      dueDate: '2024-01-20',
-      category: 'Housing',
-      status: 'scheduled',
-      isRecurring: true,
-      accountId: 'acc1',
-      priority: 'high'
+      id: 'op1',
+      date: '2025-01-08',
+      description: 'Ema Allowance',
+      amount: -1766.00,
+      daysOverdue: 7,
+      category: 'Personal'
     },
     {
-      id: 'pay2',
-      description: 'Credit Card Payment',
-      amount: -1250,
-      dueDate: '2024-01-12',
-      category: 'Debt',
-      status: 'overdue',
-      isRecurring: true,
-      accountId: 'acc1',
-      daysOverdue: 3,
-      priority: 'high'
+      id: 'op2',
+      date: '2025-01-08',
+      description: 'Video/DVD/Movies',
+      amount: 119.00,
+      daysOverdue: 7,
+      category: 'Entertainment'
     },
     {
-      id: 'pay3',
-      description: 'Phone Bill',
-      amount: -699,
-      dueDate: '2024-01-18',
-      category: 'Utilities',
-      status: 'scheduled',
-      isRecurring: true,
-      accountId: 'acc1',
-      priority: 'medium'
-    },
-    {
-      id: 'pay4',
-      description: 'Netflix Subscription',
-      amount: -159,
-      dueDate: '2024-01-16',
-      category: 'Entertainment',
-      status: 'scheduled',
-      isRecurring: true,
-      accountId: 'acc1',
-      priority: 'low'
-    },
-    {
-      id: 'pay5',
-      description: 'Car Insurance',
-      amount: -2500,
-      dueDate: '2024-01-25',
-      category: 'Insurance',
-      status: 'scheduled',
-      isRecurring: false,
-      accountId: 'acc1',
-      priority: 'high'
+      id: 'op3',
+      date: '2025-01-08',
+      description: 'Home Insurance',
+      amount: 1410.00,
+      daysOverdue: 7,
+      category: 'Insurance'
     }
+  ],
+
+  categoryData: [
+    { name: 'Salary', amount: 60000, type: 'income', color: '#10b981' },
+    { name: 'Freelance', amount: 8500, type: 'income', color: '#059669' },
+    { name: 'Housing', amount: -12000, type: 'expense', color: '#ef4444' },
+    { name: 'Food & Dining', amount: -4500, type: 'expense', color: '#f97316' },
+    { name: 'Transportation', amount: -2800, type: 'expense', color: '#eab308' },
+    { name: 'Utilities', amount: -1200, type: 'expense', color: '#3b82f6' },
+    { name: 'Entertainment', amount: -800, type: 'expense', color: '#8b5cf6' },
+    { name: 'Insurance', amount: -2500, type: 'expense', color: '#ec4899' }
+  ],
+
+  monthlyData: [
+    { month: 'Oct', income: 58000, expenses: 42000, cashflow: 16000 },
+    { month: 'Nov', income: 62000, expenses: 45000, cashflow: 17000 },
+    { month: 'Dec', income: 60000, expenses: 48000, cashflow: 12000 },
+    { month: 'Jan', income: 68500, expenses: 52000, cashflow: 16500 }
   ],
 
   recentTransactions: [
     {
-      id: 'tx1',
-      description: 'Grocery Store',
-      amount: -485.50,
-      date: '2024-01-15',
-      category: 'Food',
-      accountId: 'acc1',
-      status: 'completed',
-      merchant: 'Rema 1000'
+      id: 'rt1',
+      date: '2025-01-15',
+      account: 'Nelson Sparebank',
+      transactionType: 'expense',
+      description: 'Groceries',
+      amount: -136.69,
+      category: 'Food'
     },
     {
-      id: 'tx2',
-      description: 'Gas Station',
-      amount: -650.00,
-      date: '2024-01-14',
-      category: 'Transportation',
-      accountId: 'acc1',
-      status: 'completed',
-      merchant: 'Shell'
-    },
-    {
-      id: 'tx3',
-      description: 'Coffee Shop',
-      amount: -87.50,
-      date: '2024-01-14',
-      category: 'Food',
-      accountId: 'acc1',
-      status: 'completed',
-      merchant: 'Starbucks'
-    },
-    {
-      id: 'tx4',
-      description: 'Online Transfer',
-      amount: 2500.00,
-      date: '2024-01-13',
-      category: 'Transfer',
-      accountId: 'acc1',
-      status: 'completed'
-    },
-    {
-      id: 'tx5',
-      description: 'ATM Withdrawal',
+      id: 'rt2',
+      date: '2025-01-14',
+      account: 'Nelson Sparebank',
+      transactionType: 'expense',
+      description: 'Outdoor Leisure',
       amount: -1000.00,
-      date: '2024-01-13',
-      category: 'Cash',
-      accountId: 'acc1',
-      status: 'completed'
+      category: 'Entertainment'
+    },
+    {
+      id: 'rt3',
+      date: '2025-01-13',
+      account: 'Nelson Sparebank',
+      transactionType: 'expense',
+      description: 'Parking',
+      amount: -35.00,
+      category: 'Transportation'
+    },
+    {
+      id: 'rt4',
+      date: '2025-01-12',
+      account: 'Nelson Sparebank',
+      transactionType: 'income',
+      description: 'Freelance Payment',
+      amount: 2500.00,
+      category: 'Freelance'
+    },
+    {
+      id: 'rt5',
+      date: '2025-01-11',
+      account: 'Nelson Sparebank',
+      transactionType: 'transfer',
+      description: 'Savings Transfer',
+      amount: -1500.00,
+      category: 'Transfer'
     }
-  ],
-
-  paycheckInfo: {
-    nextPaycheckDate: '2024-01-31',
-    daysUntilPaycheck: 16,
-    expectedAmount: 52000,
-    isEstimated: false
-  },
-
-  cashflowProjections: [
-    { date: '2024-01-15', projectedBalance: 2847.50, scheduledIncome: 0, scheduledExpenses: 0, netFlow: 0 },
-    { date: '2024-01-16', projectedBalance: 2688.50, scheduledIncome: 0, scheduledExpenses: -159, netFlow: -159 },
-    { date: '2024-01-17', projectedBalance: 2688.50, scheduledIncome: 0, scheduledExpenses: 0, netFlow: 0 },
-    { date: '2024-01-18', projectedBalance: 1989.50, scheduledIncome: 0, scheduledExpenses: -699, netFlow: -699 },
-    { date: '2024-01-19', projectedBalance: 1989.50, scheduledIncome: 0, scheduledExpenses: 0, netFlow: 0 },
-    { date: '2024-01-20', projectedBalance: -10010.50, scheduledIncome: 0, scheduledExpenses: -12000, netFlow: -12000 },
-    { date: '2024-01-21', projectedBalance: -10010.50, scheduledIncome: 0, scheduledExpenses: 0, netFlow: 0 }
-  ],
-
-  spendingCategories: [
-    {
-      name: 'Food & Dining',
-      spent: 2850,
-      budget: 4000,
-      remaining: 1150,
-      percentUsed: 71.25,
-      color: '#ef4444',
-      isOverBudget: false
-    },
-    {
-      name: 'Transportation',
-      spent: 1680,
-      budget: 2500,
-      remaining: 820,
-      percentUsed: 67.2,
-      color: '#3b82f6',
-      isOverBudget: false
-    },
-    {
-      name: 'Entertainment',
-      spent: 1650,
-      budget: 1500,
-      remaining: -150,
-      percentUsed: 110,
-      color: '#8b5cf6',
-      isOverBudget: true
-    },
-    {
-      name: 'Utilities',
-      spent: 1200,
-      budget: 2000,
-      remaining: 800,
-      percentUsed: 60,
-      color: '#10b981',
-      isOverBudget: false
-    }
-  ],
-
-  totalAvailable: 19017.50,
-  netLeftoverUntilPaycheck: -8608,
-  overdueCount: 1,
-  todaySpending: 485.50
+  ]
 };
