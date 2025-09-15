@@ -149,6 +149,7 @@ const CurrentPage = () => {
         <div className="xl:col-span-2 space-y-6">
           {/* Additional summary cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          </div>
           {/* Cashflow Projection - Full Width */}
           <CashflowProjectionChart
             projections={cashflowProjections}
