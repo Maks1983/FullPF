@@ -155,6 +155,13 @@ const UpcomingPaymentsModal: React.FC<UpcomingPaymentsModalProps> = ({
                               {payment.priority}
                             </span>
                           </div>
+                          <button className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
+                            payment.status === 'overdue' 
+                              ? 'bg-red-600 text-white hover:bg-red-700' 
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}>
+                            {payment.status === 'overdue' ? 'Pay Now' : 'Schedule'}
+                          </button>
                           <div className="flex items-center space-x-3 text-sm text-gray-600">
                             <span className="capitalize">{payment.category}</span>
                             <span>Due: {new Date(payment.dueDate).toLocaleDateString()}</span>
