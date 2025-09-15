@@ -50,7 +50,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           
           <div className="text-sm text-slate-400">
             {isDeficit ? 
-              `${remainingPaymentsCount} remaining payments` :
+              `NOK ${Math.abs(netLeftover).toLocaleString()} in ${remainingPaymentsCount} remaining payments` :
               `After all scheduled payments`
             }
           </div>
