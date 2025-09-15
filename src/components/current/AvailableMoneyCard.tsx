@@ -25,52 +25,44 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const remainingPayments = Math.abs(netLeftover - totalAvailable);
 
   return (
-    <div className={`bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all cursor-pointer group ${
-      isDeficit ? 'border-red-200' : 'border-gray-200'
+    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group ${
+      isDeficit ? 'ring-2 ring-red-400' : ''
     }`}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <Wallet className="h-5 w-5 text-blue-600" />
-          <h3 className="text-sm font-medium text-gray-500">Left over until next payday</h3>
-        </div>
-        {isDeficit && (
-          <AlertTriangle className="h-5 w-5 text-red-500" />
-        )}
-      </div>
-
-      {/* Main Content */}
-      <div className="flex items-center justify-between">
-        {/* Left side - Financial info */}
+      <div className="flex items-start justify-between">
+        {/* Left side - Main content */}
         <div className="flex-1">
-          <div className="text-sm text-gray-600 mb-1">
-            Available: NOK {totalAvailable.toLocaleString()}
+          <div className="text-sm text-slate-300 mb-1">
+            Left over until next payday
           </div>
           
-          <div className={`text-3xl font-bold mb-2 ${
-            netLeftover >= 0 ? 'text-gray-900' : 'text-red-600'
+          <div className="text-sm text-slate-400 mb-2">
+            NOK {totalAvailable.toLocaleString()}
+          </div>
+          
+          <div className={`text-4xl font-bold mb-3 ${
+            netLeftover >= 0 ? 'text-white' : 'text-red-400'
           }`}>
-            NOK {Math.abs(netLeftover).toLocaleString('no-NO', { 
+            {Math.abs(netLeftover).toLocaleString('no-NO', { 
               minimumFractionDigits: 2,
               maximumFractionDigits: 2 
             })}
           </div>
           
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-slate-400">
             {isDeficit ? 
-              `${Math.ceil(remainingPayments / 1000)}k remaining payments` :
+              `${Math.ceil(remainingPayments / 1000)}k remaining payments (NOK ${remainingPayments.toLocaleString()})` :
               `After all scheduled payments`
             }
           </div>
         </div>
 
         {/* Right side - Circular progress */}
-        <div className="flex items-center justify-center ml-6">
-          <div className="relative w-24 h-24">
+        <div className="relative">
+          <div className="w-20 h-20">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
               {/* Background circle */}
               <path
-                className="text-gray-200"
+                className="text-slate-600"
                 stroke="currentColor"
                 strokeWidth="3"
                 fill="transparent"
@@ -80,7 +72,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
               />
               {/* Progress circle */}
               <path
-                className={isDeficit ? "text-red-500" : "text-blue-500"}
+                className="text-blue-400"
                 stroke="currentColor"
                 strokeWidth="3"
                 strokeDasharray={`${progress}, 100`}
@@ -94,13 +86,13 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
             
             {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-white">
                 {paycheckInfo.daysUntilPaycheck}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-slate-300">
                 {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
               </div>
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-slate-400">
                 to pay
               </div>
             </div>
@@ -110,8 +102,8 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
 
       {/* Hover indicator */}
       <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-xs text-gray-400 mr-2">View details</span>
-        <ChevronRight className="h-4 w-4 text-gray-400" />
+        <span className="text-xs text-slate-400 mr-2">View details</span>
+        <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
   );
