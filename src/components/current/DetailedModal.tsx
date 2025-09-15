@@ -21,11 +21,45 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   monthlyIncome,
   monthlyExpenses
 }) => {
-  const [activeTab, setActiveTab] = React.useState<'categories' | 'accounts'>('categories');
+  const [activeTab, setActiveTab] = React.useState<'payments' | 'categories' | 'accounts'>('payments');
 
   if (!isOpen) return null;
 
   const netFlow = monthlyIncome - monthlyExpenses;
+  const pendingPayments = upcomingPayments.filter(p => p.status !== 'paid');
+  const overduePayments = upcomingPayments.filter(p => p.status === 'overdue');
+
+  const getStatusIcon = (payment: UpcomingPayment) => {
+    if (payment.status === 'overdue') return AlertTriangle;
+    if (payment.status === 'paid') return CheckCircle;
+    return Clock;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'overdue': return 'text-red-600';
+      case 'paid': return 'text-green-600';
+      case 'scheduled': return 'text-blue-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'text-red-600 bg-red-100';
+      case 'medium': return 'text-yellow-600 bg-yellow-100';
+      case 'low': return 'text-green-600 bg-green-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const getDaysUntilDue = (dueDate: string) => {
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -74,6 +108,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         <div className="border-b border-gray-200">
           <div className="flex space-x-8 px-6">
             {[
+              { key: 'payments', label: 'Payments', icon: Calendar, count: pendingPayments.length },
               { key: 'categories', label: 'Categories', icon: CreditCard, count: spendingCategories.length },
               { key: 'accounts', label: 'Accounts', icon: Wallet, count: accounts.length }
             ].map(tab => {
@@ -100,6 +135,73 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[60vh]">
+          {/* Payments Tab */}
+          {activeTab === 'payments' && (
+            <div>
+              {overduePayments.length > 0 && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-red-800">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      {overduePayments.length} overdue payment{overduePayments.length > 1 ? 's' : ''} need immediate attention
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                {pendingPayments.map((payment) => {
+                  const StatusIcon = getStatusIcon(payment);
+                  const daysUntilDue = getDaysUntilDue(payment.dueDate);
+                  
+                  return (
+                    <div key={payment.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <StatusIcon className={`h-5 w-5 ${getStatusColor(payment.status)}`} />
+                          <div>
+                            <h4 className="font-medium text-gray-900">{payment.description}</h4>
+                            <div className="flex items-center space-x-3 text-sm text-gray-600 mt-1">
+                              <span className="capitalize">{payment.category}</span>
+                              <span>Due: {new Date(payment.dueDate).toLocaleDateString()}</span>
+                              {payment.status === 'overdue' && payment.daysOverdue && (
+                                <span className="text-red-600 font-medium">
+                                  {payment.daysOverdue} days overdue
+                                </span>
+                              )}
+                              {payment.status === 'scheduled' && (
+                                <span className="text-gray-500">
+                                  {daysUntilDue > 0 ? `in ${daysUntilDue} days` : 'due today'}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right flex items-center space-x-3">
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              NOK {Math.abs(payment.amount).toLocaleString()}
+                            </p>
+                            <span className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(payment.priority)}`}>
+                              {payment.priority}
+                            </span>
+                          </div>
+                          <button className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
+                            payment.status === 'overdue' 
+                              ? 'bg-red-600 text-white hover:bg-red-700' 
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}>
+                            {payment.status === 'overdue' ? 'Pay Now' : 'Schedule'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Categories Tab */}
           {activeTab === 'categories' && (
             <div className="space-y-4">
@@ -204,6 +306,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         {/* Modal Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
           <div className="text-sm text-gray-600">
+            {activeTab === 'payments' && `${pendingPayments.length} payments`}
             {activeTab === 'categories' && `${spendingCategories.filter(c => c.isOverBudget).length} over budget`}
             {activeTab === 'accounts' && `${accounts.length} accounts`}
           </div>
