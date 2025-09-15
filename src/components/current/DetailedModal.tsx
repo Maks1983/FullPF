@@ -100,14 +100,8 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[60vh]">
-          {/* Payments Tab */}
-          {activeTab === 'payments' && (
-            <div>
-              {overduePayments.length > 0 && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-center space-x-2 text-red-800">
-                    <AlertTriangle className="h-4 w-4" />
           {/* Categories Tab */}
+          {activeTab === 'categories' && (
             <div className="space-y-4">
               {spendingCategories.filter(c => c.isOverBudget).length > 0 && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
