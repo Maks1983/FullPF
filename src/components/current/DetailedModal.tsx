@@ -5,7 +5,6 @@ import type { CurrentAccount, UpcomingPayment, SpendingCategory } from '../../ty
 interface DetailedModalProps {
   isOpen: boolean;
   onClose: () => void;
-  accounts: CurrentAccount[];
   upcomingPayments: UpcomingPayment[];
   spendingCategories: SpendingCategory[];
   monthlyIncome: number;
@@ -15,13 +14,12 @@ interface DetailedModalProps {
 const DetailedModal: React.FC<DetailedModalProps> = ({
   isOpen,
   onClose,
-  accounts,
   upcomingPayments,
   spendingCategories,
   monthlyIncome,
   monthlyExpenses
 }) => {
-  const [activeTab, setActiveTab] = React.useState<'categories' | 'accounts'>('categories');
+  const [activeTab, setActiveTab] = React.useState<'categories'>('categories');
 
   if (!isOpen) return null;
 
@@ -74,8 +72,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         <div className="border-b border-gray-200">
           <div className="flex space-x-8 px-6">
             {[
-              { key: 'categories', label: 'Categories', icon: CreditCard, count: spendingCategories.length },
-              { key: 'accounts', label: 'Accounts', icon: Wallet, count: accounts.length }
+              { key: 'categories', label: 'Categories', icon: CreditCard, count: spendingCategories.length }
             ].map(tab => {
               const Icon = tab.icon;
               return (
@@ -101,7 +98,67 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
 
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           {/* Categories Tab */}
-          {activeTab === 'categories' && (
+          <div className="space-y-4">
+            {spendingCategories.filter(c => c.isOverBudget).length > 0 && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center space-x-2 text-yellow-800">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="text-sm font-medium">
+                    {spendingCategories.filter(c => c.isOverBudget).length} categor{spendingCategories.filter(c => c.isOverBudget).length > 1 ? 'ies are' : 'y is'} over budget
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            {spendingCategories.map((category, index) => (
+              <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: category.color }}
+                    />
+                    <span className="font-medium text-gray-900">{category.name}</span>
+                    {category.isOverBudget && (
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <span className={`font-semibold ${category.isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
+                      NOK {category.spent.toLocaleString()}
+                    </span>
+                    <span className="text-sm text-gray-600 ml-1">
+                      / {category.budget.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-200 rounded-full h-2 mb-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all ${
+                      category.isOverBudget ? 'bg-red-500' :
+                      category.percentUsed > 80 ? 'bg-yellow-500' :
+                      'bg-green-500'
+                    }`}
+                    style={{ width: `${Math.min(category.percentUsed, 100)}%` }}
+                  />
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className={`${category.isOverBudget ? 'text-red-600' : 'text-gray-600'}`}>
+                    {category.isOverBudget ? 
+                      `Over by NOK ${Math.abs(category.remaining).toLocaleString()}` :
+                      `NOK ${category.remaining.toLocaleString()} remaining`
+                    }
+                  </span>
+                  <span className="text-gray-500">
+                    {category.percentUsed.toFixed(1)}% used
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
             <div className="space-y-4">
               {spendingCategories.filter(c => c.isOverBudget).length > 0 && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -204,8 +261,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         {/* Modal Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
           <div className="text-sm text-gray-600">
-            {activeTab === 'categories' && `${spendingCategories.filter(c => c.isOverBudget).length} over budget`}
-            {activeTab === 'accounts' && `${accounts.length} accounts`}
+            {spendingCategories.filter(c => c.isOverBudget).length} over budget
           </div>
           <div className="flex space-x-3">
             <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">

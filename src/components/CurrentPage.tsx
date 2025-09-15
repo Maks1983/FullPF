@@ -8,12 +8,14 @@ import SpendingCategoriesCard from './current/SpendingCategoriesCard';
 import RecentTransactionsCard from './current/RecentTransactionsCard';
 import MoneyFlowInsights from './current/MoneyFlowInsights';
 import SmartSuggestions from './current/SmartSuggestions';
+import AccountBalanceModal from './current/AccountBalanceModal';
 import { AlertTriangle, TrendingUp, TrendingDown, Clock, Eye, Brain, Heart, Calendar } from 'lucide-react';
 import { ChevronRight } from 'lucide-react';
 
 const CurrentPage = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = React.useState(false);
+  const [isAccountBalanceModalOpen, setIsAccountBalanceModalOpen] = React.useState(false);
   
   const {
     accounts,
@@ -149,7 +151,9 @@ const CurrentPage = () => {
           </div>
           
           {/* Account Balances Card */}
-          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}>
+          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
+            onClick={() => setIsAccountBalanceModalOpen(true)}
+          >
             <div className="flex items-center justify-between">
               {/* Left side - Main info */}
               <div className="flex-1">
@@ -354,7 +358,6 @@ const CurrentPage = () => {
       <DetailedModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        accounts={accounts}
         upcomingPayments={upcomingPayments}
         spendingCategories={spendingCategories}
         monthlyIncome={totalMonthlyIncome}
@@ -367,6 +370,13 @@ const CurrentPage = () => {
         onClose={() => setIsPaymentsModalOpen(false)}
         payments={upcomingPayments}
         overdueCount={overdueCount}
+      />
+
+      {/* Account Balance Modal */}
+      <AccountBalanceModal
+        isOpen={isAccountBalanceModalOpen}
+        onClose={() => setIsAccountBalanceModalOpen(false)}
+        accounts={accounts}
       />
     </div>
   );
