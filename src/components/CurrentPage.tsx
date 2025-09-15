@@ -189,5 +189,3 @@ const CurrentPage = () => {
 };
 
 export default CurrentPage;
-</parameter>
-</invoke>
