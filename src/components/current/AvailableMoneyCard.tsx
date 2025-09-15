@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wallet, AlertTriangle, TrendingDown, Clock, TrendingUp, ChevronRight } from 'lucide-react';
+import { Calendar, AlertTriangle, TrendingDown } from 'lucide-react';
 import type { CurrentAccount, PaycheckInfo } from '../../types/current';
 
 interface AvailableMoneyCardProps {
@@ -17,52 +17,33 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
 }) => {
   const isDeficit = netLeftover < 0;
   
-  // Calculate progress for circular indicator (days until paycheck)
-  const totalDaysInMonth = 30; // Approximate
-  const progress = ((totalDaysInMonth - paycheckInfo.daysUntilPaycheck) / totalDaysInMonth) * 100;
-  
-  // Calculate remaining payments total
-  const remainingPayments = Math.abs(netLeftover - totalAvailable);
+  // Calculate progress for circular indicator
+  const progress = Math.max(0, Math.min(100, ((30 - paycheckInfo.daysUntilPaycheck) / 30) * 100));
 
   return (
-    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group ${
-      isDeficit ? 'ring-2 ring-red-400' : ''
+    <div className={`bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all ${
+      isDeficit ? 'border-red-200 bg-red-50' : ''
     }`}>
-      <div className="flex items-start justify-between">
-        {/* Left side - Main content */}
-        <div className="flex-1">
-          <div className="text-sm text-slate-300 mb-1">
-            Left over until next payday
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <div className={`p-2 rounded-lg ${isDeficit ? 'bg-red-100' : 'bg-blue-100'}`}>
+            <Calendar className={`h-5 w-5 ${isDeficit ? 'text-red-600' : 'text-blue-600'}`} />
           </div>
-          
-          <div className="text-sm text-slate-400 mb-2">
-            NOK {totalAvailable.toLocaleString()}
-          </div>
-          
-          <div className={`text-4xl font-bold mb-3 ${
-            netLeftover >= 0 ? 'text-white' : 'text-red-400'
-          }`}>
-            {Math.abs(netLeftover).toLocaleString('no-NO', { 
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2 
-            })}
-          </div>
-          
-          <div className="text-sm text-slate-400">
-            {isDeficit ? 
-              `${Math.ceil(remainingPayments / 1000)}k remaining payments (NOK ${remainingPayments.toLocaleString()})` :
-              `After all scheduled payments`
-            }
+          <div className="ml-3">
+            <h3 className="text-base font-medium text-gray-500">Available Money</h3>
+            <p className="text-sm text-gray-600">Until next payday</p>
           </div>
         </div>
+      </div>
 
-        {/* Right side - Circular progress */}
+      <div className="flex items-center justify-center mb-6">
+        {/* Circular progress indicator */}
         <div className="relative">
-          <div className="w-20 h-20">
+          <div className="w-32 h-32">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
               {/* Background circle */}
               <path
-                className="text-slate-600"
+                className="text-gray-200"
                 stroke="currentColor"
                 strokeWidth="3"
                 fill="transparent"
@@ -72,7 +53,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
               />
               {/* Progress circle */}
               <path
-                className="text-blue-400"
+                className={isDeficit ? 'text-red-500' : 'text-blue-500'}
                 stroke="currentColor"
                 strokeWidth="3"
                 strokeDasharray={`${progress}, 100`}
@@ -86,24 +67,39 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
             
             {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-2xl font-bold text-white">
+              <div className={`text-3xl font-bold ${isDeficit ? 'text-red-600' : 'text-gray-900'}`}>
                 {paycheckInfo.daysUntilPaycheck}
               </div>
-              <div className="text-xs text-slate-300">
+              <div className="text-sm text-gray-500">
                 {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
-              </div>
-              <div className="text-xs text-slate-400">
-                to pay
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hover indicator */}
-      <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-xs text-slate-400 mr-2">View details</span>
-        <ChevronRight className="h-4 w-4 text-slate-400" />
+      <div className="space-y-2">
+        <div className="text-center">
+          <p className={`text-3xl font-bold ${isDeficit ? 'text-red-600' : 'text-gray-900'}`}>
+            NOK {Math.abs(netLeftover).toLocaleString()}
+          </p>
+          <p className="text-sm text-gray-600">
+            {isDeficit ? 'Short until payday' : 'Left until payday'}
+          </p>
+        </div>
+        
+        <div className="text-center pt-2 border-t">
+          <p className="text-sm text-gray-600">
+            Total available: <span className="font-medium">NOK {totalAvailable.toLocaleString()}</span>
+          </p>
+        </div>
+        
+        {isDeficit && (
+          <div className="flex items-center justify-center text-red-600 text-sm">
+            <AlertTriangle className="h-4 w-4 mr-1" />
+            <span>May run short before payday</span>
+          </div>
+        )}
       </div>
     </div>
   );
