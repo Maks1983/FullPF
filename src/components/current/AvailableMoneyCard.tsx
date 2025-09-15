@@ -18,7 +18,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const isDeficit = netLeftover < 0;
   
   // Calculate progress for circular indicator (days until paycheck)
-  const totalDaysInPayPeriod = 30; // Approximate monthly pay period
+  const totalDaysInPayPeriod = 30;
   const progress = ((totalDaysInPayPeriod - paycheckInfo.daysUntilPaycheck) / totalDaysInPayPeriod) * 100;
   
   const statusMessage = isDeficit 
@@ -48,7 +48,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
       {/* Centered Circular Progress */}
       <div className="flex justify-center mb-6">
         <div className="relative">
-          <div className="w-32 h-32">
+          <div className="w-24 h-24">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
               {/* Background circle */}
               <path
@@ -76,10 +76,10 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
             
             {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900">
                 {paycheckInfo.daysUntilPaycheck}
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-xs text-gray-600">
                 {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
               </div>
               <div className="text-xs text-gray-500">
