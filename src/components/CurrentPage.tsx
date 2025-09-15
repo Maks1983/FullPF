@@ -61,74 +61,156 @@ const CurrentPage = () => {
             upcomingPayments={upcomingPayments}
           />
           
-          {/* Financial Health Summary */}
-          <div className="bg-white p-6 rounded-xl border border-blue-200">
+          {/* Upcoming Payments Card */}
+          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+            overdueCount > 0 ? 'ring-2 ring-red-400' : ''
+          }`}>
             <div className="text-center">
-              <div className="flex items-center justify-center mb-3">
-                <Heart className="h-6 w-6 text-pink-500 mr-2" />
-                <span className="text-sm font-medium text-gray-600">Money Pulse</span>
+              <div className="text-sm text-slate-300 mb-1">
+                Payments until next payday
               </div>
               
-              <div className="text-3xl font-bold text-pink-600 mb-2">
-                {Math.round(((totalAvailable / 50000) + (savingsRate / 30) + (overdueCount === 0 ? 1 : 0)) / 3 * 100)}%
+              <div className="text-sm text-slate-400 mb-2">
+                {upcomingPayments.filter(p => p.status !== 'paid').length} payments
               </div>
-              <div className="text-sm text-gray-500 mb-3">Financial Wellness</div>
               
-              <div className="space-y-3 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Money Momentum</span>
-                  <span className={`font-medium ${savingsRate >= 20 ? 'text-green-600' : savingsRate >= 10 ? 'text-yellow-600' : 'text-red-600'}`}>
-                    {savingsRate >= 20 ? 'Strong' : savingsRate >= 10 ? 'Steady' : 'Weak'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Stress Level</span>
-                  <span className={`font-medium ${overdueCount === 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {overdueCount === 0 ? 'Low' : 'High'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Runway</span>
-                  <span className={`font-medium ${netLeftoverUntilPaycheck >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {netLeftoverUntilPaycheck >= 0 ? `${paycheckInfo.daysUntilPaycheck} days` : 'At risk'}
-                  </span>
+              {/* Circular progress indicator */}
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="w-32 h-32">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.9155"
+                        stroke="#475569"
+                        strokeWidth="2.5"
+                        fill="transparent"
+                      />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.9155"
+                        stroke={overdueCount > 0 ? "#ef4444" : "#3b82f6"}
+                        strokeWidth="2.5"
+                        strokeDasharray={`${Math.min((upcomingPayments.filter(p => p.status !== 'paid').length / 10) * 100, 100)}, 100`}
+                        strokeLinecap="round"
+                        fill="transparent"
+                      />
+                    </svg>
+                    
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="text-3xl font-bold text-white">
+                        {overdueCount > 0 ? overdueCount : upcomingPayments.filter(p => p.status !== 'paid').length}
+                      </div>
+                      <div className="text-sm text-slate-300">
+                        {overdueCount > 0 ? 'overdue' : 'pending'}
+                      </div>
+                      <div className="text-sm text-slate-400">
+                        payments
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+              
+              <div className={`text-4xl font-bold mb-3 ${
+                overdueCount > 0 ? 'text-red-400' : 'text-white'
+              }`}>
+                NOK {upcomingPayments
+                  .filter(p => p.status !== 'paid')
+                  .reduce((sum, p) => sum + Math.abs(p.amount), 0)
+                  .toLocaleString('no-NO', { 
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2 
+                  })}
+              </div>
+              
+              <div className="text-sm text-slate-400">
+                Next due: {upcomingPayments
+                  .filter(p => p.status !== 'paid')
+                  .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
+                  ?.dueDate ? new Date(upcomingPayments
+                    .filter(p => p.status !== 'paid')
+                    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
+                    .dueDate).toLocaleDateString() : 'None'}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs text-slate-400 mr-2">View details</span>
+              <ChevronRight className="h-4 w-4 text-slate-400" />
             </div>
           </div>
           
-          {/* Monthly Overview */}
-          <div className="bg-white p-6 rounded-xl border border-blue-200">
+          {/* Account Balances Card */}
+          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}>
             <div className="text-center">
-              <div className="flex items-center justify-center mb-3">
-                <TrendingUp className="h-6 w-6 text-indigo-600 mr-2" />
-                <span className="text-sm font-medium text-gray-600">Cash Flow Velocity</span>
+              <div className="text-sm text-slate-300 mb-1">
+                Total account balances
               </div>
               
-              <div className="space-y-4">
-                <div>
-                  <div className="text-3xl font-bold text-indigo-600">
-                    {paycheckInfo.daysUntilPaycheck}
+              <div className="text-sm text-slate-400 mb-2">
+                {accounts.length} accounts
+              </div>
+              
+              {/* Circular progress indicator */}
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="w-32 h-32">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.9155"
+                        stroke="#475569"
+                        strokeWidth="2.5"
+                        fill="transparent"
+                      />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15.9155"
+                        stroke="#10b981"
+                        strokeWidth="2.5"
+                        strokeDasharray={`${Math.min((accounts.filter(acc => acc.status === 'active').length / accounts.length) * 100, 100)}, 100`}
+                        strokeLinecap="round"
+                        fill="transparent"
+                      />
+                    </svg>
+                    
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <div className="text-3xl font-bold text-white">
+                        {accounts.filter(acc => acc.status === 'active').length}
+                      </div>
+                      <div className="text-sm text-slate-300">
+                        active
+                      </div>
+                      <div className="text-sm text-slate-400">
+                        accounts
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-500">Days to Income</div>
-                </div>
-                
-                <div>
-                  <div className="text-lg font-bold text-green-600">
-                    NOK {(paycheckInfo.expectedAmount / paycheckInfo.daysUntilPaycheck).toFixed(0)}
-                  </div>
-                  <div className="text-xs text-gray-500">Daily Income Rate</div>
-                </div>
-                
-                <div className="border-t pt-2">
-                  <div className={`text-lg font-bold ${
-                    dailyAverageSpending <= (paycheckInfo.expectedAmount / paycheckInfo.daysUntilPaycheck) ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    NOK {dailyAverageSpending.toFixed(0)}
-                  </div>
-                  <div className="text-xs text-gray-500">Daily Burn Rate</div>
                 </div>
               </div>
+              
+              <div className="text-4xl font-bold mb-3 text-white">
+                NOK {accounts
+                  .reduce((sum, acc) => sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0)
+                  .toLocaleString('no-NO', { 
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2 
+                  })}
+              </div>
+              
+              <div className="text-sm text-slate-400">
+                {accounts.filter(acc => acc.type !== 'credit').length} deposit • {accounts.filter(acc => acc.type === 'credit').length} credit
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs text-slate-400 mr-2">View details</span>
+              <ChevronRight className="h-4 w-4 text-slate-400" />
             </div>
           </div>
         </div>
