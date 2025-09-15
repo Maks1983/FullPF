@@ -29,7 +29,7 @@ const CashflowProjectionChart: React.FC<CashflowProjectionChartProps> = ({
   };
 
   const pathData = freeProjections.map((proj, index) => {
-    const x = (index / (projections.length - 1)) * chartWidth;
+    const x = (index / (freeProjections.length - 1)) * chartWidth;
     const y = getY(proj.projectedBalance);
     return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
   }).join(' ');
@@ -70,7 +70,7 @@ const CashflowProjectionChart: React.FC<CashflowProjectionChartProps> = ({
             className="overflow-visible"
           >
             {/* Zero line */}
-            {minBalance < 0 && maxValue > 0 && (
+            {minBalance < 0 && maxBalance > 0 && (
               <line
                 x1="0"
                 y1={getY(0)}
@@ -100,7 +100,7 @@ const CashflowProjectionChart: React.FC<CashflowProjectionChartProps> = ({
             
             {/* Data points */}
             {freeProjections.map((proj, index) => {
-              const x = (index / (projections.length - 1)) * chartWidth;
+              const x = (index / (freeProjections.length - 1)) * chartWidth;
               const y = getY(proj.projectedBalance);
               const isDeficit = proj.projectedBalance < 0;
               
