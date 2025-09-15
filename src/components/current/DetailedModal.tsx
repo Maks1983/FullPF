@@ -5,23 +5,21 @@ import type { CurrentAccount, UpcomingPayment, SpendingCategory } from '../../ty
 interface DetailedModalProps {
   isOpen: boolean;
   onClose: () => void;
-  accounts: CurrentAccount[];
-  upcomingPayments: UpcomingPayment[];
   spendingCategories: SpendingCategory[];
   monthlyIncome: number;
   monthlyExpenses: number;
+  incomeCategories: Array<{ name: string; amount: number }>;
 }
 
 const DetailedModal: React.FC<DetailedModalProps> = ({
   isOpen,
   onClose,
-  accounts,
-  upcomingPayments,
   spendingCategories,
   monthlyIncome,
   monthlyExpenses
+  incomeCategories
 }) => {
-  const [activeTab, setActiveTab] = React.useState<'categories' | 'accounts'>('categories');
+  const [activeTab, setActiveTab] = React.useState<'income' | 'expenses'>('income');
 
   if (!isOpen) return null;
 
@@ -74,8 +72,8 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         <div className="border-b border-gray-200">
           <div className="flex space-x-8 px-6">
             {[
-              { key: 'categories', label: 'Categories', icon: CreditCard, count: spendingCategories.length },
-              { key: 'accounts', label: 'Accounts', icon: Wallet, count: accounts.length }
+              { key: 'income', label: 'Income Sources', icon: TrendingUp, count: incomeCategories.length },
+              { key: 'expenses', label: 'Expense Categories', icon: CreditCard, count: spendingCategories.length }
             ].map(tab => {
               const Icon = tab.icon;
               return (
@@ -100,8 +98,34 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         </div>
 
         <div className="p-6 overflow-y-auto max-h-[60vh]">
-          {/* Categories Tab */}
-          {activeTab === 'categories' && (
+          {/* Income Tab */}
+          {activeTab === 'income' && (
+            <div className="space-y-4">
+              {incomeCategories.map((category, index) => (
+                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp className="h-4 w-4 text-green-600" />
+                      <span className="font-medium text-gray-900">{category.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-semibold text-green-600">
+                        +NOK {category.amount.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <span>
+                      {((category.amount / monthlyIncome) * 100).toFixed(1)}% of total income
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Expenses Tab */}
+          {activeTab === 'expenses' && (
             <div className="space-y-4">
               {spendingCategories.filter(c => c.isOverBudget).length > 0 && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -116,16 +140,18 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
               
               {spendingCategories.map((category, index) => (
                 <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div 
-                        className="w-4 h-4 rounded-full" 
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <span className="font-medium text-gray-900">{category.name}</span>
-                      {category.isOverBudget && (
-                        <AlertTriangle className="h-4 w-4 text-red-500" />
-                      )}
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <div 
+                          className="w-4 h-4 rounded-full" 
+                          style={{ backgroundColor: category.color }}
+                        />
+                        <span className="font-medium text-gray-900">{category.name}</span>
+                        {category.isOverBudget && (
+                          <AlertTriangle className="h-4 w-4 text-red-500" />
+                        )}
+                      </div>
                     </div>
                     <div className="text-right">
                       <span className={`font-semibold ${category.isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
@@ -163,49 +189,13 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
               ))}
             </div>
           )}
-
-          {/* Accounts Tab */}
-          {activeTab === 'accounts' && (
-            <div className="space-y-4">
-              {accounts.map((account) => (
-                <div key={account.id} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h4 className="font-medium text-gray-900">{account.name}</h4>
-                      <p className="text-sm text-gray-600 capitalize">{account.type} account</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">
-                        NOK {account.balance.toLocaleString()}
-                      </p>
-                      {account.type === 'credit' && (
-                        <p className="text-sm text-gray-600">
-                          Available: NOK {account.availableBalance.toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      account.status === 'active' ? 'bg-green-100 text-green-800' :
-                      account.status === 'low' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {account.status}
-                    </span>
-                    <span>Updated: {new Date(account.lastUpdated).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Modal Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
           <div className="text-sm text-gray-600">
-            {activeTab === 'categories' && `${spendingCategories.filter(c => c.isOverBudget).length} over budget`}
-            {activeTab === 'accounts' && `${accounts.length} accounts`}
+            {activeTab === 'income' && `${incomeCategories.length} income sources`}
+            {activeTab === 'expenses' && `${spendingCategories.filter(c => c.isOverBudget).length} over budget`}
           </div>
           <div className="flex space-x-3">
             <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
