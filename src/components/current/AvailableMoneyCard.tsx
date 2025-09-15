@@ -44,17 +44,13 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
       {/* Main content */}
       <div className="text-center">
         <div className="text-sm text-slate-300 mb-1">
-          Left over until next payday
-        </div>
-        
-        <div className="text-sm text-slate-400 mb-2">
-          NOK {totalAvailable.toLocaleString()}
+          Until payday
         </div>
         
         {/* Circular progress indicator - centered */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-3">
           <div className="relative">
-            <div className="w-32 h-32">
+            <div className="w-20 h-20">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                 {/* Background circle */}
                 <path
@@ -82,21 +78,18 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
               
               {/* Center content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-3xl font-bold text-white">
+                <div className="text-xl font-bold text-white">
                   {paycheckInfo.daysUntilPaycheck}
                 </div>
-                <div className="text-sm text-slate-300">
+                <div className="text-xs text-slate-300">
                   {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
-                </div>
-                <div className="text-sm text-slate-400">
-                  to pay
                 </div>
               </div>
             </div>
           </div>
         </div>
         
-        <div className={`text-4xl font-bold mb-3 ${
+        <div className={`text-2xl font-bold mb-2 ${
           isDeficit ? 'text-red-400' : 'text-white'
         }`}>
           {currentSaldo < 0 ? '-' : ''}NOK {Math.abs(currentSaldo).toLocaleString('no-NO', { 
@@ -105,13 +98,13 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           })}
         </div>
         
-        <div className="text-sm text-slate-400">
+        <div className="text-xs text-slate-400">
           NOK {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} remaining payments
         </div>
       </div>
 
       {/* Hover indicator */}
-      <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center justify-end mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
         <span className="text-xs text-slate-400 mr-2">View details</span>
         <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
