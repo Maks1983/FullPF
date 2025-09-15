@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ArrowUpRight, ArrowDownRight, Calendar, AlertTriangle, CheckCircle, Clock, CreditCard, Wallet } from 'lucide-react';
+import { X, ArrowUpRight, ArrowDownRight, Calendar, AlertTriangle, CheckCircle, Clock, CreditCard, Wallet, TrendingUp } from 'lucide-react';
 import type { CurrentAccount, UpcomingPayment, SpendingCategory } from '../../types/current';
 
 interface DetailedModalProps {
