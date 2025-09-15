@@ -66,26 +66,6 @@ const CurrentPage = () => {
             <p className="text-2xl font-bold text-red-600">NOK {todaySpending.toLocaleString()}</p>
             <p className="text-xs text-gray-500">Spent so far today</p>
           </div>
-          
-          <div className="bg-white p-4 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">After Expected Expenses</span>
-              <TrendingDown className="h-4 w-4 text-blue-600" />
-            </div>
-            <p className={`text-2xl font-bold ${netLeftoverUntilPaycheck >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              NOK {netLeftoverUntilPaycheck.toLocaleString()}
-            </p>
-            <p className="text-xs text-gray-500">Projected balance after bills</p>
-          </div>
-          
-          <div className="bg-white p-4 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">Next Income</span>
-              <Clock className="h-4 w-4 text-purple-600" />
-            </div>
-            <p className="text-2xl font-bold text-purple-600">{paycheckInfo.daysUntilPaycheck} days</p>
-            <p className="text-xs text-gray-500">Next income in {paycheckInfo.daysUntilPaycheck} days</p>
-          </div>
         </div>
       </div>
 
