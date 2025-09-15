@@ -5,7 +5,10 @@ import UpcomingPaymentsCard from './current/UpcomingPaymentsCard';
 import CashflowProjectionChart from './current/CashflowProjectionChart';
 import SpendingCategoriesCard from './current/SpendingCategoriesCard';
 import RecentTransactionsCard from './current/RecentTransactionsCard';
-import { AlertTriangle, TrendingUp, TrendingDown, Clock } from 'lucide-react';
+import MoneyFlowInsights from './current/MoneyFlowInsights';
+import FinancialHealthCheck from './current/FinancialHealthCheck';
+import SmartSuggestions from './current/SmartSuggestions';
+import { AlertTriangle, TrendingUp, TrendingDown, Clock, Eye, Brain, Heart } from 'lucide-react';
 
 const CurrentPage = () => {
   const {
@@ -25,34 +28,94 @@ const CurrentPage = () => {
     highPriorityPayments
   } = useCurrentPageData();
 
+  // Calculate insights for awareness
+  const totalMonthlyIncome = 52000; // This would come from data
+  const totalMonthlyExpenses = spendingCategories.reduce((sum, cat) => sum + cat.spent, 0);
+  const savingsRate = ((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100;
+  const biggestExpenseCategory = spendingCategories.reduce((max, cat) => 
+    cat.spent > max.spent ? cat : max, spendingCategories[0]);
+
   return (
     <div className="space-y-8 pb-8">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Current Accounts</h1>
-        <p className="text-gray-600 mt-1">
-          Operational day-to-day finances and immediately available money
-        </p>
+      {/* Page Header with Financial Awareness Focus */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+        <div className="flex items-center space-x-3 mb-4">
+          <Eye className="h-8 w-8 text-blue-600" />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Your Money Right Now</h1>
+            <p className="text-gray-600 mt-1">
+              Complete awareness of your day-to-day finances and what's happening with your money
+            </p>
+          </div>
+        </div>
+        
+        {/* Quick Money Awareness Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600">Money Available</span>
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            </div>
+            <p className="text-2xl font-bold text-green-600">NOK {totalAvailable.toLocaleString()}</p>
+            <p className="text-xs text-gray-500">Ready to use right now</p>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600">Today's Spending</span>
+              <TrendingDown className="h-4 w-4 text-red-600" />
+            </div>
+            <p className="text-2xl font-bold text-red-600">NOK {todaySpending.toLocaleString()}</p>
+            <p className="text-xs text-gray-500">Spent so far today</p>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600">Until Paycheck</span>
+              <Clock className="h-4 w-4 text-blue-600" />
+            </div>
+            <p className="text-2xl font-bold text-blue-600">{paycheckInfo.daysUntilPaycheck} days</p>
+            <p className="text-xs text-gray-500">Next income in {paycheckInfo.daysUntilPaycheck} days</p>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600">Savings Rate</span>
+              <Heart className="h-4 w-4 text-purple-600" />
+            </div>
+            <p className="text-2xl font-bold text-purple-600">{savingsRate.toFixed(1)}%</p>
+            <p className="text-xs text-gray-500">Of income saved this month</p>
+          </div>
+        </div>
       </div>
 
-      {/* Critical Alerts Banner */}
+      {/* Critical Alerts Banner - Enhanced */}
       {criticalAlerts > 0 && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg">
-          <div className="flex items-center">
-            <AlertTriangle className="h-6 w-6 text-red-400 mr-3" />
-            <div>
-              <h3 className="text-lg font-medium text-red-800">
-                {criticalAlerts} Critical Alert{criticalAlerts > 1 ? 's' : ''} Require Attention
+        <div className="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg shadow-sm">
+          <div className="flex items-start">
+            <AlertTriangle className="h-6 w-6 text-red-400 mr-3 mt-1" />
+            <div className="flex-1">
+              <h3 className="text-lg font-medium text-red-800 mb-2">
+                🚨 {criticalAlerts} Critical Alert{criticalAlerts > 1 ? 's' : ''} Need Your Attention
               </h3>
-              <div className="mt-2 text-sm text-red-700 space-y-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-red-700">
                 {overdueCount > 0 && (
-                  <p>• {overdueCount} overdue payment{overdueCount > 1 ? 's' : ''}</p>
+                  <div className="bg-red-100 p-3 rounded">
+                    <p className="font-medium">💳 Overdue Payments</p>
+                    <p>{overdueCount} payment{overdueCount > 1 ? 's' : ''} past due</p>
+                  </div>
                 )}
                 {isDeficitProjected && (
-                  <p>• Projected deficit in {daysUntilDeficit} days</p>
+                  <div className="bg-red-100 p-3 rounded">
+                    <p className="font-medium">📉 Money Running Low</p>
+                    <p>Deficit projected in {daysUntilDeficit} days</p>
+                  </div>
                 )}
                 {highPriorityPayments > 0 && (
-                  <p>• {highPriorityPayments} high-priority payment{highPriorityPayments > 1 ? 's' : ''} due soon</p>
+                  <div className="bg-red-100 p-3 rounded">
+                    <p className="font-medium">⚡ Urgent Bills</p>
+                    <p>{highPriorityPayments} high-priority payment{highPriorityPayments > 1 ? 's' : ''} due soon</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -60,128 +123,117 @@ const CurrentPage = () => {
         </div>
       )}
 
-      {/* Key Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Available Now</h3>
-            <TrendingUp className="h-5 w-5 text-green-600" />
-          </div>
-          <p className="text-2xl font-bold text-green-600">
-            NOK {totalAvailable.toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">Immediately accessible</p>
-        </div>
+      {/* Financial Health Check - New Component */}
+      <FinancialHealthCheck 
+        totalAvailable={totalAvailable}
+        netLeftover={netLeftoverUntilPaycheck}
+        savingsRate={savingsRate}
+        overdueCount={overdueCount}
+        biggestExpense={biggestExpenseCategory}
+        daysUntilPaycheck={paycheckInfo.daysUntilPaycheck}
+      />
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Today's Spending</h3>
-            <TrendingDown className="h-5 w-5 text-red-600" />
-          </div>
-          <p className="text-2xl font-bold text-red-600">
-            NOK {todaySpending.toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">Spent today</p>
-        </div>
+      {/* Money Flow Insights - New Component */}
+      <MoneyFlowInsights 
+        monthlyIncome={totalMonthlyIncome}
+        monthlyExpenses={totalMonthlyExpenses}
+        spendingCategories={spendingCategories}
+        todaySpending={todaySpending}
+        recentTransactions={recentTransactions}
+      />
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Until Paycheck</h3>
-            <Clock className="h-5 w-5 text-blue-600" />
-          </div>
-          <p className="text-2xl font-bold text-blue-600">
-            {paycheckInfo.daysUntilPaycheck} days
-          </p>
-          <p className="text-sm text-gray-600 mt-1">
-            {new Date(paycheckInfo.nextPaycheckDate).toLocaleDateString()}
-          </p>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Net Leftover</h3>
-            {netLeftoverUntilPaycheck >= 0 ? (
-              <TrendingUp className="h-5 w-5 text-green-600" />
-            ) : (
-              <TrendingDown className="h-5 w-5 text-red-600" />
-            )}
-          </div>
-          <p className={`text-2xl font-bold ${
-            netLeftoverUntilPaycheck >= 0 ? 'text-green-600' : 'text-red-600'
-          }`}>
-            NOK {netLeftoverUntilPaycheck.toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-600 mt-1">After scheduled payments</p>
-        </div>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Available Money - Full Focus */}
-        <div className="lg:col-span-2">
+      {/* Main Content Grid - Enhanced Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Left Column - Money Status */}
+        <div className="xl:col-span-2 space-y-6">
+          {/* Available Money - Enhanced */}
           <AvailableMoneyCard
             accounts={accounts}
             totalAvailable={totalAvailable}
             netLeftover={netLeftoverUntilPaycheck}
             paycheckInfo={paycheckInfo}
           />
+
+          {/* Cashflow Projection - Full Width */}
+          <CashflowProjectionChart
+            projections={cashflowProjections}
+            daysUntilDeficit={daysUntilDeficit}
+          />
         </div>
 
-        {/* Upcoming Payments */}
-        <UpcomingPaymentsCard
-          payments={upcomingPayments}
-          overdueCount={overdueCount}
-        />
+        {/* Right Column - Payments & Spending */}
+        <div className="space-y-6">
+          {/* Upcoming Payments */}
+          <UpcomingPaymentsCard
+            payments={upcomingPayments}
+            overdueCount={overdueCount}
+          />
 
-        {/* Spending Categories */}
-        <SpendingCategoriesCard
-          categories={spendingCategories}
-          todaySpending={todaySpending}
-        />
+          {/* Spending Categories */}
+          <SpendingCategoriesCard
+            categories={spendingCategories}
+            todaySpending={todaySpending}
+          />
+        </div>
       </div>
 
-      {/* Cashflow Projection - Full Width */}
-      <CashflowProjectionChart
-        projections={cashflowProjections}
-        daysUntilDeficit={daysUntilDeficit}
+      {/* Smart Suggestions - New Component */}
+      <SmartSuggestions 
+        netLeftover={netLeftoverUntilPaycheck}
+        savingsRate={savingsRate}
+        spendingCategories={spendingCategories}
+        overdueCount={overdueCount}
+        daysUntilPaycheck={paycheckInfo.daysUntilPaycheck}
       />
 
-      {/* Recent Transactions */}
+      {/* Recent Transactions - Enhanced */}
       <RecentTransactionsCard transactions={recentTransactions} />
 
-      {/* Financial Health Summary */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Financial Health</h3>
+      {/* Financial Awareness Summary */}
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6">
+        <div className="flex items-center space-x-3 mb-4">
+          <Brain className="h-6 w-6 text-green-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Your Money Story This Month</h3>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className={`text-3xl font-bold mb-2 ${
-              criticalAlerts === 0 ? 'text-green-600' : 
-              criticalAlerts <= 2 ? 'text-yellow-600' : 'text-red-600'
-            }`}>
-              {criticalAlerts === 0 ? '✓' : criticalAlerts}
+            <div className="text-3xl font-bold text-green-600 mb-2">
+              NOK {totalMonthlyIncome.toLocaleString()}
             </div>
-            <p className="text-sm text-gray-600">
-              {criticalAlerts === 0 ? 'No Critical Issues' : 'Critical Alerts'}
-            </p>
+            <p className="text-sm text-gray-600">Money Coming In</p>
+            <p className="text-xs text-gray-500 mt-1">Your total income this month</p>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-3xl font-bold text-red-600 mb-2">
+              NOK {totalMonthlyExpenses.toLocaleString()}
+            </div>
+            <p className="text-sm text-gray-600">Money Going Out</p>
+            <p className="text-xs text-gray-500 mt-1">Your total expenses this month</p>
           </div>
           
           <div className="text-center">
             <div className={`text-3xl font-bold mb-2 ${
-              isDeficitProjected ? 'text-red-600' : 'text-green-600'
+              totalMonthlyIncome - totalMonthlyExpenses > 0 ? 'text-green-600' : 'text-red-600'
             }`}>
-              {isDeficitProjected ? daysUntilDeficit : '✓'}
+              NOK {(totalMonthlyIncome - totalMonthlyExpenses).toLocaleString()}
             </div>
-            <p className="text-sm text-gray-600">
-              {isDeficitProjected ? 'Days Until Deficit' : 'No Deficit Projected'}
+            <p className="text-sm text-gray-600">Net Result</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {totalMonthlyIncome - totalMonthlyExpenses > 0 ? 'Money saved' : 'Overspent'} this month
             </p>
           </div>
-          
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">
-              {paycheckInfo.daysUntilPaycheck}
-            </div>
-            <p className="text-sm text-gray-600">Days Until Paycheck</p>
-          </div>
+        </div>
+
+        <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+          <h4 className="font-semibold text-gray-900 mb-2">💡 Key Insights About Your Money</h4>
+          <ul className="text-sm text-gray-700 space-y-2">
+            <li>• Your biggest expense category is <strong>{biggestExpenseCategory?.name}</strong> at NOK {biggestExpenseCategory?.spent.toLocaleString()}</li>
+            <li>• You're saving <strong>{savingsRate.toFixed(1)}%</strong> of your income {savingsRate >= 20 ? '(Excellent!)' : savingsRate >= 10 ? '(Good)' : '(Could improve)'}</li>
+            <li>• You have <strong>{paycheckInfo.daysUntilPaycheck} days</strong> until your next paycheck</li>
+            <li>• Your money will {netLeftoverUntilPaycheck >= 0 ? 'last until payday' : 'run short before payday'}</li>
+          </ul>
         </div>
       </div>
     </div>
