@@ -51,14 +51,12 @@ const CurrentPage = () => {
         
         {/* Quick Money Awareness Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">Money Available</span>
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            </div>
-            <p className="text-2xl font-bold text-green-600">NOK {totalAvailable.toLocaleString()}</p>
-            <p className="text-xs text-gray-500">Ready to use right now</p>
-          </div>
+          <AvailableMoneyCard
+            accounts={accounts}
+            totalAvailable={totalAvailable}
+            netLeftover={netLeftoverUntilPaycheck}
+            paycheckInfo={paycheckInfo}
+          />
           
           <div className="bg-white p-4 rounded-lg border border-blue-200">
             <div className="flex items-center justify-between mb-2">
@@ -145,32 +143,12 @@ const CurrentPage = () => {
       />
 
       {/* Main Money Available Card - Top Position */}
-      <AvailableMoneyCard
-        accounts={accounts}
-        totalAvailable={totalAvailable}
-        netLeftover={netLeftoverUntilPaycheck}
-        paycheckInfo={paycheckInfo}
-      />
-
       {/* Main Content Grid - Enhanced Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column - Money Status */}
         <div className="xl:col-span-2 space-y-6">
           {/* Additional summary cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Today's Spending</h3>
-              <p className="text-2xl font-bold text-red-600">NOK {todaySpending.toLocaleString()}</p>
-              <p className="text-sm text-gray-600 mt-1">Spent so far today</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Critical Alerts</h3>
-              <p className="text-2xl font-bold text-red-600">{criticalAlerts}</p>
-              <p className="text-sm text-gray-600 mt-1">Items need attention</p>
-            </div>
-          </div>
-
           {/* Cashflow Projection - Full Width */}
           <CashflowProjectionChart
             projections={cashflowProjections}
