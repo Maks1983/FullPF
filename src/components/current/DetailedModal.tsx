@@ -16,7 +16,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   onClose,
   spendingCategories,
   monthlyIncome,
-  monthlyExpenses
+ monthlyExpenses,
   incomeCategories
 }) => {
   const [activeTab, setActiveTab] = React.useState<'income' | 'expenses'>('income');
