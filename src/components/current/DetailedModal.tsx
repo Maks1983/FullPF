@@ -98,67 +98,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
 
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           {/* Categories Tab */}
-          <div className="space-y-4">
-            {spendingCategories.filter(c => c.isOverBudget).length > 0 && (
-              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex items-center space-x-2 text-yellow-800">
-                  <AlertTriangle className="h-4 w-4" />
-                  <span className="text-sm font-medium">
-                    {spendingCategories.filter(c => c.isOverBudget).length} categor{spendingCategories.filter(c => c.isOverBudget).length > 1 ? 'ies are' : 'y is'} over budget
-                  </span>
-                </div>
-              </div>
-            )}
-            
-            {spendingCategories.map((category, index) => (
-              <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <div 
-                      className="w-4 h-4 rounded-full" 
-                      style={{ backgroundColor: category.color }}
-                    />
-                    <span className="font-medium text-gray-900">{category.name}</span>
-                    {category.isOverBudget && (
-                      <AlertTriangle className="h-4 w-4 text-red-500" />
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <span className={`font-semibold ${category.isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
-                      NOK {category.spent.toLocaleString()}
-                    </span>
-                    <span className="text-sm text-gray-600 ml-1">
-                      / {category.budget.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-200 rounded-full h-2 mb-2">
-                  <div 
-                    className={`h-2 rounded-full transition-all ${
-                      category.isOverBudget ? 'bg-red-500' :
-                      category.percentUsed > 80 ? 'bg-yellow-500' :
-                      'bg-green-500'
-                    }`}
-                    style={{ width: `${Math.min(category.percentUsed, 100)}%` }}
-                  />
-                </div>
-                
-                <div className="flex justify-between text-sm">
-                  <span className={`${category.isOverBudget ? 'text-red-600' : 'text-gray-600'}`}>
-                    {category.isOverBudget ? 
-                      `Over by NOK ${Math.abs(category.remaining).toLocaleString()}` :
-                      `NOK ${category.remaining.toLocaleString()} remaining`
-                    }
-                  </span>
-                  <span className="text-gray-500">
-                    {category.percentUsed.toFixed(1)}% used
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+          {activeTab === 'categories' && (
             <div className="space-y-4">
               {spendingCategories.filter(c => c.isOverBudget).length > 0 && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -215,42 +155,6 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                     <span className="text-gray-500">
                       {category.percentUsed.toFixed(1)}% used
                     </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Accounts Tab */}
-          {activeTab === 'accounts' && (
-            <div className="space-y-4">
-              {accounts.map((account) => (
-                <div key={account.id} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h4 className="font-medium text-gray-900">{account.name}</h4>
-                      <p className="text-sm text-gray-600 capitalize">{account.type} account</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">
-                        NOK {account.balance.toLocaleString()}
-                      </p>
-                      {account.type === 'credit' && (
-                        <p className="text-sm text-gray-600">
-                          Available: NOK {account.availableBalance.toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      account.status === 'active' ? 'bg-green-100 text-green-800' :
-                      account.status === 'low' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {account.status}
-                    </span>
-                    <span>Updated: {new Date(account.lastUpdated).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))}
