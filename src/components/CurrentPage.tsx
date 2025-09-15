@@ -1,57 +1,69 @@
 import React from 'react';
 import { useCurrentPageData } from '../hooks/useCurrentPageData';
-import PaydayCountdownCard from './current/PaydayCountdownCard';
-import UpcomingTransactionsTable from './current/UpcomingTransactionsTable';
-import OverduePaymentsTable from './current/OverduePaymentsTable';
-import CategoryChartsCard from './current/CategoryChartsCard';
-import MonthlyOverviewChart from './current/MonthlyOverviewChart';
-import LatestTransactionsTable from './current/LatestTransactionsTable';
+import AvailableMoneyCard from './current/AvailableMoneyCard';
+import MoneyRecommendationsCard from './current/MoneyRecommendationsCard';
+import CashflowProjectionChart from './current/CashflowProjectionChart';
+import UpcomingPaymentsCard from './current/UpcomingPaymentsCard';
+import RecentTransactionsCard from './current/RecentTransactionsCard';
+import SpendingCategoriesCard from './current/SpendingCategoriesCard';
 
 const CurrentPage = () => {
   const {
-    paydayInfo,
-    upcomingTransactions,
-    overduePayments,
-    categoryData,
-    monthlyData,
-    recentTransactions
+    accounts,
+    upcomingPayments,
+    recentTransactions,
+    paycheckInfo,
+    spendingCategories,
+    cashflowProjections,
+    recommendations,
+    totalAvailable,
+    netLeftover,
+    overdueCount,
+    daysUntilDeficit,
+    todaySpending
   } = useCurrentPageData();
 
   return (
     <div className="space-y-8 pb-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Current Overview</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Current Financial Status</h1>
         <p className="text-gray-600 mt-1">
-          Quick snapshot of finances until next payday
+          Quick snapshot of your finances until next payday ({paycheckInfo.daysUntilPaycheck} days)
         </p>
       </div>
 
-      {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Payday Countdown */}
-        <div className="lg:col-span-1">
-          <PaydayCountdownCard paydayInfo={paydayInfo} />
-        </div>
-
-        {/* Right Columns - Tables */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Upcoming Transactions */}
-          <UpcomingTransactionsTable transactions={upcomingTransactions} />
-          
-          {/* Overdue Payments */}
-          <OverduePaymentsTable payments={overduePayments} />
-        </div>
+      {/* Top Row - Available Money & Smart Recommendations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <AvailableMoneyCard 
+          accounts={accounts}
+          totalAvailable={totalAvailable}
+          netLeftover={netLeftover}
+          paycheckInfo={paycheckInfo}
+        />
+        <MoneyRecommendationsCard recommendations={recommendations} />
       </div>
 
-      {/* Category Charts */}
-      <CategoryChartsCard categories={categoryData} />
+      {/* Cashflow Projection */}
+      <CashflowProjectionChart 
+        projections={cashflowProjections}
+        daysUntilDeficit={daysUntilDeficit}
+      />
 
-      {/* Monthly Overview */}
-      <MonthlyOverviewChart monthlyData={monthlyData} />
+      {/* Middle Row - Payments & Spending */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <UpcomingPaymentsCard 
+          payments={upcomingPayments}
+          overdueCount={overdueCount}
+        />
+        <SpendingCategoriesCard 
+          categories={spendingCategories}
+          todaySpending={todaySpending}
+        />
+      </div>
 
-      {/* Latest Transactions */}
-      <LatestTransactionsTable transactions={recentTransactions} />
+      {/* Recent Transactions */}
+      <RecentTransactionsCard transactions={recentTransactions} />
     </div>
   );
 };

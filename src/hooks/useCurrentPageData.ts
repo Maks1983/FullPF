@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import { mockCurrentPageData } from '../data/currentPageData';
-import type { CurrentPageData } from '../types/current';
 
-export const useCurrentPageData = (): CurrentPageData => {
+export const useCurrentPageData = () => {
   return useMemo(() => {
     return mockCurrentPageData;
   }, []);
