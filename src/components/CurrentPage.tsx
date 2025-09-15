@@ -34,6 +34,7 @@ const CurrentPage = () => {
   const savingsRate = ((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100;
   const biggestExpenseCategory = spendingCategories.reduce((max, cat) => 
     cat.spent > max.spent ? cat : max, spendingCategories[0]);
+  const dailyAverageSpending = totalMonthlyExpenses / 30;
 
   return (
     <div className="space-y-8 pb-8">
@@ -63,26 +64,32 @@ const CurrentPage = () => {
           <div className="bg-white p-6 rounded-xl border border-blue-200">
             <div className="text-center">
               <div className="flex items-center justify-center mb-3">
-                <Heart className="h-6 w-6 text-red-500 mr-2" />
-                <span className="text-sm font-medium text-gray-600">Financial Health</span>
+                <Heart className="h-6 w-6 text-pink-500 mr-2" />
+                <span className="text-sm font-medium text-gray-600">Money Pulse</span>
               </div>
               
-              <div className="text-3xl font-bold text-green-600 mb-2">
-                {Math.round(((totalAvailable / 50000) + (savingsRate / 30) + (overdueCount === 0 ? 1 : 0)) / 3 * 100)}
+              <div className="text-3xl font-bold text-pink-600 mb-2">
+                {Math.round(((totalAvailable / 50000) + (savingsRate / 30) + (overdueCount === 0 ? 1 : 0)) / 3 * 100)}%
               </div>
-              <div className="text-sm text-gray-500 mb-3">Health Score</div>
+              <div className="text-sm text-gray-500 mb-3">Financial Wellness</div>
               
-              <div className="space-y-2 text-xs">
+              <div className="space-y-3 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Savings Rate</span>
+                  <span className="text-gray-600">Money Momentum</span>
                   <span className={`font-medium ${savingsRate >= 20 ? 'text-green-600' : savingsRate >= 10 ? 'text-yellow-600' : 'text-red-600'}`}>
-                    {savingsRate.toFixed(1)}%
+                    {savingsRate >= 20 ? 'Strong' : savingsRate >= 10 ? 'Steady' : 'Weak'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Status</span>
+                  <span className="text-gray-600">Stress Level</span>
                   <span className={`font-medium ${overdueCount === 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {overdueCount === 0 ? 'Current' : `${overdueCount} Overdue`}
+                    {overdueCount === 0 ? 'Low' : 'High'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Runway</span>
+                  <span className={`font-medium ${netLeftoverUntilPaycheck >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {netLeftoverUntilPaycheck >= 0 ? `${paycheckInfo.daysUntilPaycheck} days` : 'At risk'}
                   </span>
                 </div>
               </div>
@@ -93,32 +100,32 @@ const CurrentPage = () => {
           <div className="bg-white p-6 rounded-xl border border-blue-200">
             <div className="text-center">
               <div className="flex items-center justify-center mb-3">
-                <Calendar className="h-6 w-6 text-blue-600 mr-2" />
-                <span className="text-sm font-medium text-gray-600">This Month</span>
+                <TrendingUp className="h-6 w-6 text-indigo-600 mr-2" />
+                <span className="text-sm font-medium text-gray-600">Cash Flow Velocity</span>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
-                  <div className="text-2xl font-bold text-green-600">
-                    NOK {totalMonthlyIncome.toLocaleString()}
+                  <div className="text-3xl font-bold text-indigo-600">
+                    {paycheckInfo.daysUntilPaycheck}
                   </div>
-                  <div className="text-xs text-gray-500">Income</div>
+                  <div className="text-xs text-gray-500">Days to Income</div>
                 </div>
                 
-                <div className="border-t pt-2">
-                  <div className="text-2xl font-bold text-red-600">
-                    NOK {totalMonthlyExpenses.toLocaleString()}
+                <div>
+                  <div className="text-lg font-bold text-green-600">
+                    NOK {(paycheckInfo.expectedAmount / paycheckInfo.daysUntilPaycheck).toFixed(0)}
                   </div>
-                  <div className="text-xs text-gray-500">Expenses</div>
+                  <div className="text-xs text-gray-500">Daily Income Rate</div>
                 </div>
                 
                 <div className="border-t pt-2">
                   <div className={`text-lg font-bold ${
-                    totalMonthlyIncome - totalMonthlyExpenses > 0 ? 'text-green-600' : 'text-red-600'
+                    dailyAverageSpending <= (paycheckInfo.expectedAmount / paycheckInfo.daysUntilPaycheck) ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {totalMonthlyIncome - totalMonthlyExpenses > 0 ? '+' : ''}NOK {(totalMonthlyIncome - totalMonthlyExpenses).toLocaleString()}
+                    NOK {dailyAverageSpending.toFixed(0)}
                   </div>
-                  <div className="text-xs text-gray-500">Net Flow</div>
+                  <div className="text-xs text-gray-500">Daily Burn Rate</div>
                 </div>
               </div>
             </div>
