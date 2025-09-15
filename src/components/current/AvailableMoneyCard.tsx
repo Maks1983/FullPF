@@ -16,118 +16,94 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   paycheckInfo
 }) => {
   const isDeficit = netLeftover < 0;
-  const checkingBalance = accounts.find(acc => acc.type === 'checking')?.availableBalance || 0;
-  const savingsBalance = accounts.find(acc => acc.type === 'savings')?.availableBalance || 0;
-  const creditAvailable = accounts.find(acc => acc.type === 'credit')?.availableBalance || 0;
   
-  // Calculate net change (mock data - in real app this would come from props)
-  const previousTotalAvailable = 17250; // This would be passed as prop
-  const netChange = totalAvailable - previousTotalAvailable;
-  const netChangePercent = ((netChange / previousTotalAvailable) * 100);
+  // Calculate progress for circular indicator (days until paycheck)
+  const totalDaysInMonth = 30; // Approximate
+  const progress = ((totalDaysInMonth - paycheckInfo.daysUntilPaycheck) / totalDaysInMonth) * 100;
+  
+  // Calculate remaining payments total
+  const remainingPayments = Math.abs(netLeftover - totalAvailable);
 
   return (
-    <div className={`bg-white p-6 rounded-xl shadow-sm border-2 transition-all hover:shadow-lg cursor-pointer group ${
-      isDeficit ? 'border-red-200 hover:border-red-300' : 'border-blue-200 hover:border-blue-300'
+    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group ${
+      isDeficit ? 'ring-2 ring-red-400' : ''
     }`}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className={`p-3 rounded-xl ${isDeficit ? 'bg-red-100' : 'bg-blue-100'}`}>
-            <Wallet className={`h-6 w-6 ${isDeficit ? 'text-red-600' : 'text-blue-600'}`} />
+      <div className="flex items-start justify-between">
+        {/* Left side - Main content */}
+        <div className="flex-1">
+          <div className="text-sm text-slate-300 mb-1">
+            Left over until next payday
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Your Money Overview</h3>
-            <p className="text-sm text-gray-600">Complete financial position until payday</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          {isDeficit && <AlertTriangle className="h-5 w-5 text-red-500" />}
-          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-        </div>
-      </div>
-
-      {/* Main Financial Metrics */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {/* Available Now */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-1">Available Now</p>
-          <p className="text-2xl font-bold text-green-600">
+          
+          <div className="text-sm text-slate-400 mb-2">
             NOK {totalAvailable.toLocaleString()}
-          </p>
-          <div className="flex items-center justify-center mt-1">
-            {netChange >= 0 ? (
-              <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
-            ) : (
-              <TrendingDown className="h-3 w-3 text-red-500 mr-1" />
-            )}
-            <span className={`text-xs font-medium ${netChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {netChange >= 0 ? '+' : ''}NOK {Math.abs(netChange).toLocaleString()}
-            </span>
+          </div>
+          
+          <div className={`text-4xl font-bold mb-3 ${
+            netLeftover >= 0 ? 'text-white' : 'text-red-400'
+          }`}>
+            {Math.abs(netLeftover).toLocaleString('no-NO', { 
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2 
+            })}
+          </div>
+          
+          <div className="text-sm text-slate-400">
+            {isDeficit ? 
+              `${Math.ceil(remainingPayments / 1000)}k remaining payments (NOK ${remainingPayments.toLocaleString()})` :
+              `After all scheduled payments`
+            }
           </div>
         </div>
 
-        {/* After Bills */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-1">After Bills</p>
-          <p className={`text-2xl font-bold ${isDeficit ? 'text-red-600' : 'text-green-600'}`}>
-            NOK {netLeftover.toLocaleString()}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            {isDeficit ? 'Deficit projected' : 'Surplus projected'}
-          </p>
-        </div>
-
-        {/* Next Paycheck */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-1">Next Income</p>
-          <p className="text-2xl font-bold text-purple-600">
-            {paycheckInfo.daysUntilPaycheck} days
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            NOK {paycheckInfo.expectedAmount.toLocaleString()}
-          </p>
-        </div>
-      </div>
-
-      {/* Account Breakdown */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="text-center p-3 bg-white rounded-lg border">
-          <p className="text-sm text-gray-600 mb-1">Checking</p>
-          <p className="font-semibold text-blue-600">
-            NOK {checkingBalance.toLocaleString()}
-          </p>
-        </div>
-        <div className="text-center p-3 bg-white rounded-lg border">
-          <p className="text-sm text-gray-600 mb-1">Savings</p>
-          <p className="font-semibold text-green-600">
-            NOK {savingsBalance.toLocaleString()}
-          </p>
-        </div>
-        <div className="text-center p-3 bg-white rounded-lg border">
-          <p className="text-sm text-gray-600 mb-1">Credit</p>
-          <p className="font-semibold text-purple-600">
-            NOK {creditAvailable.toLocaleString()}
-          </p>
-        </div>
-      </div>
-
-      {/* Status Summary */}
-      <div className={`p-3 rounded-lg border ${
-        isDeficit ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Clock className={`h-4 w-4 ${isDeficit ? 'text-red-600' : 'text-green-600'}`} />
-            <span className={`text-sm font-medium ${isDeficit ? 'text-red-800' : 'text-green-800'}`}>
-              {isDeficit 
-                ? `Need NOK ${Math.abs(netLeftover).toLocaleString()} more to cover bills`
-                : `NOK ${netLeftover.toLocaleString()} surplus after all bills`
-              }
-            </span>
+        {/* Right side - Circular progress */}
+        <div className="relative">
+          <div className="w-20 h-20">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              {/* Background circle */}
+              <path
+                className="text-slate-600"
+                stroke="currentColor"
+                strokeWidth="3"
+                fill="transparent"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              {/* Progress circle */}
+              <path
+                className="text-blue-400"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeDasharray={`${progress}, 100`}
+                strokeLinecap="round"
+                fill="transparent"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            
+            {/* Center content */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-2xl font-bold text-white">
+                {paycheckInfo.daysUntilPaycheck}
+              </div>
+              <div className="text-xs text-slate-300">
+                {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
+              </div>
+              <div className="text-xs text-slate-400">
+                to pay
+              </div>
+            </div>
           </div>
-          <span className="text-xs text-gray-600">
-            Until {new Date(paycheckInfo.nextPaycheckDate).toLocaleDateString()}
-          </span>
         </div>
+      </div>
+
+      {/* Hover indicator */}
+      <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-xs text-slate-400 mr-2">View details</span>
+        <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
   );
