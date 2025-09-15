@@ -51,13 +51,13 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           <div className={`text-2xl font-bold mb-1 ${
             isDeficit ? 'text-red-400' : 'text-white'
           }`}>
-            {currentSaldo < 0 ? '-' : ''}NOK {Math.abs(currentSaldo).toLocaleString('no-NO', { 
+            {currentSaldo < 0 ? '-' : ''}kr {Math.abs(currentSaldo).toLocaleString('no-NO', { 
               minimumFractionDigits: 0,
               maximumFractionDigits: 0 
             })}
           </div>
           <div className="text-xs text-slate-400">
-            NOK {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} payments
+            kr {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} payments
           </div>
         </div>
         
@@ -104,7 +104,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
         <div className={`text-sm font-medium ${
           isDeficit ? 'text-red-400' : 'text-white'
         }`}>
-          Available: NOK {totalAvailable.toLocaleString('no-NO', { 
+          Available: kr {totalAvailable.toLocaleString('no-NO', { 
             minimumFractionDigits: 0,
             maximumFractionDigits: 0 
           })}
