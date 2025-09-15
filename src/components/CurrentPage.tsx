@@ -129,9 +129,7 @@ const CurrentPage = () => {
             
             {/* Bottom info */}
             <div className="mt-3 pt-3 border-t border-slate-600">
-              <div className={`text-sm font-medium ${
-                overdueCount > 0 ? 'text-red-400' : 'text-white'
-              }`}>
+              <div className="text-sm font-medium text-white">
                 {upcomingPayments
                   .filter(p => p.status !== 'paid')
                   .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
