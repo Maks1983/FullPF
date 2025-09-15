@@ -28,6 +28,9 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
     .filter(payment => payment.status !== 'paid')
     .reduce((sum, payment) => sum + Math.abs(payment.amount), 0);
   const remainingPaymentsCount = upcomingPayments.filter(payment => payment.status !== 'paid').length;
+  
+  // Calculate current saldo: net after payments + upcoming payments
+  const currentSaldo = totalAvailable + upcomingPaymentsTotal;
 
   return (
     <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group ${
@@ -47,7 +50,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           <div className={`text-4xl font-bold mb-3 ${
             isDeficit ? 'text-red-400' : 'text-white'
           }`}>
-            {netLeftover < 0 ? '-' : ''}{Math.abs(netLeftover).toLocaleString('no-NO', { 
+            {currentSaldo < 0 ? '-' : ''}NOK {Math.abs(currentSaldo).toLocaleString('no-NO', { 
               minimumFractionDigits: 2,
               maximumFractionDigits: 2 
             })}
