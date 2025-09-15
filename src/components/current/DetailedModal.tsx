@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ArrowUpRight, ArrowDownRight, Calendar, AlertTriangle, CheckCircle, Clock, CreditCard } from 'lucide-react';
+import { X, ArrowUpRight, ArrowDownRight, Calendar, AlertTriangle, CheckCircle, Clock, CreditCard, Wallet } from 'lucide-react';
 import type { CurrentAccount, UpcomingPayment, SpendingCategory } from '../../types/current';
 
 interface DetailedModalProps {
@@ -21,6 +21,8 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   monthlyIncome,
   monthlyExpenses
 }) => {
+  const [activeTab, setActiveTab] = React.useState<'payments' | 'categories' | 'accounts'>('payments');
+
   if (!isOpen) return null;
 
   const netFlow = monthlyIncome - monthlyExpenses;
@@ -103,67 +105,87 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Upcoming Payments Section */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Calendar className="h-5 w-5 text-blue-600 mr-2" />
-                  Upcoming Payments
-                </h3>
-                {overduePayments.length > 0 && (
-                  <span className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">
-                    {overduePayments.length} overdue
+        <div className="border-b border-gray-200">
+          <div className="flex space-x-8 px-6">
+            {[
+              { key: 'payments', label: 'Payments', icon: Calendar, count: pendingPayments.length },
+              { key: 'categories', label: 'Categories', icon: CreditCard, count: spendingCategories.length },
+              { key: 'accounts', label: 'Accounts', icon: Wallet, count: accounts.length }
+            ].map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as any)}
+                  className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === tab.key
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{tab.label}</span>
+                  <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                    {tab.count}
                   </span>
-                )}
-              </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-              <div className="space-y-3 max-h-80 overflow-y-auto">
+        <div className="p-6 overflow-y-auto max-h-[60vh]">
+          {/* Payments Tab */}
+          {activeTab === 'payments' && (
+            <div>
+              {overduePayments.length > 0 && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-red-800">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      {overduePayments.length} overdue payment{overduePayments.length > 1 ? 's' : ''} need immediate attention
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-3">
                 {pendingPayments.map((payment) => {
                   const StatusIcon = getStatusIcon(payment);
                   const daysUntilDue = getDaysUntilDue(payment.dueDate);
                   
                   return (
-                    <div key={payment.id} className={`p-4 rounded-lg border transition-all hover:shadow-sm ${
-                      payment.status === 'overdue' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'
-                    }`}>
-                      <div className="flex items-center justify-between mb-2">
+                    <div key={payment.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <StatusIcon className={`h-5 w-5 ${getStatusColor(payment.status)}`} />
                           <div>
                             <h4 className="font-medium text-gray-900">{payment.description}</h4>
-                            <p className="text-sm text-gray-600 capitalize">{payment.category}</p>
+                            <div className="flex items-center space-x-3 text-sm text-gray-600 mt-1">
+                              <span className="capitalize">{payment.category}</span>
+                              <span>Due: {new Date(payment.dueDate).toLocaleDateString()}</span>
+                              {payment.status === 'overdue' && payment.daysOverdue && (
+                                <span className="text-red-600 font-medium">
+                                  {payment.daysOverdue} days overdue
+                                </span>
+                              )}
+                              {payment.status === 'scheduled' && (
+                                <span className="text-gray-500">
+                                  {daysUntilDue > 0 ? `in ${daysUntilDue} days` : 'due today'}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900">
-                            NOK {Math.abs(payment.amount).toLocaleString()}
-                          </p>
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(payment.priority)}`}>
-                            {payment.priority}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">
-                          Due: {new Date(payment.dueDate).toLocaleDateString()}
-                        </span>
-                        <div className="flex items-center space-x-2">
-                          {payment.status === 'overdue' && payment.daysOverdue && (
-                            <span className="text-red-600 font-medium">
-                              {payment.daysOverdue} days overdue
+                        <div className="text-right flex items-center space-x-3">
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              NOK {Math.abs(payment.amount).toLocaleString()}
+                            </p>
+                            <span className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(payment.priority)}`}>
+                              {payment.priority}
                             </span>
-                          )}
-                          {payment.status === 'scheduled' && (
-                            <span className={`font-medium ${
-                              daysUntilDue <= 3 ? 'text-red-600' : 
-                              daysUntilDue <= 7 ? 'text-yellow-600' : 'text-green-600'
-                            }`}>
-                              {daysUntilDue > 0 ? `in ${daysUntilDue} days` : 'due today'}
-                            </span>
-                          )}
+                          </div>
                           <button className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
                             payment.status === 'overdue' 
                               ? 'bg-red-600 text-white hover:bg-red-700' 
@@ -178,15 +200,128 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                 })}
               </div>
             </div>
+          )}
 
-            {/* Spending Categories Section */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <CreditCard className="h-5 w-5 text-purple-600 mr-2" />
-                Spending Categories
-              </h3>
+          {/* Categories Tab */}
+          {activeTab === 'categories' && (
+            <div className="space-y-4">
+              {spendingCategories.filter(c => c.isOverBudget).length > 0 && (
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-yellow-800">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      {spendingCategories.filter(c => c.isOverBudget).length} categor{spendingCategories.filter(c => c.isOverBudget).length > 1 ? 'ies are' : 'y is'} over budget
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {spendingCategories.map((category, index) => (
+                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <div 
+                        className="w-4 h-4 rounded-full" 
+                        style={{ backgroundColor: category.color }}
+                      />
+                      <span className="font-medium text-gray-900">{category.name}</span>
+                      {category.isOverBudget && (
+                        <AlertTriangle className="h-4 w-4 text-red-500" />
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <span className={`font-semibold ${category.isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
+                        NOK {category.spent.toLocaleString()}
+                      </span>
+                      <span className="text-sm text-gray-600 ml-1">
+                        / {category.budget.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-200 rounded-full h-2 mb-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all ${
+                        category.isOverBudget ? 'bg-red-500' :
+                        category.percentUsed > 80 ? 'bg-yellow-500' :
+                        'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.min(category.percentUsed, 100)}%` }}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between text-sm">
+                    <span className={`${category.isOverBudget ? 'text-red-600' : 'text-gray-600'}`}>
+                      {category.isOverBudget ? 
+                        `Over by NOK ${Math.abs(category.remaining).toLocaleString()}` :
+                        `NOK ${category.remaining.toLocaleString()} remaining`
+                      }
+                    </span>
+                    <span className="text-gray-500">
+                      {category.percentUsed.toFixed(1)}% used
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-              <div className="space-y-4 max-h-80 overflow-y-auto">
+          {/* Accounts Tab */}
+          {activeTab === 'accounts' && (
+            <div className="space-y-4">
+              {accounts.map((account) => (
+                <div key={account.id} className="p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h4 className="font-medium text-gray-900">{account.name}</h4>
+                      <p className="text-sm text-gray-600 capitalize">{account.type} account</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900">
+                        NOK {account.balance.toLocaleString()}
+                      </p>
+                      {account.type === 'credit' && (
+                        <p className="text-sm text-gray-600">
+                          Available: NOK {account.availableBalance.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      account.status === 'active' ? 'bg-green-100 text-green-800' :
+                      account.status === 'low' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {account.status}
+                    </span>
+                    <span>Updated: {new Date(account.lastUpdated).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+          <div className="text-sm text-gray-600">
+            {activeTab === 'payments' && `${pendingPayments.length} payments`}
+            {activeTab === 'categories' && `${spendingCategories.filter(c => c.isOverBudget).length} over budget`}
+            {activeTab === 'accounts' && `${accounts.length} accounts`}
+          </div>
+          <div className="flex space-x-3">
+            <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+              Export Data
+            </button>
+            <button 
+              onClick={onClose}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
                 {spendingCategories.map((category, index) => (
                   <div key={index} className="p-4 bg-white rounded-lg border border-gray-200">
                     <div className="flex items-center justify-between mb-3">
