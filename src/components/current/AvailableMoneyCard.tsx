@@ -101,7 +101,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
       
       {/* Bottom info */}
       <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className={`text-lg font-bold ${
+        <div className={`text-sm font-medium ${
           isDeficit ? 'text-red-400' : 'text-white'
         }`}>
           Available: NOK {totalAvailable.toLocaleString('no-NO', { 
