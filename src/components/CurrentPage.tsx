@@ -2,18 +2,18 @@ import React from 'react';
 import { useCurrentPageData } from '../hooks/useCurrentPageData';
 import AvailableMoneyCard from './current/AvailableMoneyCard';
 import DetailedModal from './current/DetailedModal';
-import UpcomingPaymentsCard from './current/UpcomingPaymentsCard';
+import UpcomingPaymentsModal from './current/UpcomingPaymentsModal';
 import CashflowProjectionChart from './current/CashflowProjectionChart';
 import SpendingCategoriesCard from './current/SpendingCategoriesCard';
 import RecentTransactionsCard from './current/RecentTransactionsCard';
 import MoneyFlowInsights from './current/MoneyFlowInsights';
-import FinancialHealthCheck from './current/FinancialHealthCheck';
 import SmartSuggestions from './current/SmartSuggestions';
 import { AlertTriangle, TrendingUp, TrendingDown, Clock, Eye, Brain, Heart, Calendar } from 'lucide-react';
 import { ChevronRight } from 'lucide-react';
 
 const CurrentPage = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isPaymentsModalOpen, setIsPaymentsModalOpen] = React.useState(false);
   
   const {
     accounts,
@@ -68,7 +68,9 @@ const CurrentPage = () => {
           {/* Upcoming Payments Card */}
           <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
             overdueCount > 0 ? 'ring-2 ring-red-400' : ''
-          }`}>
+          }`}
+            onClick={() => setIsPaymentsModalOpen(true)}
+          >
             <div className="flex items-center justify-between">
               {/* Left side - Main info */}
               <div className="flex-1">
@@ -280,12 +282,6 @@ const CurrentPage = () => {
 
         {/* Right Column - Payments & Spending */}
         <div className="space-y-6">
-          {/* Upcoming Payments */}
-          <UpcomingPaymentsCard
-            payments={upcomingPayments}
-            overdueCount={overdueCount}
-          />
-
           {/* Spending Categories */}
           <SpendingCategoriesCard
             categories={spendingCategories}
@@ -363,6 +359,14 @@ const CurrentPage = () => {
         spendingCategories={spendingCategories}
         monthlyIncome={totalMonthlyIncome}
         monthlyExpenses={totalMonthlyExpenses}
+      />
+
+      {/* Upcoming Payments Modal */}
+      <UpcomingPaymentsModal
+        isOpen={isPaymentsModalOpen}
+        onClose={() => setIsPaymentsModalOpen(false)}
+        payments={upcomingPayments}
+        overdueCount={overdueCount}
       />
     </div>
   );
