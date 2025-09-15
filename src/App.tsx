@@ -13,7 +13,7 @@ import {
   X
 } from 'lucide-react';
 import DashboardPage from './components/DashboardPage';
-import CurrentPage from './pages/CurrentPage';
+import CurrentPage from './components/CurrentPage';
 import SavingsPage from './components/SavingsPage';
 import DebtsPage from './components/DebtsPage';
 import InvestmentsPage from './components/InvestmentsPage';
