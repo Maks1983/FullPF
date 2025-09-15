@@ -144,20 +144,20 @@ const CurrentPage = () => {
         recentTransactions={recentTransactions}
       />
 
+      {/* Main Money Available Card - Top Position */}
+      <AvailableMoneyCard
+        accounts={accounts}
+        totalAvailable={totalAvailable}
+        netLeftover={netLeftoverUntilPaycheck}
+        paycheckInfo={paycheckInfo}
+      />
+
       {/* Main Content Grid - Enhanced Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column - Money Status */}
         <div className="xl:col-span-2 space-y-6">
-          {/* Available Money - Compact Design */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AvailableMoneyCard
-              accounts={accounts}
-              totalAvailable={totalAvailable}
-              netLeftover={netLeftoverUntilPaycheck}
-              paycheckInfo={paycheckInfo}
-            />
-            
-            {/* Additional summary cards can go here */}
+          {/* Additional summary cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
               <h3 className="text-sm font-medium text-gray-500 mb-2">Today's Spending</h3>
               <p className="text-2xl font-bold text-red-600">NOK {todaySpending.toLocaleString()}</p>
