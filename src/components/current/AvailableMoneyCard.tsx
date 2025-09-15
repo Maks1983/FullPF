@@ -36,82 +36,83 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
 
   return (
     <div 
-      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
       isDeficit ? 'ring-2 ring-red-400' : ''
     }`}
       onClick={onViewDetails}
     >
-      {/* Main content */}
-      <div className="text-center">
-        <div className="text-sm text-slate-300 mb-1">
-          Left over until next payday
+      {/* Compact layout */}
+      <div className="flex items-center justify-between">
+        {/* Left side - Main info */}
+        <div className="flex-1">
+          <div className="text-xs text-slate-300 mb-1">
+            Until payday
+          </div>
+          <div className={`text-2xl font-bold mb-1 ${
+            isDeficit ? 'text-red-400' : 'text-white'
+          }`}>
+            {currentSaldo < 0 ? '-' : ''}NOK {Math.abs(currentSaldo).toLocaleString('no-NO', { 
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0 
+            })}
+          </div>
+          <div className="text-xs text-slate-400">
+            NOK {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} payments
+          </div>
         </div>
         
-        <div className="text-sm text-slate-400 mb-2">
-          NOK {totalAvailable.toLocaleString()}
-        </div>
-        
-        {/* Circular progress indicator - centered */}
-        <div className="flex justify-center mb-4">
-          <div className="relative">
-            <div className="w-32 h-32">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                {/* Background circle */}
-                <path
-                  className="text-slate-600"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  fill="transparent"
-                  d="M18 2.0845
-                    a 15.9155 15.9155 0 0 1 0 31.831
-                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                {/* Progress circle */}
-                <path
-                  className="text-blue-400"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeDasharray={`${progress}, 100`}
-                  strokeLinecap="round"
-                  fill="transparent"
-                  d="M18 2.0845
-                    a 15.9155 15.9155 0 0 1 0 31.831
-                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              
-              {/* Center content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-3xl font-bold text-white">
-                  {paycheckInfo.daysUntilPaycheck}
-                </div>
-                <div className="text-sm text-slate-300">
-                  {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
-                </div>
-                <div className="text-sm text-slate-400">
-                  to pay
-                </div>
+        {/* Right side - Circular progress */}
+        <div className="relative ml-4">
+          <div className="w-16 h-16">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <path
+                className="text-slate-600"
+                stroke="currentColor"
+                strokeWidth="3"
+                fill="transparent"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                className="text-blue-400"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeDasharray={`${progress}, 100`}
+                strokeLinecap="round"
+                fill="transparent"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-lg font-bold text-white">
+                {paycheckInfo.daysUntilPaycheck}
+              </div>
+              <div className="text-xs text-slate-300">
+                {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
               </div>
             </div>
           </div>
         </div>
-        
-        <div className={`text-4xl font-bold mb-3 ${
+      </div>
+      
+      {/* Bottom info */}
+      <div className="mt-3 pt-3 border-t border-slate-600">
+        <div className={`text-lg font-bold ${
           isDeficit ? 'text-red-400' : 'text-white'
         }`}>
-          {currentSaldo < 0 ? '-' : ''}NOK {Math.abs(currentSaldo).toLocaleString('no-NO', { 
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2 
+          Available: NOK {totalAvailable.toLocaleString('no-NO', { 
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0 
           })}
-        </div>
-        
-        <div className="text-sm text-slate-400">
-          NOK {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} remaining payments
         </div>
       </div>
 
       {/* Hover indicator */}
-      <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <span className="text-xs text-slate-400 mr-2">View details</span>
         <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>

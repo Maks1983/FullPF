@@ -66,71 +66,72 @@ const CurrentPage = () => {
           />
           
           {/* Upcoming Payments Card */}
-          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
             overdueCount > 0 ? 'ring-2 ring-red-400' : ''
           }`}>
-            <div className="text-center">
-              <div className="text-sm text-slate-300 mb-1">
-                Payments until next payday
+            <div className="flex items-center justify-between">
+              {/* Left side - Main info */}
+              <div className="flex-1">
+                <div className="text-xs text-slate-300 mb-1">
+                  Upcoming payments
+                </div>
+                <div className={`text-2xl font-bold mb-1 ${
+                  overdueCount > 0 ? 'text-red-400' : 'text-white'
+                }`}>
+                  NOK {upcomingPayments
+                    .filter(p => p.status !== 'paid')
+                    .reduce((sum, p) => sum + Math.abs(p.amount), 0)
+                    .toLocaleString('no-NO', { 
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0 
+                    })}
+                </div>
+                <div className="text-xs text-slate-400">
+                  {upcomingPayments.filter(p => p.status !== 'paid').length} payments until payday
+                </div>
               </div>
               
-              <div className="text-sm text-slate-400 mb-2">
-                {upcomingPayments.filter(p => p.status !== 'paid').length} payments
-              </div>
-              
-              {/* Circular progress indicator */}
-              <div className="flex justify-center mb-4">
-                <div className="relative">
-                  <div className="w-32 h-32">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="15.9155"
-                        stroke="#475569"
-                        strokeWidth="2.5"
-                        fill="transparent"
-                      />
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="15.9155"
-                        stroke={overdueCount > 0 ? "#ef4444" : "#3b82f6"}
-                        strokeWidth="2.5"
-                        strokeDasharray={`${Math.min((upcomingPayments.filter(p => p.status !== 'paid').length / 10) * 100, 100)}, 100`}
-                        strokeLinecap="round"
-                        fill="transparent"
-                      />
-                    </svg>
-                    
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-3xl font-bold text-white">
-                        {overdueCount > 0 ? overdueCount : upcomingPayments.filter(p => p.status !== 'paid').length}
-                      </div>
-                      <div className="text-sm text-slate-300">
-                        {overdueCount > 0 ? 'overdue' : 'pending'}
-                      </div>
-                      <div className="text-sm text-slate-400">
-                        payments
-                      </div>
+              {/* Right side - Circular progress */}
+              <div className="relative ml-4">
+                <div className="w-16 h-16">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.9155"
+                      stroke="#475569"
+                      strokeWidth="3"
+                      fill="transparent"
+                    />
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.9155"
+                      stroke={overdueCount > 0 ? "#ef4444" : "#3b82f6"}
+                      strokeWidth="3"
+                      strokeDasharray={`${Math.min((upcomingPayments.filter(p => p.status !== 'paid').length / 10) * 100, 100)}, 100`}
+                      strokeLinecap="round"
+                      fill="transparent"
+                    />
+                  </svg>
+                  
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="text-lg font-bold text-white">
+                      {overdueCount > 0 ? overdueCount : upcomingPayments.filter(p => p.status !== 'paid').length}
+                    </div>
+                    <div className="text-xs text-slate-300">
+                      {overdueCount > 0 ? 'overdue' : 'pending'}
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <div className={`text-4xl font-bold mb-3 ${
+            </div>
+            
+            {/* Bottom info */}
+            <div className="mt-3 pt-3 border-t border-slate-600">
+              <div className={`text-sm font-medium ${
                 overdueCount > 0 ? 'text-red-400' : 'text-white'
               }`}>
-                NOK {upcomingPayments
-                  .filter(p => p.status !== 'paid')
-                  .reduce((sum, p) => sum + Math.abs(p.amount), 0)
-                  .toLocaleString('no-NO', { 
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2 
-                  })}
-              </div>
-              
-              <div className="text-sm text-slate-400">
                 Next due: {upcomingPayments
                   .filter(p => p.status !== 'paid')
                   .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
@@ -141,78 +142,77 @@ const CurrentPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-xs text-slate-400 mr-2">View details</span>
               <ChevronRight className="h-4 w-4 text-slate-400" />
             </div>
           </div>
           
           {/* Account Balances Card */}
-          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}>
-            <div className="text-center">
-              <div className="text-sm text-slate-300 mb-1">
-                Total account balances
+          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}>
+            <div className="flex items-center justify-between">
+              {/* Left side - Main info */}
+              <div className="flex-1">
+                <div className="text-xs text-slate-300 mb-1">
+                  Account balances
+                </div>
+                <div className="text-2xl font-bold mb-1 text-white">
+                  NOK {accounts
+                    .reduce((sum, acc) => sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0)
+                    .toLocaleString('no-NO', { 
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0 
+                    })}
+                </div>
+                <div className="text-xs text-slate-400">
+                  {accounts.length} accounts total
+                </div>
               </div>
               
-              <div className="text-sm text-slate-400 mb-2">
-                {accounts.length} accounts
-              </div>
-              
-              {/* Circular progress indicator */}
-              <div className="flex justify-center mb-4">
-                <div className="relative">
-                  <div className="w-32 h-32">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="15.9155"
-                        stroke="#475569"
-                        strokeWidth="2.5"
-                        fill="transparent"
-                      />
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="15.9155"
-                        stroke="#10b981"
-                        strokeWidth="2.5"
-                        strokeDasharray={`${Math.min((accounts.filter(acc => acc.status === 'active').length / accounts.length) * 100, 100)}, 100`}
-                        strokeLinecap="round"
-                        fill="transparent"
-                      />
-                    </svg>
-                    
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-3xl font-bold text-white">
-                        {accounts.filter(acc => acc.status === 'active').length}
-                      </div>
-                      <div className="text-sm text-slate-300">
-                        active
-                      </div>
-                      <div className="text-sm text-slate-400">
-                        accounts
-                      </div>
+              {/* Right side - Circular progress */}
+              <div className="relative ml-4">
+                <div className="w-16 h-16">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.9155"
+                      stroke="#475569"
+                      strokeWidth="3"
+                      fill="transparent"
+                    />
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.9155"
+                      stroke="#10b981"
+                      strokeWidth="3"
+                      strokeDasharray={`${Math.min((accounts.filter(acc => acc.status === 'active').length / accounts.length) * 100, 100)}, 100`}
+                      strokeLinecap="round"
+                      fill="transparent"
+                    />
+                  </svg>
+                  
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="text-lg font-bold text-white">
+                      {accounts.filter(acc => acc.status === 'active').length}
+                    </div>
+                    <div className="text-xs text-slate-300">
+                      active
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="text-4xl font-bold mb-3 text-white">
-                NOK {accounts
-                  .reduce((sum, acc) => sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0)
-                  .toLocaleString('no-NO', { 
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2 
-                  })}
-              </div>
-              
-              <div className="text-sm text-slate-400">
+            </div>
+            
+            {/* Bottom info */}
+            <div className="mt-3 pt-3 border-t border-slate-600">
+              <div className="text-sm font-medium text-white">
                 {accounts.filter(acc => acc.type !== 'credit').length} deposit • {accounts.filter(acc => acc.type === 'credit').length} credit
               </div>
             </div>
 
-            <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-xs text-slate-400 mr-2">View details</span>
               <ChevronRight className="h-4 w-4 text-slate-400" />
             </div>
