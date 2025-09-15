@@ -146,15 +146,15 @@ const MoneyFlowInsights: React.FC<MoneyFlowInsightsProps> = ({
               <Star className="h-5 w-5 text-indigo-600" />
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900">AI-Powered Money Insights</h4>
+              <h4 className="font-semibold text-gray-900">Professional Financial Analysis</h4>
               <p className="text-sm text-gray-600">
-                Get personalized spending predictions and optimization tips
+                Get certified financial advisor insights and professional recommendations
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
             <div className="text-right">
-              <p className="text-sm font-medium text-indigo-600">Advanced Analytics</p>
+              <p className="text-sm font-medium text-indigo-600">Expert Analysis</p>
               <p className="text-xs text-gray-500">Premium feature</p>
             </div>
             <Lock className="h-5 w-5 text-indigo-600" />
@@ -162,20 +162,20 @@ const MoneyFlowInsights: React.FC<MoneyFlowInsightsProps> = ({
         </div>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
-            <h5 className="font-medium text-gray-900 mb-1">Spending Prediction</h5>
-            <p className="text-sm text-gray-600">Based on your patterns, you'll likely spend NOK 8,200 next week</p>
+            <h5 className="font-medium text-gray-900 mb-1">📊 Professional Portfolio Review</h5>
+            <p className="text-sm text-gray-600">Certified advisor reviews your investments monthly</p>
           </div>
           <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
-            <h5 className="font-medium text-gray-900 mb-1">Optimization Tip</h5>
-            <p className="text-sm text-gray-600">Switch to Store Brand groceries to save NOK 450/month</p>
+            <h5 className="font-medium text-gray-900 mb-1">🎯 Tax Optimization Strategy</h5>
+            <p className="text-sm text-gray-600">Personalized tax-saving recommendations</p>
           </div>
           <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
-            <h5 className="font-medium text-gray-900 mb-1">Bill Alert</h5>
-            <p className="text-sm text-gray-600">Your phone bill increased 15% - consider switching plans</p>
+            <h5 className="font-medium text-gray-900 mb-1">📞 1-on-1 Financial Coaching</h5>
+            <p className="text-sm text-gray-600">Monthly calls with certified financial planners</p>
           </div>
         </div>
         <button className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-          Unlock AI Insights
+          Get Professional Help
         </button>
       </div>
 
