@@ -254,16 +254,6 @@ const CurrentPage = () => {
         </div>
       )}
 
-      {/* Financial Health Check - New Component */}
-      <FinancialHealthCheck 
-        totalAvailable={totalAvailable}
-        netLeftover={netLeftoverUntilPaycheck}
-        savingsRate={savingsRate}
-        overdueCount={overdueCount}
-        biggestExpense={biggestExpenseCategory}
-        daysUntilPaycheck={paycheckInfo.daysUntilPaycheck}
-      />
-
       {/* Money Flow Insights - New Component */}
       <MoneyFlowInsights 
         monthlyIncome={totalMonthlyIncome}
