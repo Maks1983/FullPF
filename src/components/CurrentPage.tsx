@@ -66,18 +66,22 @@ const CurrentPage = () => {
           />
           
           {/* Upcoming Payments Card */}
-          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
             overdueCount > 0 ? 'ring-2 ring-red-400' : ''
           }`}>
             <div className="text-center">
               <div className="text-sm text-slate-300 mb-1">
-                Upcoming payments
+                Payments until next payday
+              </div>
+              
+              <div className="text-sm text-slate-400 mb-2">
+                {upcomingPayments.filter(p => p.status !== 'paid').length} payments
               </div>
               
               {/* Circular progress indicator */}
-              <div className="flex justify-center mb-3">
+              <div className="flex justify-center mb-4">
                 <div className="relative">
-                  <div className="w-20 h-20">
+                  <div className="w-32 h-32">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                       <circle
                         cx="18"
@@ -100,18 +104,21 @@ const CurrentPage = () => {
                     </svg>
                     
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-3xl font-bold text-white">
                         {overdueCount > 0 ? overdueCount : upcomingPayments.filter(p => p.status !== 'paid').length}
                       </div>
-                      <div className="text-xs text-slate-300">
+                      <div className="text-sm text-slate-300">
                         {overdueCount > 0 ? 'overdue' : 'pending'}
+                      </div>
+                      <div className="text-sm text-slate-400">
+                        payments
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className={`text-2xl font-bold mb-2 ${
+              <div className={`text-4xl font-bold mb-3 ${
                 overdueCount > 0 ? 'text-red-400' : 'text-white'
               }`}>
                 NOK {upcomingPayments
@@ -123,7 +130,7 @@ const CurrentPage = () => {
                   })}
               </div>
               
-              <div className="text-xs text-slate-400">
+              <div className="text-sm text-slate-400">
                 Next due: {upcomingPayments
                   .filter(p => p.status !== 'paid')
                   .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
@@ -134,23 +141,27 @@ const CurrentPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-end mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-xs text-slate-400 mr-2">View details</span>
               <ChevronRight className="h-4 w-4 text-slate-400" />
             </div>
           </div>
           
           {/* Account Balances Card */}
-          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}>
+          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}>
             <div className="text-center">
               <div className="text-sm text-slate-300 mb-1">
-                Account balances
+                Total account balances
+              </div>
+              
+              <div className="text-sm text-slate-400 mb-2">
+                {accounts.length} accounts
               </div>
               
               {/* Circular progress indicator */}
-              <div className="flex justify-center mb-3">
+              <div className="flex justify-center mb-4">
                 <div className="relative">
-                  <div className="w-20 h-20">
+                  <div className="w-32 h-32">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                       <circle
                         cx="18"
@@ -173,18 +184,21 @@ const CurrentPage = () => {
                     </svg>
                     
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-3xl font-bold text-white">
                         {accounts.filter(acc => acc.status === 'active').length}
                       </div>
-                      <div className="text-xs text-slate-300">
+                      <div className="text-sm text-slate-300">
                         active
+                      </div>
+                      <div className="text-sm text-slate-400">
+                        accounts
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="text-2xl font-bold mb-2 text-white">
+              <div className="text-4xl font-bold mb-3 text-white">
                 NOK {accounts
                   .reduce((sum, acc) => sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0)
                   .toLocaleString('no-NO', { 
@@ -193,12 +207,12 @@ const CurrentPage = () => {
                   })}
               </div>
               
-              <div className="text-xs text-slate-400">
+              <div className="text-sm text-slate-400">
                 {accounts.filter(acc => acc.type !== 'credit').length} deposit • {accounts.filter(acc => acc.type === 'credit').length} credit
               </div>
             </div>
 
-            <div className="flex items-center justify-end mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
               <span className="text-xs text-slate-400 mr-2">View details</span>
               <ChevronRight className="h-4 w-4 text-slate-400" />
             </div>
