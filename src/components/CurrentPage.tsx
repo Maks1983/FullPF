@@ -62,6 +62,7 @@ const CurrentPage = () => {
             netLeftover={netLeftoverUntilPaycheck}
             paycheckInfo={paycheckInfo}
             upcomingPayments={upcomingPayments}
+            onViewDetails={() => setIsModalOpen(true)}
           />
           
           {/* Upcoming Payments Card */}
