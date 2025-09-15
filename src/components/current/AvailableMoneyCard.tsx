@@ -46,7 +46,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
         {/* Left side - Main info */}
         <div className="flex-1">
           <div className="text-xs text-slate-300 mb-1">
-            Until payday
+            Available Balance
           </div>
           <div className={`text-2xl font-bold mb-1 ${
             isDeficit ? 'text-red-400' : 'text-white'
