@@ -73,12 +73,12 @@ const CurrentPage = () => {
               {/* Left side - Main info */}
               <div className="flex-1">
                 <div className="text-xs text-slate-300 mb-1">
-                  Upcoming payments
+                  Upcoming payments (in NOK)
                 </div>
                 <div className={`text-2xl font-bold mb-1 ${
                   overdueCount > 0 ? 'text-red-400' : 'text-white'
                 }`}>
-                  NOK {upcomingPayments
+                  {upcomingPayments
                     .filter(p => p.status !== 'paid')
                     .reduce((sum, p) => sum + Math.abs(p.amount), 0)
                     .toLocaleString('no-NO', { 
@@ -132,7 +132,7 @@ const CurrentPage = () => {
               <div className={`text-sm font-medium ${
                 overdueCount > 0 ? 'text-red-400' : 'text-white'
               }`}>
-                kr {upcomingPayments
+                {upcomingPayments
                   .filter(p => p.status !== 'paid')
                   .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
                   ?.dueDate ? new Date(upcomingPayments
@@ -154,10 +154,10 @@ const CurrentPage = () => {
               {/* Left side - Main info */}
               <div className="flex-1">
                 <div className="text-xs text-slate-300 mb-1">
-                  Account balances
+                  Account balances (in NOK)
                 </div>
                 <div className="text-2xl font-bold mb-1 text-white">
-                  NOK {accounts
+                  {accounts
                     .reduce((sum, acc) => sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0)
                     .toLocaleString('no-NO', { 
                       minimumFractionDigits: 0,
