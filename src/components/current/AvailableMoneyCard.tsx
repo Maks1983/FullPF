@@ -1,6 +1,7 @@
 import React from 'react';
 import { Wallet, AlertTriangle, TrendingDown, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import type { CurrentAccount, PaycheckInfo } from '../../types/current';
+import DetailedBalanceModal from './DetailedBalanceModal';
 
 interface AvailableMoneyCardProps {
   accounts: CurrentAccount[];
@@ -21,6 +22,8 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
 }) => {
   const isDeficit = netLeftover < 0;
   
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  
   // Calculate progress for circular indicator (days until paycheck)
   const totalDaysInMonth = 30; // Approximate
   const progress = ((totalDaysInMonth - paycheckInfo.daysUntilPaycheck) / totalDaysInMonth) * 100;
@@ -35,12 +38,13 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const currentSaldo = totalAvailable + upcomingPaymentsTotal;
 
   return (
-    <div 
-      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
-      isDeficit ? 'ring-2 ring-red-400' : ''
-    }`}
-      onClick={onViewDetails}
-    >
+    <>
+      <div 
+        className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+        isDeficit ? 'ring-2 ring-red-400' : ''
+      }`}
+        onClick={() => setIsModalOpen(true)}
+      >
       {/* Compact layout */}
       <div className="flex items-center justify-between">
         {/* Left side - Main info */}
@@ -114,7 +118,18 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
         <span className="text-xs text-slate-400 mr-2">View details</span>
         <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
-    </div>
+      </div>
+
+      {/* Balance Breakdown Modal */}
+      <DetailedBalanceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        accounts={accounts}
+        totalAvailable={totalAvailable}
+        netLeftover={netLeftover}
+        paycheckInfo={paycheckInfo}
+      />
+    </>
   );
 };
 
