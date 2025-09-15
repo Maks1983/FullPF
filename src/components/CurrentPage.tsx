@@ -49,8 +49,8 @@ const CurrentPage = () => {
           </div>
         </div>
         
-        {/* Quick Money Awareness Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Comprehensive Money Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <AvailableMoneyCard
             accounts={accounts}
             totalAvailable={totalAvailable}
@@ -59,13 +59,69 @@ const CurrentPage = () => {
             upcomingPayments={upcomingPayments}
           />
           
-          <div className="bg-white p-4 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">Today's Spending</span>
-              <TrendingDown className="h-4 w-4 text-red-600" />
+          {/* Financial Health Summary */}
+          <div className="bg-white p-6 rounded-xl border border-blue-200">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-3">
+                <Heart className="h-6 w-6 text-red-500 mr-2" />
+                <span className="text-sm font-medium text-gray-600">Financial Health</span>
+              </div>
+              
+              <div className="text-3xl font-bold text-green-600 mb-2">
+                {Math.round(((totalAvailable / 50000) + (savingsRate / 30) + (overdueCount === 0 ? 1 : 0)) / 3 * 100)}
+              </div>
+              <div className="text-sm text-gray-500 mb-3">Health Score</div>
+              
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Savings Rate</span>
+                  <span className={`font-medium ${savingsRate >= 20 ? 'text-green-600' : savingsRate >= 10 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    {savingsRate.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Payment Status</span>
+                  <span className={`font-medium ${overdueCount === 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {overdueCount === 0 ? 'Current' : `${overdueCount} Overdue`}
+                  </span>
+                </div>
+              </div>
             </div>
-            <p className="text-2xl font-bold text-red-600">NOK {todaySpending.toLocaleString()}</p>
-            <p className="text-xs text-gray-500">Spent so far today</p>
+          </div>
+          
+          {/* Monthly Overview */}
+          <div className="bg-white p-6 rounded-xl border border-blue-200">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-3">
+                <Calendar className="h-6 w-6 text-blue-600 mr-2" />
+                <span className="text-sm font-medium text-gray-600">This Month</span>
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <div className="text-2xl font-bold text-green-600">
+                    NOK {totalMonthlyIncome.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-500">Income</div>
+                </div>
+                
+                <div className="border-t pt-2">
+                  <div className="text-2xl font-bold text-red-600">
+                    NOK {totalMonthlyExpenses.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-500">Expenses</div>
+                </div>
+                
+                <div className="border-t pt-2">
+                  <div className={`text-lg font-bold ${
+                    totalMonthlyIncome - totalMonthlyExpenses > 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {totalMonthlyIncome - totalMonthlyExpenses > 0 ? '+' : ''}NOK {(totalMonthlyIncome - totalMonthlyExpenses).toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-500">Net Flow</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
