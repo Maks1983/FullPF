@@ -70,18 +70,18 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Hero Section - Financial Flow */}
         <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-          <div className="flex items-center justify-between p-6">
+          <div className="flex items-center justify-between p-4">
             <div className="flex-1">
               {/* Money Story - Visual Narrative */}
               <div className="relative">
                 {/* Title with Emoji Status */}
-                <div className="flex items-center space-x-3 mb-4">
+                <div className="flex items-center space-x-3 mb-3">
                   <span className="text-2xl">
                     {netAfterPayments >= 5000 ? '😎' : 
                      netAfterPayments >= 0 ? '👍' : 
                      netAfterPayments >= -2000 ? '😬' : '😰'}
                   </span>
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-lg font-bold text-gray-900">
                     {netAfterPayments >= 5000 ? 'Looking Good!' : 
                      netAfterPayments >= 0 ? 'You\'re Covered' : 
                      netAfterPayments >= -2000 ? 'Getting Tight' : 'Need Action'}
@@ -89,14 +89,14 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                 </div>
 
                 {/* Visual Money Flow */}
-                <div className="flex items-center space-x-4 mb-4">
+                <div className="flex items-center space-x-3 mb-3">
                   {/* Current Money */}
                   <div className="flex-shrink-0 text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-white font-bold text-sm">NOK</span>
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-white font-bold text-xs">NOK</span>
                     </div>
                     <div className="mt-2">
-                      <div className="font-bold text-gray-900">{(netAvailable / 1000).toFixed(0)}k</div>
+                      <div className="font-bold text-sm text-gray-900">{(netAvailable / 1000).toFixed(0)}k</div>
                       <div className="text-xs text-gray-600">Current</div>
                     </div>
                   </div>
@@ -108,15 +108,15 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                       <span className="text-xs font-medium text-gray-600">Today</span>
                       <span className="text-xs font-medium text-gray-600">Payday</span>
                     </div>
-                    <div className="h-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 rounded-full"></div>
+                    <div className="h-1.5 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 rounded-full"></div>
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                       <div className="bg-white rounded-full p-1 shadow-md">
-                        <ArrowUpRight className="h-4 w-4 text-gray-600" />
+                        <ArrowUpRight className="h-3 w-3 text-gray-600" />
                       </div>
                     </div>
                     {/* Bills indicator */}
-                    <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium">
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+                      <div className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-medium">
                         -{(upcomingPaymentsTotal / 1000).toFixed(0)}k bills
                       </div>
                     </div>
@@ -129,12 +129,12 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                         ? 'bg-gradient-to-br from-blue-400 to-blue-600' 
                         : 'bg-gradient-to-br from-red-400 to-red-600'
                     }`}>
-                      <span className="text-white font-bold text-sm">
+                      <span className="text-white font-bold text-xs">
                         {netAfterPayments >= 0 ? '✓' : '!'}
                       </span>
                     </div>
                     <div className="mt-2">
-                      <div className={`font-bold ${netAfterPayments >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                      <div className={`font-bold text-sm ${netAfterPayments >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                         {Math.abs(netAfterPayments / 1000).toFixed(0)}k
                       </div>
                       <div className="text-xs text-gray-600">
@@ -156,29 +156,29 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         </div>
 
         {/* Content - Horizontal Bar Charts */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="p-4 overflow-y-auto max-h-[50vh]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Income Breakdown */}
-            <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <div className="flex items-center space-x-3 mb-4">
                 <ArrowUpRight className="h-5 w-5 text-green-600" />
                 <h4 className="font-semibold text-gray-900">Income Sources</h4>
               </div>
-              <div className="mb-4">
-                <p className="text-2xl font-bold text-green-600">NOK {monthlyIncome.toLocaleString()}</p>
+              <div className="mb-3">
+                <p className="text-xl font-bold text-green-600">NOK {monthlyIncome.toLocaleString()}</p>
                 <p className="text-sm text-gray-600">Total monthly income</p>
               </div>
               <HorizontalBarChart data={incomeData} />
             </div>
 
             {/* Expense Breakdown */}
-            <div className="bg-red-50 p-6 rounded-lg border border-red-200">
+            <div className="bg-red-50 p-4 rounded-lg border border-red-200">
               <div className="flex items-center space-x-3 mb-4">
                 <TrendingDown className="h-5 w-5 text-red-600" />
                 <h4 className="font-semibold text-gray-900">Expense Categories</h4>
               </div>
-              <div className="mb-4">
-                <p className="text-2xl font-bold text-red-600">NOK {monthlyExpenses.toLocaleString()}</p>
+              <div className="mb-3">
+                <p className="text-xl font-bold text-red-600">NOK {monthlyExpenses.toLocaleString()}</p>
                 <p className="text-sm text-gray-600">Total monthly expenses</p>
               </div>
               <HorizontalBarChart data={expenseData} />
