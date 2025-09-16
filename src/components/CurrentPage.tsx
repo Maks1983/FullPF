@@ -151,7 +151,6 @@ const CurrentPage = () => {
           </div>
           
           {/* Account Balances Card */}
-          {/* Net Cashflow Card */}
           <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
             onClick={() => setIsNetCashflowModalOpen(true)}
           >
