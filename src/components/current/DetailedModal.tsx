@@ -72,61 +72,41 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <div className="flex items-center justify-between p-6">
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Available Balance Breakdown</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Your Money Right Now</h2>
               
-              {/* Compact Financial Flow */}
-              <div className="flex items-center justify-between max-w-2xl">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {netAvailable.toLocaleString()}
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">Current Balance</div>
+              {/* Hero Amount - What Actually Matters */}
+              <div className="text-center mb-4">
+                <div className={`text-4xl font-black mb-2 ${netAfterPayments >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  NOK {Math.abs(netAfterPayments).toLocaleString()}
                 </div>
-                
-                <div className="text-2xl text-gray-400 mx-4">−</div>
-                
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">
-                    {upcomingPaymentsTotal.toLocaleString()}
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">Upcoming Bills</div>
-                </div>
-                
-                <div className="text-2xl text-gray-400 mx-4">=</div>
-                
-                <div className="text-center">
-                  <div className={`text-2xl font-bold ${netAfterPayments >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {netAfterPayments.toLocaleString()}
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">Net Available</div>
+                <div className="text-lg text-gray-700 font-medium">
+                  {netAfterPayments >= 0 ? 'Available after bills' : 'Short after bills'}
                 </div>
               </div>
 
-              {/* Compact Context Row */}
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                <div className="text-center">
-                  <div className={`text-lg font-bold ${daysUntilTight < 7 ? 'text-red-600' : daysUntilTight < 14 ? 'text-yellow-600' : 'text-green-600'}`}>
-                    {daysUntilTight}d
-                  </div>
-                  <div className="text-xs text-gray-600">Runway</div>
+              {/* Supporting Math - How We Got There */}
+              <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 mb-4 border border-white/40">
+                <div className="text-sm text-gray-600 text-center">
+                  NOK {netAvailable.toLocaleString()} current balance − NOK {upcomingPaymentsTotal.toLocaleString()} upcoming bills
                 </div>
-                <div className="text-center">
-                  <div className={`text-lg font-bold ${
-                    getSpendingVelocity() === 'High' ? 'text-red-600' : 
-                    getSpendingVelocity() === 'Low' ? 'text-green-600' : 'text-blue-600'
-                  }`}>
-                    {getSpendingVelocity()}
-                  </div>
-                  <div className="text-xs text-gray-600">Velocity</div>
+              </div>
+
+              {/* Status Indicators - Quick Context */}
+              <div className="flex items-center justify-center space-x-6 text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${daysUntilTight < 7 ? 'bg-red-500' : daysUntilTight < 14 ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                  <span className="text-gray-700">{daysUntilTight} days runway</span>
                 </div>
-                <div className="text-center">
-                  <div 
-                    className={`inline-block px-3 py-1 rounded text-lg font-bold ${getHealthBadgeColor(healthScore)}`}
-                    title={`Financial Health Score: ${healthScore}/100`}
-                  >
-                    {healthScore}
-                  </div>
-                  <div className="text-xs text-gray-600">Health</div>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    getSpendingVelocity() === 'High' ? 'bg-red-500' : 
+                    getSpendingVelocity() === 'Low' ? 'bg-green-500' : 'bg-blue-500'
+                  }`}></div>
+                  <span className="text-gray-700">{getSpendingVelocity().toLowerCase()} spending</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${healthScore >= 85 ? 'bg-green-500' : healthScore >= 70 ? 'bg-blue-500' : 'bg-yellow-500'}`}></div>
+                  <span className="text-gray-700">health {healthScore}/100</span>
                 </div>
               </div>
             </div>
