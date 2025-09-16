@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import SmartSuggestions from '../SmartSuggestions';
 import type { SpendingCategory } from '../../../types/current';
 
@@ -10,7 +10,7 @@ interface SuggestionsSectionProps {
   daysUntilPaycheck: number;
 }
 
-const SuggestionsSection: React.FC<SuggestionsSectionProps> = ({
+const SuggestionsSection: React.FC<SuggestionsSectionProps> = memo(({
   netLeftover,
   savingsRate,
   spendingCategories,
@@ -26,6 +26,8 @@ const SuggestionsSection: React.FC<SuggestionsSectionProps> = ({
       daysUntilPaycheck={daysUntilPaycheck}
     />
   );
-};
+});
+
+SuggestionsSection.displayName = 'SuggestionsSection';
 
 export default SuggestionsSection;

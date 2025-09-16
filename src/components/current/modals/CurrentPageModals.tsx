@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import DetailedModal from '../DetailedModal';
 import UpcomingPaymentsModal from '../UpcomingPaymentsModal';
 import NetCashflowModal from '../NetCashflowModal';
@@ -19,7 +19,7 @@ interface CurrentPageModalsProps {
   overdueCount: number;
 }
 
-const CurrentPageModals: React.FC<CurrentPageModalsProps> = ({
+const CurrentPageModals: React.FC<CurrentPageModalsProps> = memo(({
   isModalOpen,
   onCloseModal,
   isPaymentsModalOpen,
@@ -64,6 +64,8 @@ const CurrentPageModals: React.FC<CurrentPageModalsProps> = ({
       />
     </>
   );
-};
+});
+
+CurrentPageModals.displayName = 'CurrentPageModals';
 
 export default CurrentPageModals;

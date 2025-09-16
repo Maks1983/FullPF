@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import FinancialAwarenessSummary from '../FinancialAwarenessSummary';
 import type { SpendingCategory } from '../../../types/current';
 
@@ -11,7 +11,7 @@ interface AwarenessSectionProps {
   netLeftoverUntilPaycheck: number;
 }
 
-const AwarenessSection: React.FC<AwarenessSectionProps> = ({
+const AwarenessSection: React.FC<AwarenessSectionProps> = memo(({
   totalMonthlyIncome,
   totalMonthlyExpenses,
   biggestExpenseCategory,
@@ -29,6 +29,8 @@ const AwarenessSection: React.FC<AwarenessSectionProps> = ({
       netLeftoverUntilPaycheck={netLeftoverUntilPaycheck}
     />
   );
-};
+});
+
+AwarenessSection.displayName = 'AwarenessSection';
 
 export default AwarenessSection;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import CashflowProjectionChart from '../CashflowProjectionChart';
 import SpendingCategoriesCard from '../SpendingCategoriesCard';
 import type { CashflowProjection, SpendingCategory } from '../../../types/current';
@@ -10,7 +10,7 @@ interface MoneyFlowSectionProps {
   todaySpending: number;
 }
 
-const MoneyFlowSection: React.FC<MoneyFlowSectionProps> = ({
+const MoneyFlowSection: React.FC<MoneyFlowSectionProps> = memo(({
   cashflowProjections,
   spendingCategories,
   daysUntilDeficit,
@@ -40,6 +40,8 @@ const MoneyFlowSection: React.FC<MoneyFlowSectionProps> = ({
       </div>
     </div>
   );
-};
+});
+
+MoneyFlowSection.displayName = 'MoneyFlowSection';
 
 export default MoneyFlowSection;

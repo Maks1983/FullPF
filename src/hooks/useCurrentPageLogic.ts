@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useCurrentPageData } from './useCurrentPageData';
 import { useFinancialCalculations } from './useFinancialCalculations';
 import { useModalState } from './useModalState';
+import { formatCurrency, getFinancialHealthStatus } from '../utils/financial';
 
 export const useCurrentPageLogic = () => {
   const modalState = useModalState();
@@ -31,7 +32,10 @@ export const useCurrentPageLogic = () => {
   } = useFinancialCalculations(spendingCategories);
 
   // Memoize derived data
-  const headerData = useMemo(() => ({
+  const headerData = useMemo(() => {
+    const healthStatus = getFinancialHealthStatus(netLeftoverUntilPaycheck, totalMonthlyIncome);
+    
+    return {
     accounts,
     totalAvailable,
     netLeftoverUntilPaycheck,
@@ -39,7 +43,9 @@ export const useCurrentPageLogic = () => {
     upcomingPayments,
     overdueCount,
     totalMonthlyIncome,
-    totalMonthlyExpenses
+      totalMonthlyExpenses,
+      healthStatus
+    };
   }), [
     accounts,
     totalAvailable,
@@ -48,7 +54,8 @@ export const useCurrentPageLogic = () => {
     upcomingPayments,
     overdueCount,
     totalMonthlyIncome,
-    totalMonthlyExpenses
+    totalMonthlyExpenses,
+    netLeftoverUntilPaycheck
   ]);
 
   const alertsData = useMemo(() => ({
@@ -109,6 +116,31 @@ export const useCurrentPageLogic = () => {
     netLeftoverUntilPaycheck
   ]);
 
+  // Memoized event handlers
+  const handleViewDetails = useCallback(() => {
+    modalState.setIsModalOpen(true);
+  }, [modalState]);
+
+  const handleViewPayments = useCallback(() => {
+    modalState.setIsPaymentsModalOpen(true);
+  }, [modalState]);
+
+  const handleViewNetCashflow = useCallback(() => {
+    modalState.setIsNetCashflowModalOpen(true);
+  }, [modalState]);
+
+  const handleCloseModal = useCallback(() => {
+    modalState.setIsModalOpen(false);
+  }, [modalState]);
+
+  const handleClosePaymentsModal = useCallback(() => {
+    modalState.setIsPaymentsModalOpen(false);
+  }, [modalState]);
+
+  const handleCloseNetCashflowModal = useCallback(() => {
+    modalState.setIsNetCashflowModalOpen(false);
+  }, [modalState]);
+
   return {
     modalState,
     headerData,
@@ -119,6 +151,13 @@ export const useCurrentPageLogic = () => {
     cashflowProjections,
     spendingCategories,
     recentTransactions,
-    daysUntilDeficit
+    daysUntilDeficit,
+    // Event handlers
+    handleViewDetails,
+    handleViewPayments,
+    handleViewNetCashflow,
+    handleCloseModal,
+    handleClosePaymentsModal,
+    handleCloseNetCashflowModal,
   };
 };

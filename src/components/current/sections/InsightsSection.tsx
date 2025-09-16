@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import MoneyFlowInsights from '../MoneyFlowInsights';
 import type { SpendingCategory, RecentTransaction } from '../../../types/current';
 
@@ -10,7 +10,7 @@ interface InsightsSectionProps {
   recentTransactions: RecentTransaction[];
 }
 
-const InsightsSection: React.FC<InsightsSectionProps> = ({
+const InsightsSection: React.FC<InsightsSectionProps> = memo(({
   monthlyIncome,
   monthlyExpenses,
   spendingCategories,
@@ -26,6 +26,8 @@ const InsightsSection: React.FC<InsightsSectionProps> = ({
       recentTransactions={recentTransactions}
     />
   );
-};
+});
+
+InsightsSection.displayName = 'InsightsSection';
 
 export default InsightsSection;
