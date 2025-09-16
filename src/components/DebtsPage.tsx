@@ -149,7 +149,7 @@ const DebtsPage = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Debt Progress Over Time</h3>
           <LineChart 
-            data={debtsData.debtHistory} 
+            data={debtProgressData} 
             dataKey="balance" 
             color="#ef4444"
             height={280}
@@ -157,7 +157,7 @@ const DebtsPage = () => {
           />
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
-              Total reduction: <span className="font-semibold text-green-600">-NOK 6,550</span> (12 months)
+              Total reduction: <span className="font-semibold text-green-600">-$4,050</span> (6 months)
             </p>
           </div>
         </div>
