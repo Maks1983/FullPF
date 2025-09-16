@@ -103,6 +103,11 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
 
                   {/* Flow Arrow */}
                   <div className="flex-1 relative">
+                    {/* Timeline Labels */}
+                    <div className="flex justify-between mb-1">
+                      <span className="text-xs font-medium text-gray-600">Today</span>
+                      <span className="text-xs font-medium text-gray-600">Payday</span>
+                    </div>
                     <div className="h-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 rounded-full"></div>
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                       <div className="bg-white rounded-full p-1 shadow-md">
@@ -110,7 +115,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                       </div>
                     </div>
                     {/* Bills indicator */}
-                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
                       <div className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium">
                         -{(upcomingPaymentsTotal / 1000).toFixed(0)}k bills
                       </div>
