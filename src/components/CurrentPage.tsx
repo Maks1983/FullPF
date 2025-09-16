@@ -71,17 +71,18 @@ const CurrentPage = () => {
           <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
             overdueCount > 0 ? 'ring-2 ring-red-400' : ''
           }`}
-            onClick={() => setIsPaymentsModalOpen(true)}>
+            onClick={() => setIsPaymentsModalOpen(true)}
+          >
             <div className="flex items-center justify-between">
               {/* Left side - Main info */}
               <div className="flex-1">
                 <div className="text-xs text-slate-300 mb-1">
-                  Upcoming payments
+                  Upcoming payments (in NOK)
                 </div>
                 <div className={`text-2xl font-bold mb-1 ${
                   overdueCount > 0 ? 'text-red-400' : 'text-white'
                 }`}>
-                  NOK {upcomingPayments
+                  -{upcomingPayments
                     .filter(p => p.status !== 'paid')
                     .reduce((sum, p) => sum + Math.abs(p.amount), 0)
                     .toLocaleString('no-NO', { 
@@ -133,7 +134,7 @@ const CurrentPage = () => {
             {/* Bottom info */}
             <div className="mt-3 pt-3 border-t border-slate-600">
               <div className="text-sm font-medium text-white">
-                Next due: {upcomingPayments
+                {upcomingPayments
                   .filter(p => p.status !== 'paid')
                   .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
                   ?.dueDate ? new Date(upcomingPayments
@@ -150,24 +151,27 @@ const CurrentPage = () => {
           </div>
           
           {/* Account Balances Card */}
+          {/* Net Cashflow Card */}
           <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
-            onClick={() => setIsNetCashflowModalOpen(true)}>
+            onClick={() => setIsNetCashflowModalOpen(true)}
+          >
             <div className="flex items-center justify-between">
               {/* Left side - Main info */}
               <div className="flex-1">
                 <div className="text-xs text-slate-300 mb-1">
-                  Account balances
+                  Net cashflow (in NOK)
                 </div>
-                <div className="text-2xl font-bold mb-1 text-white">
-                  NOK {accounts
-                    .reduce((sum, acc) => sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0)
-                    .toLocaleString('no-NO', { 
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0 
-                    })}
+                <div className={`text-2xl font-bold mb-1 ${
+                  (totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {(totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? '+' : ''}
+                  {(totalMonthlyIncome - totalMonthlyExpenses).toLocaleString('no-NO', { 
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0 
+                  })}
                 </div>
                 <div className="text-xs text-slate-400">
-                  {accounts.length} accounts total
+                  Monthly net flow
                 </div>
               </div>
               
@@ -187,20 +191,22 @@ const CurrentPage = () => {
                       cx="18"
                       cy="18"
                       r="15.9155"
-                      stroke="#10b981"
+                      stroke={((totalMonthlyIncome - totalMonthlyExpenses) >= 0) ? "#10b981" : "#ef4444"}
                       strokeWidth="3"
-                      strokeDasharray={`${Math.min((accounts.filter(acc => acc.status === 'active').length / accounts.length) * 100, 100)}, 100`}
+                      strokeDasharray={`${Math.min(Math.abs((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100, 100)}, 100`}
                       strokeLinecap="round"
                       fill="transparent"
                     />
                   </svg>
                   
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="text-lg font-bold text-white">
-                      {accounts.filter(acc => acc.status === 'active').length}
+                    <div className={`text-lg font-bold ${
+                      (totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {Math.round(Math.abs((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100)}%
                     </div>
                     <div className="text-xs text-slate-300">
-                      active
+                      {(totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'surplus' : 'deficit'}
                     </div>
                   </div>
                 </div>
@@ -210,7 +216,7 @@ const CurrentPage = () => {
             {/* Bottom info */}
             <div className="mt-3 pt-3 border-t border-slate-600">
               <div className="text-sm font-medium text-white">
-                {accounts.filter(acc => acc.type !== 'credit').length} deposit • {accounts.filter(acc => acc.type === 'credit').length} credit
+                In: {totalMonthlyIncome.toLocaleString()} • Out: {totalMonthlyExpenses.toLocaleString()}
               </div>
             </div>
 
@@ -261,11 +267,9 @@ const CurrentPage = () => {
         monthlyIncome={totalMonthlyIncome}
         monthlyExpenses={totalMonthlyExpenses}
         spendingCategories={spendingCategories}
-        todaySpending={todaySpending}
-        recentTransactions={recentTransactions}
+        savingsRate={savingsRate}
       />
 
-      {/* Main Money Available Card - Top Position */}
       {/* Main Content Grid - Enhanced Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column - Money Status */}
