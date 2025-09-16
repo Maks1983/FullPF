@@ -100,10 +100,10 @@ export const useCurrentPageData = () => {
   return useMemo(() => {
     // Calculate available balance from checking account only
     const checkingAccount = data.accounts.find(acc => acc.type === 'checking');
-    const totalAvailable = checkingAccount ? checkingAccount.balance : 0;
+    const totalAvailable = checkingAccount ? checkingAccount.balance : 0; // NOK 15,420
     
-    // Calculate upcoming payments
-    const upcomingPayments = data.debts.map(debt => ({
+    // Calculate upcoming payments - debt payments only
+    const debtPayments = data.debts.map(debt => ({
       id: `payment_${debt.id}`,
       description: `${debt.name} Payment`,
       amount: -debt.minimumPayment,
@@ -115,8 +115,8 @@ export const useCurrentPageData = () => {
       priority: 'high' as const
     }));
 
-    // Add rent payment
-    upcomingPayments.push({
+    // Add rent payment  
+    const rentPayment = {
       id: 'payment_rent',
       description: 'Rent Payment',
       amount: -12000,
@@ -126,10 +126,13 @@ export const useCurrentPageData = () => {
       isRecurring: true,
       accountId: 'acc_checking',
       priority: 'high' as const
-    });
+    };
 
-    const totalUpcomingPayments = upcomingPayments.reduce((sum, payment) => sum + Math.abs(payment.amount), 0);
-    const netLeftoverUntilPaycheck = checkingAccount ? checkingAccount.balance - totalUpcomingPayments : 0;
+    const upcomingPayments = [...debtPayments, rentPayment];
+
+    // Calculate totals
+    const totalUpcomingPayments = upcomingPayments.reduce((sum, payment) => sum + Math.abs(payment.amount), 0); // NOK 13,020
+    const netLeftoverUntilPaycheck = totalAvailable - totalUpcomingPayments; // NOK 15,420 - 13,020 = NOK 2,400
 
     // Mock recent transactions based on centralized data
     // Mock recent transactions
