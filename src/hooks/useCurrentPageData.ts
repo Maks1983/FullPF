@@ -46,7 +46,7 @@ export const useCurrentPageData = (): CurrentPageData & {
     // Calculate totals
     const totalUpcomingPayments = upcomingPayments.reduce((sum, payment) => sum + Math.abs(payment.amount), 0); // NOK 13,020
     const netLeftoverUntilPaycheck = totalAvailable - totalUpcomingPayments; // NOK 15,420 - 13,020 = NOK 2,400
-    };
+    
     // Calculate critical alerts
     const lowBalanceAccounts = data.accounts.filter(acc => 
       acc.type !== 'credit' && acc.minimumBalance && acc.balance < acc.minimumBalance
@@ -102,6 +102,8 @@ export const useCurrentPageData = (): CurrentPageData & {
         accountId: 'acc_checking',
         status: 'completed' as const
       }
+    ];
+    
     // Calculate spending categories with remaining amounts
     const spendingCategoriesWithRemaining = data.spendingCategories.map(cat => ({
       ...cat,
@@ -109,7 +111,7 @@ export const useCurrentPageData = (): CurrentPageData & {
       percentUsed: (cat.spent / cat.budget) * 100,
       isOverBudget: cat.spent > cat.budget
     }));
-    ];
+    
     // Mock cashflow projections
     const cashflowProjections = [
       { date: '2024-01-15', projectedBalance: totalAvailable, scheduledIncome: 0, scheduledExpenses: 0, netFlow: 0 },
