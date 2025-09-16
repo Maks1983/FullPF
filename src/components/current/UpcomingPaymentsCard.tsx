@@ -21,76 +21,54 @@ const UpcomingPaymentsCard: React.FC<UpcomingPaymentsCardProps> = ({
 
   return (
     <div 
-      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
-        overdueCount > 0 ? 'ring-2 ring-red-400' : ''
+      className={`bg-white p-6 rounded-xl shadow-sm border transition-all hover:shadow-md cursor-pointer group ${
+        overdueCount > 0 ? 'border-red-200 hover:border-red-300' : 'border-gray-200 hover:border-gray-300'
       }`}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between">
-        {/* Left side - Main info */}
-        <div className="flex-1">
-          <div className="text-xs text-slate-300 mb-1">
-            Upcoming payments (in NOK)
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <div className={`p-2 rounded-lg ${overdueCount > 0 ? 'bg-red-100' : 'bg-blue-100'}`}>
+            <Calendar className={`h-5 w-5 ${overdueCount > 0 ? 'text-red-600' : 'text-blue-600'}`} />
           </div>
-          <div className={`text-2xl font-bold mb-1 ${
-            overdueCount > 0 ? 'text-red-400' : 'text-white'
-          }`}>
-            -{totalAmount.toLocaleString('no-NO', { 
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0 
-            })}
-          </div>
-          <div className="text-xs text-slate-400">
-            {pendingPayments.length} payments until payday
+          <div>
+            <h3 className="font-semibold text-gray-900">Upcoming Payments</h3>
+            <p className="text-sm text-gray-600">
+              {pendingPayments.length} payment{pendingPayments.length !== 1 ? 's' : ''} scheduled
+            </p>
           </div>
         </div>
-        
-        {/* Right side - Circular progress */}
-        <div className="relative ml-4">
-          <div className="w-16 h-16">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              <circle
-                cx="18"
-                cy="18"
-                r="15.9155"
-                stroke="#475569"
-                strokeWidth="3"
-                fill="transparent"
-              />
-              <circle
-                cx="18"
-                cy="18"
-                r="15.9155"
-                stroke={overdueCount > 0 ? "#ef4444" : "#3b82f6"}
-                strokeWidth="3"
-                strokeDasharray={`${Math.min((pendingPayments.length / 10) * 100, 100)}, 100`}
-                strokeLinecap="round"
-                fill="transparent"
-              />
-            </svg>
-            
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-lg font-bold text-white">
-                {overdueCount > 0 ? overdueCount : pendingPayments.length}
-              </div>
-              <div className="text-xs text-slate-300">
-                {overdueCount > 0 ? 'overdue' : 'pending'}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Bottom info */}
-      <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className="text-sm font-medium text-white">
-          {nextPaymentDate ? new Date(nextPaymentDate).toLocaleDateString() : 'None'}
+        <div className="flex items-center space-x-2">
+          {overdueCount > 0 && <AlertTriangle className="h-5 w-5 text-red-500" />}
+          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
         </div>
       </div>
 
-      <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-xs text-slate-400 mr-2">View details</span>
-        <ChevronRight className="h-4 w-4 text-slate-400" />
+      <div className="space-y-4">
+        <div className="text-center">
+          <p className="text-3xl font-bold text-red-600">
+            NOK {totalAmount.toLocaleString()}
+          </p>
+          <p className="text-sm text-gray-600">Total amount due</p>
+        </div>
+
+        {overdueCount > 0 && (
+          <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+            <div className="flex items-center space-x-2 text-red-600">
+              <AlertTriangle className="h-4 w-4" />
+              <span className="text-sm font-medium">
+                {overdueCount} overdue payment{overdueCount > 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="text-center">
+          <p className="text-sm text-gray-600">Next payment due:</p>
+          <p className="font-semibold text-gray-900">
+            {nextPaymentDate ? new Date(nextPaymentDate).toLocaleDateString() : 'None scheduled'}
+          </p>
+        </div>
       </div>
     </div>
   );

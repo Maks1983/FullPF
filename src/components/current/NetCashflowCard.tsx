@@ -18,77 +18,63 @@ const NetCashflowCard: React.FC<NetCashflowCardProps> = ({
 
   return (
     <div 
-      className="bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative"
+      className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-gray-300 transition-all hover:shadow-md cursor-pointer group"
       onClick={onClick}
     >
-      <div className="flex items-center justify-between">
-        {/* Left side - Main info */}
-        <div className="flex-1">
-          <div className="text-xs text-slate-300 mb-1">
-            Net cashflow (in NOK)
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <div className={`p-2 rounded-lg ${isPositive ? 'bg-green-100' : 'bg-red-100'}`}>
+            {isPositive ? (
+              <TrendingUp className="h-5 w-5 text-green-600" />
+            ) : (
+              <TrendingDown className="h-5 w-5 text-red-600" />
+            )}
           </div>
-          <div className={`text-2xl font-bold mb-1 ${
-            isPositive ? 'text-green-400' : 'text-red-400'
-          }`}>
-            {isPositive ? '+' : ''}
-            {netCashflow.toLocaleString('no-NO', { 
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0 
-            })}
-          </div>
-          <div className="text-xs text-slate-400">
-            Monthly net flow
+          <div>
+            <h3 className="font-semibold text-gray-900">Net Cashflow</h3>
+            <p className="text-sm text-gray-600">Monthly money direction</p>
           </div>
         </div>
-        
-        {/* Right side - Circular progress */}
-        <div className="relative ml-4">
-          <div className="w-16 h-16">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              <circle
-                cx="18"
-                cy="18"
-                r="15.9155"
-                stroke="#475569"
-                strokeWidth="3"
-                fill="transparent"
-              />
-              <circle
-                cx="18"
-                cy="18"
-                r="15.9155"
-                stroke={isPositive ? "#10b981" : "#ef4444"}
-                strokeWidth="3"
-                strokeDasharray={`${Math.min(flowPercentage, 100)}, 100`}
-                strokeLinecap="round"
-                fill="transparent"
-              />
-            </svg>
-            
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className={`text-lg font-bold ${
-                isPositive ? 'text-green-400' : 'text-red-400'
-              }`}>
-                {Math.round(flowPercentage)}%
-              </div>
-              <div className="text-xs text-slate-300">
-                {isPositive ? 'surplus' : 'deficit'}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Bottom info */}
-      <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className="text-sm font-medium text-white">
-          In: {monthlyIncome.toLocaleString()} • Out: {monthlyExpenses.toLocaleString()}
-        </div>
+        <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
       </div>
 
-      <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-xs text-slate-400 mr-2">View details</span>
-        <ChevronRight className="h-4 w-4 text-slate-400" />
+      <div className="space-y-4">
+        <div className="text-center">
+          <p className={`text-3xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            {isPositive ? '+' : ''}NOK {netCashflow.toLocaleString()}
+          </p>
+          <p className="text-sm text-gray-600">
+            {flowPercentage.toFixed(1)}% of income {isPositive ? 'saved' : 'overspent'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 text-center">
+          <div>
+            <p className="text-lg font-semibold text-green-600">
+              NOK {monthlyIncome.toLocaleString()}
+            </p>
+            <p className="text-xs text-gray-600">Income</p>
+          </div>
+          <div>
+            <p className="text-lg font-semibold text-red-600">
+              NOK {monthlyExpenses.toLocaleString()}
+            </p>
+            <p className="text-xs text-gray-600">Expenses</p>
+          </div>
+        </div>
+
+        <div className={`p-3 rounded-lg ${
+          isPositive ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+        }`}>
+          <p className={`text-sm font-medium text-center ${
+            isPositive ? 'text-green-800' : 'text-red-800'
+          }`}>
+            {isPositive 
+              ? `Building wealth at NOK ${Math.abs(netCashflow).toLocaleString()}/month`
+              : `Spending NOK ${Math.abs(netCashflow).toLocaleString()} more than earning`
+            }
+          </p>
+        </div>
       </div>
     </div>
   );
