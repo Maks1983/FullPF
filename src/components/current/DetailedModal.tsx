@@ -69,9 +69,9 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Hero Section - Financial Flow */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex-1">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+          <div className="flex items-start justify-between p-4">
+            <div className="flex-1 pr-4">
               {/* Money Story - Visual Narrative */}
               <div className="relative">
                 {/* Title with Emoji Status */}
@@ -146,9 +146,10 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
               </div>
             </div>
             
+            {/* Close button - properly positioned */}
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors ml-6"
+              className="flex-shrink-0 p-2 hover:bg-white/50 rounded-lg transition-colors"
             >
               <X className="h-5 w-5 text-gray-500" />
             </button>
@@ -181,7 +182,15 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                 <p className="text-xl font-bold text-red-600">NOK {monthlyExpenses.toLocaleString()}</p>
                 <p className="text-sm text-gray-600">Total monthly expenses</p>
               </div>
-              <HorizontalBarChart data={expenseData} />
+              {/* Scrollable expense chart for many categories */}
+              <div className="max-h-48 overflow-y-auto pr-2">
+                <HorizontalBarChart data={expenseData} />
+              </div>
+              {expenseData.length > 6 && (
+                <div className="mt-2 text-xs text-gray-500 text-center">
+                  Scroll to see all {expenseData.length} categories
+                </div>
+              )}
             </div>
           </div>
 
