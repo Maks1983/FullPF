@@ -99,12 +99,10 @@ export const useCurrentPageData = () => {
   
   return useMemo(() => {
     // Calculate available balance (liquid assets minus credit card debt)
-    const liquidAssets = data.totals.liquidAssets;
-    const creditCardDebt = data.debts
-      .filter(debt => debt.type === 'credit_card')
-      .reduce((sum, debt) => sum + debt.balance, 0);
-    
-    const totalAvailable = liquidAssets - creditCardDebt;
+    // Available balance = checking + savings accounts (actual liquid cash)
+    const totalAvailable = data.accounts
+      .filter(acc => acc.type !== 'credit')
+      .reduce((sum, acc) => sum + acc.balance, 0);
     
     // Calculate upcoming payments
     const upcomingPayments = data.debts.map(debt => ({
@@ -135,6 +133,7 @@ export const useCurrentPageData = () => {
     const totalUpcomingPayments = upcomingPayments.reduce((sum, payment) => sum + Math.abs(payment.amount), 0);
     const netLeftoverUntilPaycheck = totalAvailable - totalUpcomingPayments;
 
+    // Mock recent transactions based on centralized data
     // Mock recent transactions
     const recentTransactions = [
       {
@@ -202,7 +201,7 @@ export const useCurrentPageData = () => {
       totalAvailable,
       netLeftoverUntilPaycheck,
       overdueCount: 0,
-      todaySpending: 485.50,
+      todaySpending: 485.50, // This would be calculated from recent transactions
       totalMonthlyIncome: data.user.monthlyIncome,
       totalMonthlyExpenses: data.totals.monthlyExpenses
     };
