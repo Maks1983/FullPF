@@ -85,7 +85,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
             })}
           </div>
           <div className="text-xs text-slate-400">
-            -{upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} payments
+            Net Available: {totalAvailable.toLocaleString()}
           </div>
         </div>
         
