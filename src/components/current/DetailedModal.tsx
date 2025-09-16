@@ -103,30 +103,30 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
               </div>
 
               {/* Compact Context Row */}
-              <div className="flex items-center space-x-6 mt-4 text-sm">
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">Runway:</span>
-                  <span className={`font-semibold ${daysUntilTight < 7 ? 'text-red-600' : daysUntilTight < 14 ? 'text-yellow-600' : 'text-green-600'}`}>
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="text-center">
+                  <div className={`text-lg font-bold ${daysUntilTight < 7 ? 'text-red-600' : daysUntilTight < 14 ? 'text-yellow-600' : 'text-green-600'}`}>
                     {daysUntilTight}d
-                  </span>
+                  </div>
+                  <div className="text-xs text-gray-600">Runway</div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">Velocity:</span>
-                  <span className={`font-semibold ${
+                <div className="text-center">
+                  <div className={`text-lg font-bold ${
                     getSpendingVelocity() === 'High' ? 'text-red-600' : 
                     getSpendingVelocity() === 'Low' ? 'text-green-600' : 'text-blue-600'
                   }`}>
                     {getSpendingVelocity()}
-                  </span>
+                  </div>
+                  <div className="text-xs text-gray-600">Velocity</div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">Health:</span>
-                  <span 
-                    className={`px-2 py-1 rounded text-xs font-bold ${getHealthBadgeColor(healthScore)}`}
+                <div className="text-center">
+                  <div 
+                    className={`inline-block px-3 py-1 rounded text-lg font-bold ${getHealthBadgeColor(healthScore)}`}
                     title={`Financial Health Score: ${healthScore}/100`}
                   >
                     {healthScore}
-                  </span>
+                  </div>
+                  <div className="text-xs text-gray-600">Health</div>
                 </div>
               </div>
             </div>
