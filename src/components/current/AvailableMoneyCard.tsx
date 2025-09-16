@@ -87,10 +87,13 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           <div className="text-xs text-slate-400">
             Net Available: {totalAvailable.toLocaleString()}
           </div>
+          <div className="text-xs text-slate-400">
+            NOK {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} remaining payments
+          </div>
         </div>
         
         {/* Right side - Circular progress */}
-        <div className="relative ml-4">
+        <div className="relative">
           <div className="w-16 h-16">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
               <path
