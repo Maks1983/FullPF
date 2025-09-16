@@ -37,6 +37,28 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   // Health score calculation (simplified)
   const healthScore = 85; // This would come from props
   
+  // Dynamic emoji/status thresholds based on user's financial context
+  const getFinancialStatusEmoji = (netAmount: number, userIncome: number) => {
+    const monthlyIncomeThreshold = userIncome || monthlyIncome;
+    const comfortableThreshold = monthlyIncomeThreshold * 0.15; // 15% of monthly income
+    const tightThreshold = monthlyIncomeThreshold * 0.05; // 5% of monthly income
+    
+    if (netAmount >= comfortableThreshold) return '😎';
+    if (netAmount >= tightThreshold) return '👍';
+    if (netAmount >= -tightThreshold) return '😬';
+    return '😰';
+  };
+  
+  const getFinancialStatusText = (netAmount: number, userIncome: number) => {
+    const monthlyIncomeThreshold = userIncome || monthlyIncome;
+    const comfortableThreshold = monthlyIncomeThreshold * 0.15;
+    const tightThreshold = monthlyIncomeThreshold * 0.05;
+    
+    if (netAmount >= comfortableThreshold) return 'Looking Great!';
+    if (netAmount >= tightThreshold) return 'You\'re Covered';
+    if (netAmount >= -tightThreshold) return 'Getting Tight';
+    return 'Need Action';
+  };
   const getHealthBadgeColor = (score: number) => {
     if (score >= 85) return 'bg-green-500 text-white';
     if (score >= 70) return 'bg-blue-500 text-white';
@@ -77,14 +99,10 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                 {/* Title with Emoji Status */}
                 <div className="flex items-center space-x-3 mb-3">
                   <span className="text-2xl">
-                    {netAfterPayments >= 5000 ? '😎' : 
-                     netAfterPayments >= 0 ? '👍' : 
-                     netAfterPayments >= -2000 ? '😬' : '😰'}
+                    {getFinancialStatusEmoji(netAfterPayments, monthlyIncome)}
                   </span>
                   <h2 className="text-lg font-bold text-gray-900">
-                    {netAfterPayments >= 5000 ? 'Looking Good!' : 
-                     netAfterPayments >= 0 ? 'You\'re Covered' : 
-                     netAfterPayments >= -2000 ? 'Getting Tight' : 'Need Action'}
+                    {getFinancialStatusText(netAfterPayments, monthlyIncome)}
                   </h2>
                 </div>
 
@@ -186,9 +204,21 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
               <div className="flex-1 overflow-y-auto pr-2 min-h-0" style={{ maxHeight: '280px' }}>
                 <HorizontalBarChart data={expenseData} />
               </div>
-              {expenseData.length > 8 && (
-                <div className="mt-2 pt-2 border-t border-red-200 text-xs text-gray-500 text-center bg-red-50">
-                  ↕ Scroll to see all {expenseData.length} categories
+              {/* Enhanced mobile-friendly scroll indicator */}
+              {expenseData.length > 6 && (
+                <div className="mt-2 pt-2 border-t border-red-200 bg-red-50 rounded-b-lg">
+                  <div className="flex items-center justify-center space-x-2 text-xs text-gray-600">
+                    <div className="flex flex-col items-center">
+                      <div className="text-lg leading-none">↕</div>
+                      <div className="w-8 h-0.5 bg-gray-400 rounded-full animate-pulse"></div>
+                    </div>
+                    <span className="font-medium">Scroll to see all {expenseData.length} categories</span>
+                  </div>
+                  {/* Mobile touch indicator */}
+                  <div className="mt-1 text-center">
+                    <span className="text-xs text-gray-500 md:hidden">👆 Swipe up/down to scroll</span>
+                    <span className="text-xs text-gray-500 hidden md:inline">Use mouse wheel or scrollbar</span>
+                  </div>
                 </div>
               )}
             </div>

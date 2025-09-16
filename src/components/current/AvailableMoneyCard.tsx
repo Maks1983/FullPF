@@ -21,6 +21,23 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
 }) => {
   const isDeficit = netLeftover < 0;
   
+  // Dynamic thresholds based on user's financial context
+  const getUserFinancialThresholds = (totalAvailable: number, monthlyExpenses: number) => {
+    const monthlyBurnRate = monthlyExpenses / 30;
+    const emergencyFundTarget = monthlyBurnRate * 90; // 3 months expenses
+    
+    return {
+      comfortable: emergencyFundTarget * 0.8, // 80% of 3-month emergency fund
+      adequate: emergencyFundTarget * 0.5,    // 50% of 3-month emergency fund
+      tight: monthlyBurnRate * 7,             // 1 week of expenses
+      critical: monthlyBurnRate * 3           // 3 days of expenses
+    };
+  };
+  
+  // Calculate average monthly expenses from spending categories (if available)
+  const estimatedMonthlyExpenses = 35000; // This would come from props/context
+  const thresholds = getUserFinancialThresholds(totalAvailable, estimatedMonthlyExpenses);
+  
   // Calculate progress for circular indicator (days until paycheck)
   const totalDaysInMonth = 30; // Approximate
   const progress = ((totalDaysInMonth - paycheckInfo.daysUntilPaycheck) / totalDaysInMonth) * 100;
@@ -34,10 +51,21 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   // Calculate current saldo: net after payments + upcoming payments
   const currentSaldo = totalAvailable + upcomingPaymentsTotal;
 
+  // Dynamic status determination
+  const getFinancialStatus = (amount: number) => {
+    if (amount >= thresholds.comfortable) return { color: 'text-green-400', ring: '' };
+    if (amount >= thresholds.adequate) return { color: 'text-blue-400', ring: '' };
+    if (amount >= thresholds.tight) return { color: 'text-yellow-400', ring: 'ring-2 ring-yellow-400' };
+    if (amount >= thresholds.critical) return { color: 'text-orange-400', ring: 'ring-2 ring-orange-400' };
+    return { color: 'text-red-400', ring: 'ring-2 ring-red-400' };
+  };
+  
+  const statusStyle = getFinancialStatus(Math.abs(currentSaldo));
+
   return (
     <div 
       className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
-      isDeficit ? 'ring-2 ring-red-400' : ''
+      statusStyle.ring
     }`}
       onClick={onViewDetails}
     >
@@ -101,11 +129,18 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
       
       {/* Bottom info */}
       <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className="text-sm font-medium text-white">
+        <div className={`text-sm font-medium ${statusStyle.color}`}>
           Net Available: {totalAvailable < 0 ? '-' : ''}{Math.abs(totalAvailable).toLocaleString('no-NO', { 
             minimumFractionDigits: 0,
             maximumFractionDigits: 0 
           })}
+        </div>
+        {/* Dynamic status message */}
+        <div className="text-xs text-slate-400 mt-1">
+          {Math.abs(currentSaldo) >= thresholds.comfortable && '💪 Strong financial position'}
+          {Math.abs(currentSaldo) >= thresholds.adequate && Math.abs(currentSaldo) < thresholds.comfortable && '👍 Adequate reserves'}
+          {Math.abs(currentSaldo) >= thresholds.tight && Math.abs(currentSaldo) < thresholds.adequate && '⚠️ Getting tight'}
+          {Math.abs(currentSaldo) < thresholds.tight && '🚨 Critical - need attention'}
         </div>
       </div>
 
