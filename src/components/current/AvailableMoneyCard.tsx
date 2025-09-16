@@ -129,12 +129,6 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
       
       {/* Bottom info */}
       <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className={`text-sm font-medium ${statusStyle.color}`}>
-          Net Available: {totalAvailable < 0 ? '-' : ''}{Math.abs(totalAvailable).toLocaleString('no-NO', { 
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0 
-          })}
-        </div>
         {/* Dynamic status message */}
         <div className="text-xs text-slate-400 mt-1">
           {Math.abs(currentSaldo) >= thresholds.comfortable && '💪 Strong financial position'}
