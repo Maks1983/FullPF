@@ -1,8 +1,6 @@
 import React from 'react';
 import { ChevronRight, Calendar, AlertTriangle } from 'lucide-react';
-import AnimatedCard from '../common/AnimatedCard';
 import type { UpcomingPayment } from '../../types/current';
-import { ARIA_LABELS, ARIA_DESCRIPTIONS } from '../../constants/accessibility';
 
 interface UpcomingPaymentsCardProps {
   upcomingPayments: UpcomingPayment[];
@@ -16,15 +14,19 @@ const UpcomingPaymentsCard: React.FC<UpcomingPaymentsCardProps> = ({
   onClick
 }) => {
   return (
-    <AnimatedCard
-      onClick={onClick}
-      ariaLabel={ARIA_LABELS.paymentsCard}
-      ariaDescription={ARIA_DESCRIPTIONS.paymentsCard}
-      animationType="slideIn"
-    >
     <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
       overdueCount > 0 ? 'ring-2 ring-red-400' : ''
-    }`}>
+    }`}
+         onClick={onClick}
+         role="button"
+         tabIndex={0}
+         aria-label="View upcoming payments details"
+         onKeyDown={(e) => {
+           if (e.key === 'Enter' || e.key === ' ') {
+             e.preventDefault();
+             onClick();
+           }
+         }}>
       <div className="flex items-center justify-between">
         {/* Left side - Main info */}
         <div className="flex-1">
@@ -101,7 +103,6 @@ const UpcomingPaymentsCard: React.FC<UpcomingPaymentsCardProps> = ({
         <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
-    </AnimatedCard>
   );
 };
 
