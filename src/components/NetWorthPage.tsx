@@ -77,19 +77,19 @@ const NetWorthPage = () => {
         
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-sm font-medium text-gray-500 mb-2">Total Assets</h3>
-          <p className="text-2xl font-bold text-green-600">${assets.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-green-600">NOK {netWorthData.totalAssets.toLocaleString()}</p>
           <p className="text-sm text-gray-600 mt-1">+2.8% this month</p>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-sm font-medium text-gray-500 mb-2">Total Liabilities</h3>
-          <p className="text-2xl font-bold text-red-600">${liabilities.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-red-600">NOK {netWorthData.totalLiabilities.toLocaleString()}</p>
           <p className="text-sm text-gray-600 mt-1">-3.2% this month</p>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-sm font-medium text-gray-500 mb-2">Assets to Liabilities</h3>
-          <p className="text-2xl font-bold text-blue-600">{(assets / liabilities).toFixed(1)}:1</p>
+          <p className="text-2xl font-bold text-blue-600">{netWorthData.assetLiabilityRatio.toFixed(1)}:1</p>
           <p className="text-sm text-gray-600 mt-1">Ratio</p>
         </div>
       </div>
@@ -99,12 +99,12 @@ const NetWorthPage = () => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Net Worth Trend (12 Months)</h3>
           <div className="text-sm text-gray-600">
-            Growth: <span className="font-semibold text-green-600">+${(netWorth - 95000).toLocaleString()}</span>
+            Growth: <span className="font-semibold text-green-600">+NOK {(netWorthData.netWorth - netWorthData.netWorthHistory[0].netWorth).toLocaleString()}</span>
           </div>
         </div>
         <LineChart 
-          data={netWorthTrendData} 
-          dataKey="value" 
+          data={netWorthData.netWorthHistory} 
+          dataKey="netWorth" 
           color="#10b981"
           height={300}
           showGrid={true}
@@ -119,12 +119,12 @@ const NetWorthPage = () => {
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium text-gray-900">Short-term Goal (1 Year)</p>
-                <p className="text-sm text-gray-600">Target: $125,000</p>
+                <p className="text-sm text-gray-600">Target: NOK 3,500,000</p>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-green-600">85%</p>
+                <p className="font-semibold text-green-600">{((netWorthData.netWorth / 3500000) * 100).toFixed(0)}%</p>
                 <div className="w-24 bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{width: '85%'}}></div>
+                  <div className="bg-green-500 h-2 rounded-full" style={{width: `${Math.min((netWorthData.netWorth / 3500000) * 100, 100)}%`}}></div>
                 </div>
               </div>
             </div>
@@ -223,7 +223,7 @@ const NetWorthPage = () => {
           </div>
         </div>
         <Table 
-          data={netWorthBreakdown} 
+          data={netWorthData.breakdown} 
           columns={breakdownColumns}
           sortConfig={sortConfig}
           onSort={setSortConfig}
@@ -253,25 +253,25 @@ const NetWorthPage = () => {
                     <ul className="space-y-1 text-gray-600">
                       <li className="flex justify-between">
                         <span>Cash & Savings</span>
-                        <span>$15,420</span>
+                        <span>NOK {netWorthData.breakdown.filter(item => item.category === 'Assets' && (item.type === 'Cash' || item.type === 'Savings')).reduce((sum, item) => sum + item.value, 0).toLocaleString()}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Investments</span>
-                        <span>$24,890</span>
+                        <span>NOK {netWorthData.breakdown.filter(item => item.category === 'Assets' && item.type === 'Investment').reduce((sum, item) => sum + item.value, 0).toLocaleString()}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Real Estate</span>
-                        <span>$85,000</span>
+                        <span>NOK {netWorthData.breakdown.filter(item => item.category === 'Assets' && item.type === 'Real Estate').reduce((sum, item) => sum + item.value, 0).toLocaleString()}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Other Assets</span>
-                        <span>$16,990</span>
+                        <span>NOK {netWorthData.breakdown.filter(item => item.category === 'Assets' && item.type === 'Vehicle').reduce((sum, item) => sum + item.value, 0).toLocaleString()}</span>
                       </li>
                     </ul>
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between font-semibold">
                         <span>Total Assets</span>
-                        <span>${assets.toLocaleString()}</span>
+                        <span>NOK {netWorthData.totalAssets.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
@@ -281,21 +281,21 @@ const NetWorthPage = () => {
                     <ul className="space-y-1 text-gray-600">
                       <li className="flex justify-between">
                         <span>Credit Cards</span>
-                        <span>$18,500</span>
+                        <span>NOK {netWorthData.breakdown.filter(item => item.category === 'Liabilities' && item.type === 'Credit Card').reduce((sum, item) => sum + Math.abs(item.value), 0).toLocaleString()}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Auto Loan</span>
-                        <span>$12,200</span>
+                        <span>NOK {netWorthData.breakdown.filter(item => item.category === 'Liabilities' && item.type === 'Auto Loan').reduce((sum, item) => sum + Math.abs(item.value), 0).toLocaleString()}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Student Loan</span>
-                        <span>$7,750</span>
+                        <span>NOK {netWorthData.breakdown.filter(item => item.category === 'Liabilities' && item.type === 'Student Loan').reduce((sum, item) => sum + Math.abs(item.value), 0).toLocaleString()}</span>
                       </li>
                     </ul>
                     <div className="border-t pt-2 mt-2">
                       <div className="flex justify-between font-semibold">
                         <span>Total Liabilities</span>
-                        <span>${liabilities.toLocaleString()}</span>
+                        <span>NOK {netWorthData.totalLiabilities.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
@@ -304,7 +304,7 @@ const NetWorthPage = () => {
                 <div className="border-t-2 pt-4 mt-4">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Net Worth</span>
-                    <span className="text-green-600">${netWorth.toLocaleString()}</span>
+                    <span className="text-green-600">NOK {netWorthData.netWorth.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
