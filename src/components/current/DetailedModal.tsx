@@ -59,11 +59,21 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
     { category: 'Investments', amount: monthlyIncome * 0.05, color: '#047857' },
   ];
 
-  const expenseData = spendingCategories.map(cat => ({
-    category: cat.name,
-    amount: cat.spent,
-    color: cat.color
-  })).sort((a, b) => b.amount - a.amount);
+  // Simulate 12 expense categories for testing
+  const expenseData = [
+    { category: 'Housing & Rent', amount: 12000, color: '#ef4444' },
+    { category: 'Food & Dining', amount: 4500, color: '#f97316' },
+    { category: 'Transportation', amount: 3200, color: '#eab308' },
+    { category: 'Investments', amount: 8000, color: '#22c55e' },
+    { category: 'Savings', amount: 5000, color: '#10b981' },
+    { category: 'Entertainment', amount: 2800, color: '#8b5cf6' },
+    { category: 'Shopping', amount: 2200, color: '#ec4899' },
+    { category: 'Utilities', amount: 1800, color: '#06b6d4' },
+    { category: 'Healthcare', amount: 1500, color: '#84cc16' },
+    { category: 'Insurance', amount: 1200, color: '#f59e0b' },
+    { category: 'Subscriptions', amount: 800, color: '#6366f1' },
+    { category: 'Personal Care', amount: 600, color: '#d946ef' }
+  ].sort((a, b) => b.amount - a.amount);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
