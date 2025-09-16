@@ -170,7 +170,7 @@ const SavingsPage = () => {
           <h3 className="text-lg font-semibold text-gray-900">Savings Growth (12 Months)</h3>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">Target:</span>
-            <span className="text-sm font-semibold text-green-600">{savingsGoal.toLocaleString()} NOK</span>
+            <span className="text-sm font-semibold text-green-600">{savingsData.savingsGoal.toLocaleString()} NOK</span>
           </div>
         </div>
         <LineChart 
