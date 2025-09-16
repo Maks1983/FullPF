@@ -98,11 +98,9 @@ export const useCurrentPageData = () => {
   const data = useCentralizedFinancialData();
   
   return useMemo(() => {
-    // Calculate available balance (liquid assets minus credit card debt)
-    // Available balance = checking + savings accounts (actual liquid cash)
-    const totalAvailable = data.accounts
-      .filter(acc => acc.type !== 'credit')
-      .reduce((sum, acc) => sum + acc.balance, 0);
+    // Calculate available balance from checking account only
+    const checkingAccount = data.accounts.find(acc => acc.type === 'checking');
+    const totalAvailable = checkingAccount ? checkingAccount.balance : 0;
     
     // Calculate upcoming payments
     const upcomingPayments = data.debts.map(debt => ({
