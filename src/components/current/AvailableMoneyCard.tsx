@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { Wallet, AlertTriangle, TrendingDown, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import type { CurrentAccount, PaycheckInfo } from '../../types/current';
 
 interface AvailableMoneyCardProps {
@@ -21,79 +21,50 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
 }) => {
   const isDeficit = netLeftover < 0;
   
+  // Calculate progress for circular indicator (days until paycheck)
+  const totalDaysInMonth = 30; // Approximate
+  const progress = ((totalDaysInMonth - paycheckInfo.daysUntilPaycheck) / totalDaysInMonth) * 100;
+  
   // Calculate sum of upcoming payments and count
   const upcomingPaymentsTotal = upcomingPayments
     .filter(payment => payment.status !== 'paid')
     .reduce((sum, payment) => sum + Math.abs(payment.amount), 0);
   const remainingPaymentsCount = upcomingPayments.filter(payment => payment.status !== 'paid').length;
   
-  // Calculate progress for countdown donut (days until paycheck)
-  const totalDaysInMonth = 30; // Approximate
-  const progress = ((totalDaysInMonth - paycheckInfo.daysUntilPaycheck) / totalDaysInMonth) * 100;
+  // Calculate current saldo: net after payments + upcoming payments
+  const currentSaldo = totalAvailable + upcomingPaymentsTotal;
 
   return (
     <div 
-      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
-        isDeficit ? 'ring-2 ring-red-400' : 'ring-2 ring-green-400'
-      }`}
+      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+      isDeficit ? 'ring-2 ring-red-400' : ''
+    }`}
       onClick={onViewDetails}
     >
+      {/* Compact layout */}
       <div className="flex items-center justify-between">
-        {/* Left side - Hero number and supporting context */}
+        {/* Left side - Main info */}
         <div className="flex-1">
-          {/* Hero Number - Net Available */}
-          <div className="mb-4">
-            <div className="text-sm text-slate-300 mb-1">
-              Net Available (after obligations)
-            </div>
-            <div className={`text-4xl font-bold mb-2 ${
-              isDeficit ? 'text-red-400' : 'text-green-400'
-            }`}>
-              {netLeftover < 0 ? '-' : ''}{Math.abs(netLeftover).toLocaleString('no-NO', { 
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0 
-              })} NOK
-            </div>
+          <div className="text-xs text-slate-300 mb-1">
+            Available Balance (in NOK)
           </div>
-          
-          {/* Supporting Context */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-slate-400">Current Balance:</span>
-              <span className="text-sm font-medium text-white">
-                {totalAvailable.toLocaleString('no-NO', { 
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0 
-                })} NOK
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-slate-400">Upcoming Payments:</span>
-              <span className="text-sm font-medium text-red-300">
-                −{upcomingPaymentsTotal.toLocaleString('no-NO', { 
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0 
-                })} NOK ({remainingPaymentsCount} payments)
-              </span>
-            </div>
+          <div className={`text-2xl font-bold mb-1 ${
+            currentSaldo < 0 ? 'text-red-400' : 'text-white'
+          }`}>
+            {currentSaldo < 0 ? '-' : ''}{Math.abs(currentSaldo).toLocaleString('no-NO', { 
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0 
+            })}
           </div>
-          
-          {/* Optional Tagline */}
-          <div className="mt-4 pt-3 border-t border-slate-600">
-            <div className="text-xs text-slate-400">
-              {isDeficit 
-                ? `Shortfall: ${Math.abs(netLeftover).toLocaleString('no-NO')} NOK`
-                : `Safe to spend: ${netLeftover.toLocaleString('no-NO')} NOK`
-              }
-            </div>
+          <div className="text-xs text-slate-400">
+            -{upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} payments
           </div>
         </div>
         
-        {/* Right side - Countdown donut */}
+        {/* Right side - Circular progress */}
         <div className="relative ml-4">
-          <div className="w-20 h-20">
+          <div className="w-16 h-16">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              {/* Background circle */}
               <path
                 className="text-slate-600"
                 stroke="currentColor"
@@ -103,9 +74,8 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
                   a 15.9155 15.9155 0 0 1 0 31.831
                   a 15.9155 15.9155 0 0 1 0 -31.831"
               />
-              {/* Progress circle */}
               <path
-                className={isDeficit ? "text-red-400" : "text-green-400"}
+                className="text-blue-400"
                 stroke="currentColor"
                 strokeWidth="3"
                 strokeDasharray={`${progress}, 100`}
@@ -126,6 +96,16 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* Bottom info */}
+      <div className="mt-3 pt-3 border-t border-slate-600">
+        <div className="text-sm font-medium text-white">
+          Available: {totalAvailable < 0 ? '-' : ''}{Math.abs(totalAvailable).toLocaleString('no-NO', { 
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0 
+          })}
         </div>
       </div>
 
