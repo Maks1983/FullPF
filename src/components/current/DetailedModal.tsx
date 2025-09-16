@@ -160,35 +160,6 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
           </div>
         </div>
 
-        {/* Critical Alerts */}
-        {(overduePayments.length > 0 || netAfterPayments < 0) && (
-          <div className="p-4 bg-red-50 border-b border-red-200">
-            <div className="flex items-center space-x-2 text-red-600 mb-2">
-              <AlertTriangle className="h-5 w-5" />
-              <span className="font-medium">Critical Issues Need Attention</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-              {overduePayments.length > 0 && (
-                <div className="bg-red-100 p-3 rounded flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-red-800">{overduePayments.length} Overdue Payment{overduePayments.length > 1 ? 's' : ''}</p>
-                    <p className="text-red-700">Total: NOK {overduePayments.reduce((sum, p) => sum + Math.abs(p.amount), 0).toLocaleString()}</p>
-                  </div>
-                  <button className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs font-medium">
-                    Pay Now
-                  </button>
-                </div>
-              )}
-              {netAfterPayments < 0 && (
-                <div className="bg-red-100 p-3 rounded">
-                  <p className="font-medium text-red-800">Projected Shortfall</p>
-                  <p className="text-red-700">NOK {Math.abs(netAfterPayments).toLocaleString()} short after payments</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Content - Horizontal Bar Charts */}
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -216,25 +187,6 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                 <p className="text-sm text-gray-600">Total monthly expenses</p>
               </div>
               <HorizontalBarChart data={expenseData} />
-            </div>
-          </div>
-
-          {/* Payment Summary */}
-          <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Calendar className="h-5 w-5 text-blue-600" />
-                <div>
-                  <h4 className="font-semibold text-gray-900">Upcoming Payments Summary</h4>
-                  <p className="text-sm text-gray-600">
-                    {upcomingPayments.filter(p => p.status !== 'paid').length} payments totaling NOK {upcomingPaymentsTotal.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <button className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
-                View All Payments
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </button>
             </div>
           </div>
 
