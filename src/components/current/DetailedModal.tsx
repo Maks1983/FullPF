@@ -140,28 +140,8 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                 </div>
 
                 {/* Smart Insights Bar */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-white/60">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-1">
-                        <div className={`w-2 h-2 rounded-full ${daysUntilTight < 7 ? 'bg-red-500' : daysUntilTight < 14 ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
-                        <span className="text-gray-700 font-medium">{daysUntilTight}d</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <span className="text-gray-500">•</span>
-                        <span className="text-gray-700">{getSpendingVelocity().toLowerCase()}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <span className="text-gray-500">•</span>
-                        <span className={`font-medium ${healthScore >= 85 ? 'text-green-600' : healthScore >= 70 ? 'text-blue-600' : 'text-yellow-600'}`}>
-                          {healthScore}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {nextPaycheckDays} days to payday
-                    </div>
-                  </div>
+                <div className="text-center text-xs text-gray-500 mt-2">
+                  {nextPaycheckDays} days to payday
                 </div>
               </div>
             </div>
