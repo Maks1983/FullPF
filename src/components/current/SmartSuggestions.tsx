@@ -188,50 +188,6 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
         })}
       </div>
 
-      {/* Premium Feature: Automated Actions */}
-      <div className="mt-6 p-4 rounded-lg border border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Star className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900">Automated Financial Actions</h4>
-              <p className="text-sm text-gray-600">
-                Let AI automatically optimize your finances based on these suggestions
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="text-right">
-              <p className="text-sm font-medium text-purple-600">Auto-pilot mode</p>
-              <p className="text-xs text-gray-500">Premium feature</p>
-            </div>
-            <Lock className="h-5 w-5 text-purple-600" />
-          </div>
-        </div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
-            <h5 className="font-medium text-gray-900 mb-1">🤖 Auto Budget Adjustments</h5>
-            <p className="text-sm text-gray-600">Automatically adjust budgets based on spending patterns</p>
-          </div>
-          <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
-            <h5 className="font-medium text-gray-900 mb-1">💰 Smart Savings Transfers</h5>
-            <p className="text-sm text-gray-600">Auto-transfer surplus money to savings when detected</p>
-          </div>
-          <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
-            <h5 className="font-medium text-gray-900 mb-1">📱 Bill Negotiation Service</h5>
-            <p className="text-sm text-gray-600">AI negotiates better rates on your recurring bills</p>
-          </div>
-          <div className="bg-white p-3 rounded border border-gray-200 opacity-75">
-            <h5 className="font-medium text-gray-900 mb-1">🎯 Goal Auto-Funding</h5>
-            <p className="text-sm text-gray-600">Automatically fund goals when you have extra money</p>
-          </div>
-        </div>
-        <button className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
-          Enable Auto-Pilot
-        </button>
-      </div>
 
       {/* Financial Awareness Tips */}
       <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
