@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TrendingUp, Plus, Filter } from 'lucide-react';
+import { useSavingsData } from '../hooks/useCentralizedData';
 import DoughnutChart from './charts/DoughnutChart';
 import LineChart from './charts/LineChart';
 import Table from './common/Table';
@@ -7,36 +8,22 @@ import MetricCard from './common/MetricCard';
 
 const SavingsPage = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const savingsData = useSavingsData();
+  
+  const coveragePercentage = (savingsData.currentSavings / savingsData.savingsGoal) * 100;
 
-  const savingsGoal = 250000;
-  const currentSavings = 144612;
-  const coveragePercentage = (currentSavings / savingsGoal) * 100;
+  // Calculate monthly change from savings history
+  const monthlyChangeData = savingsData.monthlyGrowth.slice(-3).map((item, index, arr) => ({
+    month: item.month,
+    value: index > 0 ? item.value - arr[index - 1].value : 0
+  })).filter(item => item.value > 0);
 
-  const monthlyGrowth = [
-    { month: 'Jan', value: 125000 },
-    { month: 'Feb', value: 132000 },
-    { month: 'Mar', value: 138000 },
-    { month: 'Apr', value: 141000 },
-    { month: 'May', value: 146500 },
-    { month: 'Jun', value: 154200 },
-    { month: 'Jul', value: 162000 },
-    { month: 'Aug', value: 168500 },
-    { month: 'Sep', value: 175000 },
-    { month: 'Oct', value: 182000 },
-    { month: 'Nov', value: 189000 },
-    { month: 'Dec', value: 196500 }
-  ];
-
-  const monthlyChangeData = [
-    { month: 'Oct', value: 8500 },
-    { month: 'Nov', value: 9200 },
-    { month: 'Dec', value: 7800 },
-  ];
-
+  // Project next 3 months based on current trend
+  const avgMonthlyGrowth = monthlyChangeData.reduce((sum, item) => sum + item.value, 0) / monthlyChangeData.length;
   const projectionData = [
-    { month: 'Jan', value: 154200 },
-    { month: 'Feb', value: 162800 },
-    { month: 'Mar', value: 171500 },
+    { month: 'Jan', value: savingsData.currentSavings + avgMonthlyGrowth },
+    { month: 'Feb', value: savingsData.currentSavings + (avgMonthlyGrowth * 2) },
+    { month: 'Mar', value: savingsData.currentSavings + (avgMonthlyGrowth * 3) },
   ];
 
   const recentTransactions = [
@@ -50,7 +37,7 @@ const SavingsPage = () => {
   const savingsMetrics = [
     {
       title: 'Monthly Change',
-      value: '+7,700 NOK',
+      value: `+${avgMonthlyGrowth.toFixed(0)} NOK`,
       change: '+6.65%',
       trend: 'up',
       icon: TrendingUp,
@@ -58,7 +45,7 @@ const SavingsPage = () => {
     },
     {
       title: '3-Month Projection',
-      value: '171,500 NOK',
+      value: `${projectionData[2].value.toLocaleString()} NOK`,
       change: '+18.0%',
       trend: 'up',
       icon: TrendingUp,
@@ -66,7 +53,7 @@ const SavingsPage = () => {
     },
     {
       title: 'Annual Growth Rate',
-      value: '8.4%',
+      value: `${savingsData.savingsRate.toFixed(1)}%`,
       change: '+6.65%',
       trend: 'up',
       icon: TrendingUp,
@@ -117,8 +104,8 @@ const SavingsPage = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Savings Goal Progress</h3>
           <div className="flex items-center justify-center mb-4">
             <DoughnutChart 
-              value={currentSavings} 
-              total={savingsGoal} 
+              value={savingsData.currentSavings} 
+              total={savingsData.savingsGoal} 
               color="#10b981"
               size={120}
               centerText={`${coveragePercentage.toFixed(0)}%`}
@@ -126,10 +113,10 @@ const SavingsPage = () => {
           </div>
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              {currentSavings.toLocaleString()} of {savingsGoal.toLocaleString()} NOK
+              {savingsData.currentSavings.toLocaleString()} of {savingsData.savingsGoal.toLocaleString()} NOK
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {(savingsGoal - currentSavings).toLocaleString()} NOK remaining
+              {(savingsData.savingsGoal - savingsData.currentSavings).toLocaleString()} NOK remaining
             </p>
           </div>
         </div>
@@ -187,12 +174,12 @@ const SavingsPage = () => {
           </div>
         </div>
         <LineChart 
-          data={monthlyGrowth} 
+          data={savingsData.monthlyGrowth} 
           dataKey="value" 
           color="#10b981"
           height={300}
           showGrid={true}
-          targetLine={savingsGoal}
+          targetLine={savingsData.savingsGoal}
         />
       </div>
 

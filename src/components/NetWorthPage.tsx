@@ -1,107 +1,34 @@
 import React, { useState } from 'react';
 import { Wallet, TrendingUp, Download, Calculator } from 'lucide-react';
+import { useNetWorthData } from '../hooks/useCentralizedData';
 import MetricCard from './common/MetricCard';
 import LineChart from './charts/LineChart';
 import Table from './common/Table';
 
 const NetWorthPage = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const netWorthData = useNetWorthData();
 
-  const assets = 142300;
-  const liabilities = 38450;
-  const netWorth = assets - liabilities;
-  const netWorthChange = 6.7;
-  const isPositive = netWorth > 0;
+  const netWorthChange = 6.7; // This could be calculated from history
+  const isPositive = netWorthData.netWorth > 0;
 
   const netWorthMetric = {
     title: 'Net Worth',
-    value: `$${netWorth.toLocaleString()}`,
+    value: `NOK ${netWorthData.netWorth.toLocaleString()}`,
     change: `+${netWorthChange}%`,
     trend: 'up',
     icon: Wallet,
     color: isPositive ? 'green' : 'red'
   };
 
-  const netWorthTrendData = [
-    { month: 'Jan', value: 95000 },
-    { month: 'Feb', value: 97200 },
-    { month: 'Mar', value: 99500 },
-    { month: 'Apr', value: 101200 },
-    { month: 'May', value: 102800 },
-    { month: 'Jun', value: 103850 },
-    { month: 'Jul', value: 105200 },
-    { month: 'Aug', value: 106800 },
-    { month: 'Sep', value: 108500 },
-    { month: 'Oct', value: 110200 },
-    { month: 'Nov', value: 111900 },
-    { month: 'Dec', value: 113600 }
-  ];
-
+  // Calculate projections based on current growth
+  const avgMonthlyGrowth = 4500; // This could be calculated from history
   const projectionData = [
-    { month: 'Jan 2025', value: 115300 },
-    { month: 'Apr 2025', value: 120800 },
-    { month: 'Jul 2025', value: 126500 },
-    { month: 'Oct 2025', value: 132200 },
-    { month: 'Jan 2026', value: 138000 },
-  ];
-
-  const netWorthBreakdown = [
-    {
-      id: 1,
-      category: 'Assets',
-      type: 'Real Estate',
-      description: 'Primary Residence',
-      value: 85000,
-      percentage: (85000 / assets * 100).toFixed(1)
-    },
-    {
-      id: 2,
-      category: 'Assets',
-      type: 'Investment',
-      description: 'Stock Portfolio',
-      value: 24890,
-      percentage: (24890 / assets * 100).toFixed(1)
-    },
-    {
-      id: 3,
-      category: 'Assets',
-      type: 'Cash',
-      description: 'High Yield Savings',
-      value: 15420,
-      percentage: (15420 / assets * 100).toFixed(1)
-    },
-    {
-      id: 4,
-      category: 'Assets',
-      type: 'Vehicle',
-      description: '2022 Honda Civic',
-      value: 18500,
-      percentage: (18500 / assets * 100).toFixed(1)
-    },
-    {
-      id: 5,
-      category: 'Liabilities',
-      type: 'Credit Card',
-      description: 'Credit Cards Total',
-      value: -18500,
-      percentage: (18500 / liabilities * 100).toFixed(1)
-    },
-    {
-      id: 6,
-      category: 'Liabilities',
-      type: 'Auto Loan',
-      description: 'Honda Civic Loan',
-      value: -12200,
-      percentage: (12200 / liabilities * 100).toFixed(1)
-    },
-    {
-      id: 7,
-      category: 'Liabilities',
-      type: 'Student Loan',
-      description: 'Federal Student Loan',
-      value: -7750,
-      percentage: (7750 / liabilities * 100).toFixed(1)
-    },
+    { month: 'Jan 2025', value: netWorthData.netWorth + avgMonthlyGrowth },
+    { month: 'Apr 2025', value: netWorthData.netWorth + (avgMonthlyGrowth * 4) },
+    { month: 'Jul 2025', value: netWorthData.netWorth + (avgMonthlyGrowth * 7) },
+    { month: 'Oct 2025', value: netWorthData.netWorth + (avgMonthlyGrowth * 10) },
+    { month: 'Jan 2026', value: netWorthData.netWorth + (avgMonthlyGrowth * 13) },
   ];
 
   const breakdownColumns = [

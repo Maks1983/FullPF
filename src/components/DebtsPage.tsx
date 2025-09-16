@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CreditCard, Calendar, TrendingDown, Star, Plus } from 'lucide-react';
+import { useDebtsData } from '../hooks/useCentralizedData';
 import MetricCard from './common/MetricCard';
 import PieChart from './charts/PieChart';
 import LineChart from './charts/LineChart';
@@ -7,11 +8,12 @@ import Table from './common/Table';
 
 const DebtsPage = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const debtsData = useDebtsData();
 
   const debtSummaryMetrics = [
     {
       title: 'Total Debt',
-      value: '$38,450.00',
+      value: `NOK ${debtsData.totalDebt.toLocaleString()}`,
       change: '-3.2%',
       trend: 'down',
       icon: CreditCard,
@@ -19,7 +21,7 @@ const DebtsPage = () => {
     },
     {
       title: 'Monthly Payment',
-      value: '$1,245.00',
+      value: `NOK ${debtsData.monthlyPayments.toLocaleString()}`,
       change: '+2.1%',
       trend: 'up',
       icon: Calendar,
@@ -27,7 +29,7 @@ const DebtsPage = () => {
     },
     {
       title: 'Average Rate',
-      value: '12.8%',
+      value: `${debtsData.averageInterestRate.toFixed(1)}%`,
       change: '-0.5%',
       trend: 'down',
       icon: TrendingDown,
@@ -40,57 +42,16 @@ const DebtsPage = () => {
       trend: 'down',
       icon: Calendar,
       color: 'green'
-    }
-  ];
-
-  const debtComposition = [
-    { name: 'Credit Cards', value: 18500, color: '#ef4444' },
-    { name: 'Car Loan', value: 12200, color: '#3b82f6' },
-    { name: 'Student Loan', value: 7750, color: '#8b5cf6' },
-  ];
-
-  const loanOverview = [
-    {
-      id: 1,
-      name: 'Chase Sapphire Card',
-      type: 'Credit Card',
-      balance: 8500,
-      payment: 255,
-      rate: 18.9,
-      dueDate: '2024-01-25',
-      status: 'current'
-    },
-    {
-      id: 2,
-      name: 'Capital One Quicksilver',
-      type: 'Credit Card',
-      balance: 10000,
-      payment: 300,
-      rate: 21.5,
-      dueDate: '2024-01-28',
-      status: 'current'
-    },
-    {
-      id: 3,
-      name: 'Honda Civic Loan',
-      type: 'Auto Loan',
-      balance: 12200,
-      payment: 340,
-      rate: 4.2,
-      dueDate: '2024-01-15',
-      status: 'current'
-    },
-    {
-      id: 4,
-      name: 'Federal Student Loan',
-      type: 'Student Loan',
-      balance: 7750,
-      payment: 125,
-      rate: 5.8,
-      dueDate: '2024-01-20',
-      status: 'current'
-    }
-  ];
+  const loanOverview = debtsData.debts.map(debt => ({
+    id: debt.id,
+    name: debt.name,
+    type: debt.type === 'credit_card' ? 'Credit Card' : debt.type === 'auto_loan' ? 'Auto Loan' : 'Student Loan',
+    balance: debt.balance,
+    payment: debt.minimumPayment,
+    rate: debt.interestRate,
+    dueDate: debt.dueDate,
+    status: 'current'
+  }));
 
   const debtProgressData = [
     { month: 'Jan', balance: 42500, interest: 450 },
@@ -179,7 +140,7 @@ const DebtsPage = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Debt Progress Over Time</h3>
           <LineChart 
-            data={debtProgressData} 
+            data={debtsData.debtHistory} 
             dataKey="balance" 
             color="#ef4444"
             height={280}
@@ -187,7 +148,7 @@ const DebtsPage = () => {
           />
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
-              Total reduction: <span className="font-semibold text-green-600">-$4,050</span> (6 months)
+              Total reduction: <span className="font-semibold text-green-600">-NOK 6,550</span> (12 months)
             </p>
           </div>
         </div>
