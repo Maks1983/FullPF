@@ -19,11 +19,6 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   upcomingPayments = [],
   onViewDetails
 }) => {
-  
-  // Calculate net change (mock data - in real app this would come from props)
-  const previousTotalAvailable = 17250; // This would be passed as prop
-  const netChange = totalAvailable - previousTotalAvailable;
-  const netChangePercent = ((netChange / previousTotalAvailable) * 100);
   const isDeficit = netLeftover < 0;
   
   // Dynamic thresholds based on user's financial context
@@ -68,22 +63,12 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const statusStyle = getFinancialStatus(Math.abs(currentSaldo));
 
   return (
-    <div className={`bg-white p-6 rounded-xl shadow-sm border-2 transition-all hover:shadow-lg cursor-pointer group ${
-      isDeficit ? 'border-red-200 hover:border-red-300' : 'border-blue-200 hover:border-blue-300'
+    <div 
+      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+      statusStyle.ring
     }`}
       onClick={onViewDetails}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Your Money Overview</h3>
-          <p className="text-sm text-gray-600">Complete financial position until payday</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          {isDeficit && <AlertTriangle className="h-5 w-5 text-red-500" />}
-          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-        </div>
-      </div>
-      
       {/* Compact layout */}
       <div className="flex items-center justify-between">
         {/* Left side - Main info */}
@@ -102,13 +87,10 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           <div className="text-xs text-slate-400">
             Net Available: {totalAvailable.toLocaleString()}
           </div>
-          <div className="text-xs text-slate-400">
-            NOK {upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} remaining payments
-          </div>
         </div>
         
         {/* Right side - Circular progress */}
-        <div className="relative">
+        <div className="relative ml-4">
           <div className="w-16 h-16">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
               <path
@@ -145,48 +127,21 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
         </div>
       </div>
       
-      {/* Main Financial Metrics */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {/* Available Now */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-1">Available Now</p>
-          <p className="text-2xl font-bold text-green-600">
-            NOK {totalAvailable.toLocaleString()}
-          </p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold text-purple-600">
-          </p>
-        </div>
-      </div>
-      
       {/* Bottom info */}
       <div className="mt-3 pt-3 border-t border-slate-600">
         {/* Dynamic status message */}
         <div className="text-xs text-slate-400 mt-1">
+          {Math.abs(currentSaldo) >= thresholds.comfortable && '💪 Strong financial position'}
+          {Math.abs(currentSaldo) >= thresholds.adequate && Math.abs(currentSaldo) < thresholds.comfortable && '👍 Adequate reserves'}
           {Math.abs(currentSaldo) >= thresholds.tight && Math.abs(currentSaldo) < thresholds.adequate && '⚠️ Getting tight'}
           {Math.abs(currentSaldo) < thresholds.tight && '🚨 Critical - need attention'}
         </div>
       </div>
-      
-      {/* Status Summary */}
-      <div className={`p-3 rounded-lg border ${
-        isDeficit ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Clock className={`h-4 w-4 ${isDeficit ? 'text-red-600' : 'text-green-600'}`} />
-            <span className={`text-sm font-medium ${isDeficit ? 'text-red-800' : 'text-green-800'}`}>
-              {isDeficit 
-                ? `Need NOK ${Math.abs(netLeftover).toLocaleString()} more to cover bills`
-                : `NOK ${netLeftover.toLocaleString()} surplus after all bills`
-              }
-            </span>
-          </div>
-          <span className="text-xs text-gray-600">
-            Until {new Date(paycheckInfo.nextPaycheckDate).toLocaleDateString()}
-          </span>
-        </div>
+
+      {/* Hover indicator */}
+      <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-xs text-slate-400 mr-2">View details</span>
+        <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
   );
