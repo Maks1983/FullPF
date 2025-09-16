@@ -42,6 +42,15 @@ const DebtsPage = () => {
       trend: 'down',
       icon: Calendar,
       color: 'green'
+    }
+  ];
+
+  const debtComposition = debtsData.debts.map(debt => ({
+    name: debt.name,
+    value: debt.balance,
+    color: debt.type === 'credit_card' ? '#ef4444' : debt.type === 'auto_loan' ? '#3b82f6' : '#10b981'
+  }));
+
   const loanOverview = debtsData.debts.map(debt => ({
     id: debt.id,
     name: debt.name,
