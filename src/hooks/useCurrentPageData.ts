@@ -145,7 +145,8 @@ export const useCurrentPageData = (): CurrentPageData & {
       criticalAlerts,
       isDeficitProjected,
       daysUntilDeficit,
-      highPriorityPayments
+      highPriorityPayments,
+      spendingCategories: spendingCategoriesWithRemaining
     };
   }, [data]);
 };
