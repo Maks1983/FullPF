@@ -1,22 +1,25 @@
 import React from 'react';
 import { useCurrentPageData } from '../hooks/useCurrentPageData';
-import AvailableMoneyCard from './current/AvailableMoneyCard';
-import DetailedModal from './current/DetailedModal';
-import UpcomingPaymentsModal from './current/UpcomingPaymentsModal';
+import { useModalState } from '../hooks/useModalState';
+import { useFinancialCalculations } from '../hooks/useFinancialCalculations';
+
+// Components
+import CurrentPageHeader from './current/CurrentPageHeader';
+import CriticalAlertsSection from './current/CriticalAlertsSection';
+import MoneyFlowInsights from './current/MoneyFlowInsights';
 import CashflowProjectionChart from './current/CashflowProjectionChart';
 import SpendingCategoriesCard from './current/SpendingCategoriesCard';
-import RecentTransactionsCard from './current/RecentTransactionsCard';
-import MoneyFlowInsights from './current/MoneyFlowInsights';
 import SmartSuggestions from './current/SmartSuggestions';
+import RecentTransactionsCard from './current/RecentTransactionsCard';
+import FinancialAwarenessSummary from './current/FinancialAwarenessSummary';
+
+// Modals
+import DetailedModal from './current/DetailedModal';
+import UpcomingPaymentsModal from './current/UpcomingPaymentsModal';
 import NetCashflowModal from './current/NetCashflowModal';
-import { AlertTriangle, TrendingUp, TrendingDown, Clock, Eye, Brain, Heart, Calendar } from 'lucide-react';
-import { ChevronRight } from 'lucide-react';
 
 const CurrentPage = () => {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [isPaymentsModalOpen, setIsPaymentsModalOpen] = React.useState(false);
-  const [isNetCashflowModalOpen, setIsNetCashflowModalOpen] = React.useState(false);
-  
+  // Data hooks
   const {
     accounts,
     upcomingPayments,
@@ -34,249 +37,67 @@ const CurrentPage = () => {
     highPriorityPayments
   } = useCurrentPageData();
 
-  // Calculate insights for awareness
+  // Modal state management
+  const {
+    isDetailedModalOpen,
+    isPaymentsModalOpen,
+    isNetCashflowModalOpen,
+    openDetailedModal,
+    closeDetailedModal,
+    openPaymentsModal,
+    closePaymentsModal,
+    openNetCashflowModal,
+    closeNetCashflowModal,
+  } = useModalState();
+
+  // Financial calculations
   const totalMonthlyIncome = 52000; // This would come from data
-  const totalMonthlyExpenses = spendingCategories.reduce((sum, cat) => sum + cat.spent, 0);
-  const savingsRate = ((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100;
-  const biggestExpenseCategory = spendingCategories.reduce((max, cat) => 
-    cat.spent > max.spent ? cat : max, spendingCategories[0]);
-  const dailyAverageSpending = totalMonthlyExpenses / 30;
+  const {
+    totalMonthlyExpenses,
+    savingsRate,
+    biggestExpenseCategory,
+    dailyAverageSpending
+  } = useFinancialCalculations(totalMonthlyIncome, spendingCategories);
 
   return (
     <div className="space-y-8 pb-8">
-      {/* Page Header with Financial Awareness Focus */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-        <div className="flex items-center space-x-3 mb-4">
-          <Eye className="h-8 w-8 text-blue-600" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Your Money Right Now</h1>
-            <p className="text-gray-600 mt-1">
-              Complete awareness of your day-to-day finances and what's happening with your money
-            </p>
-          </div>
-        </div>
-        
-        {/* Comprehensive Money Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <AvailableMoneyCard
-            accounts={accounts}
-            totalAvailable={totalAvailable}
-            netLeftover={netLeftoverUntilPaycheck}
-            paycheckInfo={paycheckInfo}
-            upcomingPayments={upcomingPayments}
-            onViewDetails={() => setIsModalOpen(true)}
-          />
-          
-          {/* Upcoming Payments Card */}
-          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
-            overdueCount > 0 ? 'ring-2 ring-red-400' : ''
-          }`}
-            onClick={() => setIsPaymentsModalOpen(true)}
-          >
-            <div className="flex items-center justify-between">
-              {/* Left side - Main info */}
-              <div className="flex-1">
-                <div className="text-xs text-slate-300 mb-1">
-                  Upcoming payments (in NOK)
-                </div>
-                <div className={`text-2xl font-bold mb-1 ${
-                  overdueCount > 0 ? 'text-red-400' : 'text-white'
-                }`}>
-                  -{upcomingPayments
-                    .filter(p => p.status !== 'paid')
-                    .reduce((sum, p) => sum + Math.abs(p.amount), 0)
-                    .toLocaleString('no-NO', { 
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0 
-                    })}
-                </div>
-                <div className="text-xs text-slate-400">
-                  {upcomingPayments.filter(p => p.status !== 'paid').length} payments until payday
-                </div>
-              </div>
-              
-              {/* Right side - Circular progress */}
-              <div className="relative ml-4">
-                <div className="w-16 h-16">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      stroke="#475569"
-                      strokeWidth="3"
-                      fill="transparent"
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      stroke={overdueCount > 0 ? "#ef4444" : "#3b82f6"}
-                      strokeWidth="3"
-                      strokeDasharray={`${Math.min((upcomingPayments.filter(p => p.status !== 'paid').length / 10) * 100, 100)}, 100`}
-                      strokeLinecap="round"
-                      fill="transparent"
-                    />
-                  </svg>
-                  
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="text-lg font-bold text-white">
-                      {overdueCount > 0 ? overdueCount : upcomingPayments.filter(p => p.status !== 'paid').length}
-                    </div>
-                    <div className="text-xs text-slate-300">
-                      {overdueCount > 0 ? 'overdue' : 'pending'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Bottom info */}
-            <div className="mt-3 pt-3 border-t border-slate-600">
-              <div className="text-sm font-medium text-white">
-                {upcomingPayments
-                  .filter(p => p.status !== 'paid')
-                  .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
-                  ?.dueDate ? new Date(upcomingPayments
-                    .filter(p => p.status !== 'paid')
-                    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0]
-                    .dueDate).toLocaleDateString() : 'None'}
-              </div>
-            </div>
+      {/* Page Header with 3 Cards */}
+      <CurrentPageHeader
+        accounts={accounts}
+        totalAvailable={totalAvailable}
+        netLeftover={netLeftoverUntilPaycheck}
+        paycheckInfo={paycheckInfo}
+        upcomingPayments={upcomingPayments}
+        overdueCount={overdueCount}
+        monthlyIncome={totalMonthlyIncome}
+        monthlyExpenses={totalMonthlyExpenses}
+        onOpenDetailedModal={openDetailedModal}
+        onOpenPaymentsModal={openPaymentsModal}
+        onOpenNetCashflowModal={openNetCashflowModal}
+      />
 
-            <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-slate-400 mr-2">View details</span>
-              <ChevronRight className="h-4 w-4 text-slate-400" />
-            </div>
-          </div>
-          
-          {/* Account Balances Card */}
-          {/* Net Cashflow Card */}
-          <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
-            onClick={() => setIsNetCashflowModalOpen(true)}
-          >
-            <div className="flex items-center justify-between">
-              {/* Left side - Main info */}
-              <div className="flex-1">
-                <div className="text-xs text-slate-300 mb-1">
-                  Net cashflow (in NOK)
-                </div>
-                <div className={`text-2xl font-bold mb-1 ${
-                  (totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'text-green-400' : 'text-red-400'
-                }`}>
-                  {(totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? '+' : ''}
-                  {(totalMonthlyIncome - totalMonthlyExpenses).toLocaleString('no-NO', { 
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0 
-                  })}
-                </div>
-                <div className="text-xs text-slate-400">
-                  Monthly net flow
-                </div>
-              </div>
-              
-              {/* Right side - Circular progress */}
-              <div className="relative ml-4">
-                <div className="w-16 h-16">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      stroke="#475569"
-                      strokeWidth="3"
-                      fill="transparent"
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.9155"
-                      stroke={((totalMonthlyIncome - totalMonthlyExpenses) >= 0) ? "#10b981" : "#ef4444"}
-                      strokeWidth="3"
-                      strokeDasharray={`${Math.min(Math.abs((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100, 100)}, 100`}
-                      strokeLinecap="round"
-                      fill="transparent"
-                    />
-                  </svg>
-                  
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className={`text-lg font-bold ${
-                      (totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      {Math.round(Math.abs((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100)}%
-                    </div>
-                    <div className="text-xs text-slate-300">
-                      {(totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'surplus' : 'deficit'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Bottom info */}
-            <div className="mt-3 pt-3 border-t border-slate-600">
-              <div className="text-sm font-medium text-white">
-                In: {totalMonthlyIncome.toLocaleString()} • Out: {totalMonthlyExpenses.toLocaleString()}
-              </div>
-            </div>
+      {/* Critical Alerts Banner */}
+      <CriticalAlertsSection
+        criticalAlerts={criticalAlerts}
+        overdueCount={overdueCount}
+        isDeficitProjected={isDeficitProjected}
+        daysUntilDeficit={daysUntilDeficit}
+        highPriorityPayments={highPriorityPayments}
+      />
 
-            <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-slate-400 mr-2">View details</span>
-              <ChevronRight className="h-4 w-4 text-slate-400" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Critical Alerts Banner - Enhanced */}
-      {criticalAlerts > 0 && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg shadow-sm">
-          <div className="flex items-start">
-            <AlertTriangle className="h-6 w-6 text-red-400 mr-3 mt-1" />
-            <div className="flex-1">
-              <h3 className="text-lg font-medium text-red-800 mb-2">
-                🚨 {criticalAlerts} Critical Alert{criticalAlerts > 1 ? 's' : ''} Need Your Attention
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-red-700">
-                {overdueCount > 0 && (
-                  <div className="bg-red-100 p-3 rounded">
-                    <p className="font-medium">💳 Overdue Payments</p>
-                    <p>{overdueCount} payment{overdueCount > 1 ? 's' : ''} past due</p>
-                  </div>
-                )}
-                {isDeficitProjected && (
-                  <div className="bg-red-100 p-3 rounded">
-                    <p className="font-medium">📉 Money Running Low</p>
-                    <p>Deficit projected in {daysUntilDeficit} days</p>
-                  </div>
-                )}
-                {highPriorityPayments > 0 && (
-                  <div className="bg-red-100 p-3 rounded">
-                    <p className="font-medium">⚡ Urgent Bills</p>
-                    <p>{highPriorityPayments} high-priority payment{highPriorityPayments > 1 ? 's' : ''} due soon</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Money Flow Insights - New Component */}
+      {/* Money Flow Insights */}
       <MoneyFlowInsights 
         monthlyIncome={totalMonthlyIncome}
         monthlyExpenses={totalMonthlyExpenses}
         spendingCategories={spendingCategories}
-        savingsRate={savingsRate}
+        todaySpending={todaySpending}
+        recentTransactions={recentTransactions}
       />
 
-      {/* Main Content Grid - Enhanced Layout */}
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column - Money Status */}
         <div className="xl:col-span-2 space-y-6">
-          {/* Additional summary cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          </div>
           {/* Cashflow Projection - Full Width */}
           <CashflowProjectionChart
             projections={cashflowProjections}
@@ -294,7 +115,7 @@ const CurrentPage = () => {
         </div>
       </div>
 
-      {/* Smart Suggestions - New Component */}
+      {/* Smart Suggestions */}
       <SmartSuggestions 
         netLeftover={netLeftoverUntilPaycheck}
         savingsRate={savingsRate}
@@ -303,79 +124,39 @@ const CurrentPage = () => {
         daysUntilPaycheck={paycheckInfo.daysUntilPaycheck}
       />
 
-      {/* Recent Transactions - Enhanced */}
+      {/* Recent Transactions */}
       <RecentTransactionsCard transactions={recentTransactions} />
 
       {/* Financial Awareness Summary */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <Brain className="h-6 w-6 text-green-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Your Money Story This Month</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              NOK {totalMonthlyIncome.toLocaleString()}
-            </div>
-            <p className="text-sm text-gray-600">Money Coming In</p>
-            <p className="text-xs text-gray-500 mt-1">Your total income this month</p>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-3xl font-bold text-red-600 mb-2">
-              NOK {totalMonthlyExpenses.toLocaleString()}
-            </div>
-            <p className="text-sm text-gray-600">Money Going Out</p>
-            <p className="text-xs text-gray-500 mt-1">Your total expenses this month</p>
-          </div>
-          
-          <div className="text-center">
-            <div className={`text-3xl font-bold mb-2 ${
-              totalMonthlyIncome - totalMonthlyExpenses > 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              NOK {(totalMonthlyIncome - totalMonthlyExpenses).toLocaleString()}
-            </div>
-            <p className="text-sm text-gray-600">Net Result</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {totalMonthlyIncome - totalMonthlyExpenses > 0 ? 'Money saved' : 'Overspent'} this month
-            </p>
-          </div>
-        </div>
+      <FinancialAwarenessSummary
+        totalMonthlyIncome={totalMonthlyIncome}
+        totalMonthlyExpenses={totalMonthlyExpenses}
+        savingsRate={savingsRate}
+        biggestExpenseCategory={biggestExpenseCategory}
+        paycheckInfo={paycheckInfo}
+        netLeftoverUntilPaycheck={netLeftoverUntilPaycheck}
+      />
 
-        <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
-          <h4 className="font-semibold text-gray-900 mb-2">💡 Key Insights About Your Money</h4>
-          <ul className="text-sm text-gray-700 space-y-2">
-            <li>• Your biggest expense category is <strong>{biggestExpenseCategory?.name}</strong> at NOK {biggestExpenseCategory?.spent.toLocaleString()}</li>
-            <li>• You're saving <strong>{savingsRate.toFixed(1)}%</strong> of your income {savingsRate >= 20 ? '(Excellent!)' : savingsRate >= 10 ? '(Good)' : '(Could improve)'}</li>
-            <li>• You have <strong>{paycheckInfo.daysUntilPaycheck} days</strong> until your next paycheck</li>
-            <li>• Your money will {netLeftoverUntilPaycheck >= 0 ? 'last until payday' : 'run short before payday'}</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Detailed Modal */}
+      {/* Modals */}
       <DetailedModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isDetailedModalOpen}
+        onClose={closeDetailedModal}
         upcomingPayments={upcomingPayments}
         spendingCategories={spendingCategories}
         monthlyIncome={totalMonthlyIncome}
         monthlyExpenses={totalMonthlyExpenses}
       />
 
-      {/* Upcoming Payments Modal */}
       <UpcomingPaymentsModal
         isOpen={isPaymentsModalOpen}
-        onClose={() => setIsPaymentsModalOpen(false)}
+        onClose={closePaymentsModal}
         payments={upcomingPayments}
         overdueCount={overdueCount}
       />
 
-      {/* Account Balance Modal */}
       <NetCashflowModal
         isOpen={isNetCashflowModalOpen}
-        onClose={() => setIsNetCashflowModalOpen(false)}
+        onClose={closeNetCashflowModal}
         monthlyIncome={totalMonthlyIncome}
         monthlyExpenses={totalMonthlyExpenses}
         spendingCategories={spendingCategories}
