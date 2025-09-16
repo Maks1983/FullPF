@@ -74,34 +74,44 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Available Balance Breakdown</h2>
               
-              {/* Financial Flow Calculation */}
-              <div className="space-y-2 text-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-700">Current Balance:</span>
-                  <span className="font-bold text-green-600">NOK {netAvailable.toLocaleString()}</span>
+              {/* Compact Financial Flow */}
+              <div className="flex items-center justify-between max-w-2xl">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {netAvailable.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Current Balance</div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-700">- Upcoming Payments:</span>
-                  <span className="font-bold text-red-600">NOK {upcomingPaymentsTotal.toLocaleString()}</span>
+                
+                <div className="text-2xl text-gray-400 mx-4">−</div>
+                
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">
+                    {upcomingPaymentsTotal.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Upcoming Bills</div>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-300">
-                  <span className="text-gray-900 font-medium">= Net After Payments:</span>
-                  <span className={`font-bold text-xl ${netAfterPayments >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    NOK {netAfterPayments.toLocaleString()}
-                  </span>
+                
+                <div className="text-2xl text-gray-400 mx-4">=</div>
+                
+                <div className="text-center">
+                  <div className={`text-2xl font-bold ${netAfterPayments >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {netAfterPayments.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Net Available</div>
                 </div>
               </div>
 
-              {/* Context Row */}
+              {/* Compact Context Row */}
               <div className="flex items-center space-x-6 mt-4 text-sm">
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">Days Until Tight:</span>
+                  <span className="text-gray-600">Runway:</span>
                   <span className={`font-semibold ${daysUntilTight < 7 ? 'text-red-600' : daysUntilTight < 14 ? 'text-yellow-600' : 'text-green-600'}`}>
-                    {daysUntilTight} days
+                    {daysUntilTight}d
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">Spending Velocity:</span>
+                  <span className="text-gray-600">Velocity:</span>
                   <span className={`font-semibold ${
                     getSpendingVelocity() === 'High' ? 'text-red-600' : 
                     getSpendingVelocity() === 'Low' ? 'text-green-600' : 'text-blue-600'
@@ -112,7 +122,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-600">Health:</span>
                   <span 
-                    className={`px-3 py-1 rounded-full text-sm font-bold ${getHealthBadgeColor(healthScore)}`}
+                    className={`px-2 py-1 rounded text-xs font-bold ${getHealthBadgeColor(healthScore)}`}
                     title={`Financial Health Score: ${healthScore}/100`}
                   >
                     {healthScore}
