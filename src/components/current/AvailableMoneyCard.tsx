@@ -117,18 +117,12 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
       
       {/* Bottom info */}
       <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className="text-sm font-medium text-white">
-          Until payday: {paycheckInfo.daysUntilPaycheck} days
-        </div>
-      </div>
-
-      {/* Dynamic status message - moved to correct position */}
-      <div className="absolute top-2 right-2">
-        <div className="text-xs px-2 py-1 rounded-full bg-black bg-opacity-30">
-          {Math.abs(currentSaldo) >= thresholds.comfortable && '💪 Strong'}
-          {Math.abs(currentSaldo) >= thresholds.adequate && Math.abs(currentSaldo) < thresholds.comfortable && '👍 Good'}
-          {Math.abs(currentSaldo) >= thresholds.tight && Math.abs(currentSaldo) < thresholds.adequate && '⚠️ Tight'}
-          {Math.abs(currentSaldo) < thresholds.tight && '🚨 Critical'}
+        {/* Dynamic status message */}
+        <div className="text-xs text-slate-400 mt-1">
+          {Math.abs(currentSaldo) >= thresholds.comfortable && '💪 Strong financial position'}
+          {Math.abs(currentSaldo) >= thresholds.adequate && Math.abs(currentSaldo) < thresholds.comfortable && '👍 Adequate reserves'}
+          {Math.abs(currentSaldo) >= thresholds.tight && Math.abs(currentSaldo) < thresholds.adequate && '⚠️ Getting tight'}
+          {Math.abs(currentSaldo) < thresholds.tight && '🚨 Critical - need attention'}
         </div>
       </div>
     </BaseFinancialCard>
