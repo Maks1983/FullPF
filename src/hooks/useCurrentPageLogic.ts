@@ -36,17 +36,17 @@ export const useCurrentPageLogic = () => {
     const healthStatus = getFinancialHealthStatus(netLeftoverUntilPaycheck, totalMonthlyIncome);
     
     return {
-    accounts,
-    totalAvailable,
-    netLeftoverUntilPaycheck,
-    paycheckInfo,
-    upcomingPayments,
-    overdueCount,
-    totalMonthlyIncome,
+      accounts,
+      totalAvailable,
+      netLeftoverUntilPaycheck,
+      paycheckInfo,
+      upcomingPayments,
+      overdueCount,
+      totalMonthlyIncome,
       totalMonthlyExpenses,
       healthStatus
     };
-  }), [
+  }, [
     accounts,
     totalAvailable,
     netLeftoverUntilPaycheck,
