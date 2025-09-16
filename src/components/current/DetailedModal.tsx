@@ -157,43 +157,42 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         </div>
 
         {/* Content - Horizontal Bar Charts */}
-        <div className="p-4 overflow-y-auto max-h-[50vh]">
+        <div className="p-3 overflow-y-auto max-h-[55vh]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Income Breakdown */}
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <div className="bg-green-50 p-3 rounded-lg border border-green-200">
               <div className="flex items-center space-x-3 mb-4">
                 <ArrowUpRight className="h-5 w-5 text-green-600" />
                 <h4 className="font-semibold text-gray-900">Income Sources</h4>
               </div>
-              <div className="mb-3">
-                <p className="text-xl font-bold text-green-600">NOK {monthlyIncome.toLocaleString()}</p>
+              <div className="mb-2">
+                <p className="text-lg font-bold text-green-600">NOK {monthlyIncome.toLocaleString()}</p>
                 <p className="text-sm text-gray-600">Total monthly income</p>
               </div>
               <HorizontalBarChart data={incomeData} />
             </div>
 
             {/* Expense Breakdown */}
-            <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+            <div className="bg-red-50 p-3 rounded-lg border border-red-200 flex flex-col">
               <div className="flex items-center space-x-3 mb-4">
                 <TrendingDown className="h-5 w-5 text-red-600" />
                 <h4 className="font-semibold text-gray-900">Expense Categories</h4>
               </div>
-              <div className="mb-3">
-                <p className="text-xl font-bold text-red-600">NOK {monthlyExpenses.toLocaleString()}</p>
+              <div className="mb-2">
+                <p className="text-lg font-bold text-red-600">NOK {monthlyExpenses.toLocaleString()}</p>
                 <p className="text-sm text-gray-600">Total monthly expenses</p>
               </div>
-              {/* Scrollable expense chart for many categories */}
-              <div className="max-h-48 overflow-y-auto pr-2">
+              {/* Optimized scrollable expense chart for 11-12 categories */}
+              <div className="flex-1 overflow-y-auto pr-2 min-h-0" style={{ maxHeight: '280px' }}>
                 <HorizontalBarChart data={expenseData} />
               </div>
-              {expenseData.length > 6 && (
-                <div className="mt-2 text-xs text-gray-500 text-center">
-                  Scroll to see all {expenseData.length} categories
+              {expenseData.length > 8 && (
+                <div className="mt-2 pt-2 border-t border-red-200 text-xs text-gray-500 text-center bg-red-50">
+                  ↕ Scroll to see all {expenseData.length} categories
                 </div>
               )}
             </div>
           </div>
-
         </div>
 
         {/* Quick Actions Footer */}
