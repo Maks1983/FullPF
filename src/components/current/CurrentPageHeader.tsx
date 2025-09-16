@@ -1,10 +1,8 @@
 import React from 'react';
 import { Eye } from 'lucide-react';
-import ResponsiveGrid from '../common/ResponsiveGrid';
 import AvailableMoneyCard from './AvailableMoneyCard';
 import UpcomingPaymentsCard from './UpcomingPaymentsCard';
 import NetCashflowCard from './NetCashflowCard';
-import { MOCK_FINANCIAL_VALUES } from '../../data/mockData';
 import type { CurrentAccount, PaycheckInfo, UpcomingPayment } from '../../types/current';
 
 interface CurrentPageHeaderProps {
@@ -28,8 +26,8 @@ const CurrentPageHeader: React.FC<CurrentPageHeaderProps> = ({
   paycheckInfo,
   upcomingPayments,
   overdueCount,
-  totalMonthlyIncome = MOCK_FINANCIAL_VALUES.MONTHLY_INCOME,
-  totalMonthlyExpenses = MOCK_FINANCIAL_VALUES.MONTHLY_EXPENSES,
+  totalMonthlyIncome,
+  totalMonthlyExpenses,
   onViewDetails,
   onViewPayments,
   onViewNetCashflow
@@ -47,10 +45,7 @@ const CurrentPageHeader: React.FC<CurrentPageHeaderProps> = ({
       </div>
       
       {/* Comprehensive Money Overview */}
-      <ResponsiveGrid 
-        columns={{ mobile: 1, tablet: 2, desktop: 3 }}
-        gap="lg"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <AvailableMoneyCard
           accounts={accounts}
           totalAvailable={totalAvailable}
@@ -71,7 +66,7 @@ const CurrentPageHeader: React.FC<CurrentPageHeaderProps> = ({
           monthlyExpenses={totalMonthlyExpenses}
           onClick={onViewNetCashflow}
         />
-      </ResponsiveGrid>
+      </div>
     </div>
   );
 };

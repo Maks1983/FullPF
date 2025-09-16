@@ -1,8 +1,8 @@
 import React from 'react';
-import { Clock, AlertTriangle } from 'lucide-react';
+import { Clock } from 'lucide-react';
+import BaseFinancialCard from '../common/BaseFinancialCard';
 import type { CurrentAccount, PaycheckInfo } from '../../types/current';
 import { FINANCIAL_THRESHOLDS } from '../../constants/financial';
-import { MOCK_FINANCIAL_VALUES } from '../../data/mockData';
 
 interface AvailableMoneyCardProps {
   accounts: CurrentAccount[];
@@ -25,9 +25,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   
   // Dynamic thresholds based on user's financial context
   const getUserFinancialThresholds = (totalAvailable: number, monthlyExpenses: number) => {
-    // Use mock data instead of hardcoded values
-    const actualMonthlyExpenses = monthlyExpenses || MOCK_FINANCIAL_VALUES.MONTHLY_EXPENSES;
-    const monthlyBurnRate = actualMonthlyExpenses / 30;
+    const monthlyBurnRate = monthlyExpenses / 30;
     const emergencyFundTarget = monthlyBurnRate * (FINANCIAL_THRESHOLDS.EMERGENCY_FUND_MONTHS * 30);
     
     return {
@@ -39,7 +37,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   };
   
   // Calculate average monthly expenses from spending categories (if available)
-  const estimatedMonthlyExpenses = MOCK_FINANCIAL_VALUES.MONTHLY_EXPENSES;
+  const estimatedMonthlyExpenses = 35000; // This would come from props/context
   const thresholds = getUserFinancialThresholds(totalAvailable, estimatedMonthlyExpenses);
   
   // Calculate progress for circular indicator (days until paycheck)
@@ -67,80 +65,73 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const statusStyle = getFinancialStatus(Math.abs(currentSaldo));
 
   return (
-    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all ${
-      onViewDetails ? 'cursor-pointer group' : ''
-    } relative ${statusStyle.ring}`}
-         onClick={onViewDetails}
-         role={onViewDetails ? "button" : undefined}
-         tabIndex={onViewDetails ? 0 : undefined}
-         aria-label={onViewDetails ? "View available balance details" : undefined}
-         onKeyDown={onViewDetails ? (e) => {
-           if (e.key === 'Enter' || e.key === ' ') {
-             e.preventDefault();
-             onViewDetails();
-           }
-         } : undefined}>
-      <div className="flex items-center justify-between">
-        {/* Left side - Main info */}
-        <div className="flex-1">
-          <div className="text-xs text-slate-300 mb-1">
-            Available Balance (in NOK)
-          </div>
-          <div className={`text-2xl font-bold mb-1 ${statusStyle.color}`}>
-            {currentSaldo < 0 ? '-' : ''}{Math.abs(currentSaldo).toLocaleString('no-NO', { 
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0 
-            })}
-          </div>
-          <div className="text-xs text-slate-400">
-            Net Available: {totalAvailable.toLocaleString()}
-          </div>
-        </div>
-        
-        {/* Right side - Circular progress */}
-        <div className="relative ml-4">
-          <div className="w-16 h-16">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              <path
-                className="text-slate-600"
-                stroke="currentColor"
-                strokeWidth="3"
-                fill="transparent"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path
-                className="text-blue-400"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeDasharray={`${progress}, 100`}
-                strokeLinecap="round"
-                fill="transparent"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
-            
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-lg font-bold text-white">
-                {paycheckInfo.daysUntilPaycheck}
-              </div>
-              <div className="text-xs text-slate-300">
-                {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
-              </div>
+    <BaseFinancialCard
+      title="Available Balance (in NOK)"
+      value={`${currentSaldo < 0 ? '-' : ''}${Math.abs(currentSaldo).toLocaleString('no-NO', { 
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0 
+      })}`}
+      subtitle={`Net Available: ${totalAvailable.toLocaleString()}`}
+      status={currentSaldo < 0 ? 'negative' : 'positive'}
+      onClick={onViewDetails}
+      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+        statusStyle.ring
+      }`}
+    >
+      {/* Right side - Circular progress */}
+      <div className="relative ml-4">
+        <div className="w-16 h-16">
+          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+            <path
+              className="text-slate-600"
+              stroke="currentColor"
+              strokeWidth="3"
+              fill="transparent"
+              d="M18 2.0845
+                a 15.9155 15.9155 0 0 1 0 31.831
+                a 15.9155 15.9155 0 0 1 0 -31.831"
+            />
+            <path
+              className="text-blue-400"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeDasharray={`${progress}, 100`}
+              strokeLinecap="round"
+              fill="transparent"
+              d="M18 2.0845
+                a 15.9155 15.9155 0 0 1 0 31.831
+                a 15.9155 15.9155 0 0 1 0 -31.831"
+            />
+          </svg>
+          
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="text-lg font-bold text-white">
+              {paycheckInfo.daysUntilPaycheck}
+            </div>
+            <div className="text-xs text-slate-300">
+              {paycheckInfo.daysUntilPaycheck === 1 ? 'day' : 'days'}
             </div>
           </div>
         </div>
       </div>
+      
       {/* Bottom info */}
       <div className="mt-3 pt-3 border-t border-slate-600">
         <div className="text-sm font-medium text-white">
-          Until payday: {paycheckInfo.daysUntilPaycheck} day{paycheckInfo.daysUntilPaycheck !== 1 ? 's' : ''}
+          Until payday: {paycheckInfo.daysUntilPaycheck} days
         </div>
       </div>
-    </div>
+
+      {/* Dynamic status message - moved to correct position */}
+      <div className="absolute top-2 right-2">
+        <div className="text-xs px-2 py-1 rounded-full bg-black bg-opacity-30">
+          {Math.abs(currentSaldo) >= thresholds.comfortable && '💪 Strong'}
+          {Math.abs(currentSaldo) >= thresholds.adequate && Math.abs(currentSaldo) < thresholds.comfortable && '👍 Good'}
+          {Math.abs(currentSaldo) >= thresholds.tight && Math.abs(currentSaldo) < thresholds.adequate && '⚠️ Tight'}
+          {Math.abs(currentSaldo) < thresholds.tight && '🚨 Critical'}
+        </div>
+      </div>
+    </BaseFinancialCard>
   );
 };
 
