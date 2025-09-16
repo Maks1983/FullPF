@@ -190,67 +190,11 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
             </div>
           </div>
 
-          {/* Money Flow Summary */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold text-gray-900 mb-3">Your Money Flow This Month</h4>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                    <ArrowUpRight className="h-6 w-6 text-green-600" />
-                  </div>
-                  <p className="text-xs text-gray-600">Income</p>
-                  <p className="font-semibold text-green-600">NOK {monthlyIncome.toLocaleString()}</p>
-                </div>
-                
-                <div className="flex-1 h-2 bg-gray-200 rounded-full mx-4 relative">
-                  <div 
-                    className="h-2 bg-green-500 rounded-full" 
-                    style={{ width: '100%' }}
-                  />
-                  <div 
-                    className="absolute top-0 right-0 h-2 bg-red-500 rounded-r-full" 
-                    style={{ width: `${(monthlyExpenses / monthlyIncome) * 100}%` }}
-                  />
-                </div>
-                
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-2">
-                    <TrendingDown className="h-6 w-6 text-red-600" />
-                  </div>
-                  <p className="text-xs text-gray-600">Expenses</p>
-                  <p className="font-semibold text-red-600">NOK {monthlyExpenses.toLocaleString()}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600">
-                You're {monthlyIncome - monthlyExpenses >= 0 ? 'saving' : 'overspending by'} <span className={`font-semibold ${monthlyIncome - monthlyExpenses >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  NOK {Math.abs(monthlyIncome - monthlyExpenses).toLocaleString()}
-                </span> this month
-                {monthlyIncome - monthlyExpenses >= 0 && ` (${(((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100).toFixed(1)}% savings rate)`}
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* Quick Actions Footer */}
         <div className="sticky bottom-0 px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
           <div className="flex space-x-3">
-            {overduePayments.length > 0 && (
-              <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-                Pay Overdue Bills
-              </button>
-            )}
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              Set Spending Alert
-            </button>
-            {monthlyIncome - monthlyExpenses > 0 && (
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                Auto-Save Surplus
-              </button>
-            )}
           </div>
           <div className="flex space-x-3">
             <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
