@@ -94,6 +94,19 @@ const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
   // Use virtual scrolling for large lists
   const shouldUseVirtualScrolling = filteredTransactions.length > 10;
 
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      'Food': 'bg-red-100 text-red-800',
+      'Transportation': 'bg-blue-100 text-blue-800',
+      'Entertainment': 'bg-purple-100 text-purple-800',
+      'Shopping': 'bg-green-100 text-green-800',
+      'Transfer': 'bg-indigo-100 text-indigo-800',
+      'Cash': 'bg-gray-100 text-gray-800',
+      'Utilities': 'bg-yellow-100 text-yellow-800'
+    };
+    return colors[category] || 'bg-gray-100 text-gray-800';
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       <div className="p-6 border-b border-gray-200">
@@ -144,22 +157,7 @@ const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
           </List>
         ) : (
           <div className="divide-y divide-gray-100">
-            {filteredTransactions.map((transaction) => (
-              <TransactionItem
-                key={transaction.id}
-                index={filteredTransactions.indexOf(transaction)}
-                style={{}}
-                data={filteredTransactions}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default RecentTransactionsCard;
+            {filteredTransactions.map((transaction) => {
               const isIncome = transaction.amount > 0;
               
               return (
