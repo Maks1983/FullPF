@@ -143,11 +143,6 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                     </div>
                   </div>
                 </div>
-
-                {/* Smart Insights Bar */}
-                <div className="text-center text-xs text-gray-500 mt-2">
-                  {nextPaycheckDays} days to payday
-                </div>
               </div>
             </div>
             
