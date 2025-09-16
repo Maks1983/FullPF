@@ -1,8 +1,7 @@
-import React, { Suspense } from 'react';
-import { useCurrentPageFinancial } from '../hooks/useConsolidatedFinancial';
-import ErrorBoundary from './common/ErrorBoundary';
-import CardSkeleton from './common/CardSkeleton';
-import ResponsiveGrid from './common/ResponsiveGrid';
+import React from 'react';
+import { useCurrentPageData } from '../hooks/useCurrentPageData';
+import { useModalState } from '../hooks/useModalState';
+import { useFinancialCalculations } from '../hooks/useFinancialCalculations';
 import CurrentPageHeader from './current/CurrentPageHeader';
 import CriticalAlertsSection from './current/CriticalAlertsSection';
 import DetailedModal from './current/DetailedModal';
@@ -14,16 +13,17 @@ import MoneyFlowInsights from './current/MoneyFlowInsights';
 import SmartSuggestions from './current/SmartSuggestions';
 import NetCashflowModal from './current/NetCashflowModal';
 import FinancialAwarenessSummary from './current/FinancialAwarenessSummary';
-import { RESPONSIVE_CLASSES } from '../constants/responsive';
 
 const CurrentPage = () => {
-  // Error boundary wrapper for the entire page
-  const renderWithErrorBoundary = (component: React.ReactNode) => (
-    <ErrorBoundary>{component}</ErrorBoundary>
-  );
-
-  // Use consolidated hook for all financial data
-  const financial = useCurrentPageFinancial();
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isPaymentsModalOpen,
+    setIsPaymentsModalOpen,
+    isNetCashflowModalOpen,
+    setIsNetCashflowModalOpen,
+  } = useModalState();
+  
   const {
     accounts,
     upcomingPayments,
@@ -38,145 +38,97 @@ const CurrentPage = () => {
     criticalAlerts,
     isDeficitProjected,
     daysUntilDeficit,
-    highPriorityPayments,
-    monthlyIncome,
-    monthlyExpenses,
-    savingsRate,
-  } = financial;
-  
+    highPriorityPayments
+  } = useCurrentPageData();
+
   const {
     totalMonthlyIncome,
     totalMonthlyExpenses,
+    savingsRate,
     biggestExpenseCategory,
-  } = financial.calculations;
-  
-  const {
-    isModalOpen,
-    setIsModalOpen,
-    isPaymentsModalOpen,
-    setIsPaymentsModalOpen,
-    isNetCashflowModalOpen,
-    setIsNetCashflowModalOpen,
-  } = financial.modals;
+  } = useFinancialCalculations(spendingCategories);
 
   return (
-    <div className={`space-y-8 pb-8 ${RESPONSIVE_CLASSES.paddingResponsive}`}>
+    <div className="space-y-8 pb-8">
       {/* Page Header */}
-      {renderWithErrorBoundary(
-        <Suspense fallback={
-          <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3 }}>
-            <CardSkeleton />
-            <CardSkeleton />
-            <CardSkeleton />
-          </ResponsiveGrid>
-        }>
-          <CurrentPageHeader
-            accounts={accounts}
-            totalAvailable={totalAvailable}
-            netLeftoverUntilPaycheck={netLeftoverUntilPaycheck}
-            paycheckInfo={paycheckInfo}
-            upcomingPayments={upcomingPayments}
-            overdueCount={overdueCount}
-            totalMonthlyIncome={totalMonthlyIncome}
-            totalMonthlyExpenses={totalMonthlyExpenses}
-            onViewDetails={() => setIsModalOpen(true)}
-            onViewPayments={() => setIsPaymentsModalOpen(true)}
-            onViewNetCashflow={() => setIsNetCashflowModalOpen(true)}
-          />
-        </Suspense>
-      )}
+      <CurrentPageHeader
+        accounts={accounts}
+        totalAvailable={totalAvailable}
+        netLeftoverUntilPaycheck={netLeftoverUntilPaycheck}
+        paycheckInfo={paycheckInfo}
+        upcomingPayments={upcomingPayments}
+        overdueCount={overdueCount}
+        totalMonthlyIncome={totalMonthlyIncome}
+        totalMonthlyExpenses={totalMonthlyExpenses}
+        onViewDetails={() => setIsModalOpen(true)}
+        onViewPayments={() => setIsPaymentsModalOpen(true)}
+        onViewNetCashflow={() => setIsNetCashflowModalOpen(true)}
+      />
 
       {/* Critical Alerts */}
-      {renderWithErrorBoundary(
-        <CriticalAlertsSection
-          criticalAlerts={criticalAlerts}
-          overdueCount={overdueCount}
-          isDeficitProjected={isDeficitProjected}
-          daysUntilDeficit={daysUntilDeficit}
-          highPriorityPayments={highPriorityPayments}
-        />
-      )}
+      <CriticalAlertsSection
+        criticalAlerts={criticalAlerts}
+        overdueCount={overdueCount}
+        isDeficitProjected={isDeficitProjected}
+        daysUntilDeficit={daysUntilDeficit}
+        highPriorityPayments={highPriorityPayments}
+      />
 
       {/* Money Flow Insights - New Component */}
-      {renderWithErrorBoundary(
-        <Suspense fallback={<CardSkeleton className="h-64" />}>
-          <MoneyFlowInsights 
-            monthlyIncome={totalMonthlyIncome}
-            monthlyExpenses={totalMonthlyExpenses}
-            spendingCategories={spendingCategories}
-            todaySpending={todaySpending}
-            recentTransactions={recentTransactions}
-          />
-        </Suspense>
-      )}
+      <MoneyFlowInsights 
+        monthlyIncome={totalMonthlyIncome}
+        monthlyExpenses={totalMonthlyExpenses}
+        spendingCategories={spendingCategories}
+        todaySpending={todaySpending}
+        recentTransactions={recentTransactions}
+      />
 
       {/* Main Money Available Card - Top Position */}
       {/* Main Content Grid - Enhanced Layout */}
-      <ResponsiveGrid 
-        columns={{ mobile: 1, desktop: 2, wide: 3 }}
-        gap="lg"
-        className="xl:grid-cols-3"
-      >
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column - Money Status */}
         <div className="xl:col-span-2 space-y-6">
           {/* Additional summary cards */}
-          <ResponsiveGrid columns={{ mobile: 1, tablet: 2 }} gap="md" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          </div>
           {/* Cashflow Projection - Full Width */}
-          {renderWithErrorBoundary(
-            <Suspense fallback={<CardSkeleton className="h-80" />}>
-              <CashflowProjectionChart
-                projections={cashflowProjections}
-                daysUntilDeficit={daysUntilDeficit}
-              />
-            </Suspense>
-          )}
+          <CashflowProjectionChart
+            projections={cashflowProjections}
+            daysUntilDeficit={daysUntilDeficit}
+          />
         </div>
 
         {/* Right Column - Payments & Spending */}
         <div className="space-y-6">
           {/* Spending Categories */}
-          {renderWithErrorBoundary(
-            <Suspense fallback={<CardSkeleton className="h-96" />}>
-              <SpendingCategoriesCard
-                categories={spendingCategories}
-                todaySpending={todaySpending}
-              />
-            </Suspense>
-          )}
+          <SpendingCategoriesCard
+            categories={spendingCategories}
+            todaySpending={todaySpending}
+          />
         </div>
-      </ResponsiveGrid>
+      </div>
 
       {/* Smart Suggestions - New Component */}
-      {renderWithErrorBoundary(
-        <Suspense fallback={<CardSkeleton className="h-64" />}>
-          <SmartSuggestions 
-            netLeftover={netLeftoverUntilPaycheck}
-            savingsRate={savingsRate}
-            spendingCategories={spendingCategories}
-            overdueCount={overdueCount}
-            daysUntilPaycheck={paycheckInfo.daysUntilPaycheck}
-          />
-        </Suspense>
-      )}
+      <SmartSuggestions 
+        netLeftover={netLeftoverUntilPaycheck}
+        savingsRate={savingsRate}
+        spendingCategories={spendingCategories}
+        overdueCount={overdueCount}
+        daysUntilPaycheck={paycheckInfo.daysUntilPaycheck}
+      />
 
       {/* Recent Transactions - Enhanced */}
-      {renderWithErrorBoundary(
-        <Suspense fallback={<CardSkeleton className="h-80" />}>
-          <RecentTransactionsCard transactions={recentTransactions} />
-        </Suspense>
-      )}
+      <RecentTransactionsCard transactions={recentTransactions} />
 
       {/* Financial Awareness Summary */}
-      {renderWithErrorBoundary(
-        <FinancialAwarenessSummary
-          totalMonthlyIncome={monthlyIncome}
-          totalMonthlyExpenses={monthlyExpenses}
-          biggestExpenseCategory={biggestExpenseCategory}
-          savingsRate={savingsRate}
-          paycheckDays={paycheckInfo.daysUntilPaycheck}
-          netLeftoverUntilPaycheck={netLeftoverUntilPaycheck}
-        />
-      )}
+      <FinancialAwarenessSummary
+        totalMonthlyIncome={totalMonthlyIncome}
+        totalMonthlyExpenses={totalMonthlyExpenses}
+        biggestExpenseCategory={biggestExpenseCategory}
+        savingsRate={savingsRate}
+        paycheckDays={paycheckInfo.daysUntilPaycheck}
+        netLeftoverUntilPaycheck={netLeftoverUntilPaycheck}
+      />
 
       {/* Detailed Modal */}
       <DetailedModal
@@ -184,8 +136,8 @@ const CurrentPage = () => {
         onClose={() => setIsModalOpen(false)}
         upcomingPayments={upcomingPayments}
         spendingCategories={spendingCategories}
-        monthlyIncome={monthlyIncome}
-        monthlyExpenses={monthlyExpenses}
+        monthlyIncome={totalMonthlyIncome}
+        monthlyExpenses={totalMonthlyExpenses}
       />
 
       {/* Upcoming Payments Modal */}
@@ -199,8 +151,8 @@ const CurrentPage = () => {
       <NetCashflowModal
         isOpen={isNetCashflowModalOpen}
         onClose={() => setIsNetCashflowModalOpen(false)}
-        monthlyIncome={monthlyIncome}
-        monthlyExpenses={monthlyExpenses}
+        monthlyIncome={totalMonthlyIncome}
+        monthlyExpenses={totalMonthlyExpenses}
         spendingCategories={spendingCategories}
         recentTransactions={recentTransactions}
       />

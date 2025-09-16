@@ -1,8 +1,6 @@
 import React from 'react';
-import { Clock, AlertTriangle } from 'lucide-react';
+import { Wallet, AlertTriangle, TrendingDown, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import type { CurrentAccount, PaycheckInfo } from '../../types/current';
-import { FINANCIAL_THRESHOLDS } from '../../constants/financial';
-import { MOCK_FINANCIAL_VALUES } from '../../data/mockData';
 
 interface AvailableMoneyCardProps {
   accounts: CurrentAccount[];
@@ -25,10 +23,8 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   
   // Dynamic thresholds based on user's financial context
   const getUserFinancialThresholds = (totalAvailable: number, monthlyExpenses: number) => {
-    // Use mock data instead of hardcoded values
-    const actualMonthlyExpenses = monthlyExpenses || MOCK_FINANCIAL_VALUES.MONTHLY_EXPENSES;
-    const monthlyBurnRate = actualMonthlyExpenses / 30;
-    const emergencyFundTarget = monthlyBurnRate * (FINANCIAL_THRESHOLDS.EMERGENCY_FUND_MONTHS * 30);
+    const monthlyBurnRate = monthlyExpenses / 30;
+    const emergencyFundTarget = monthlyBurnRate * 90; // 3 months expenses
     
     return {
       comfortable: emergencyFundTarget * 0.8, // 80% of 3-month emergency fund
@@ -39,7 +35,7 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   };
   
   // Calculate average monthly expenses from spending categories (if available)
-  const estimatedMonthlyExpenses = MOCK_FINANCIAL_VALUES.MONTHLY_EXPENSES;
+  const estimatedMonthlyExpenses = 35000; // This would come from props/context
   const thresholds = getUserFinancialThresholds(totalAvailable, estimatedMonthlyExpenses);
   
   // Calculate progress for circular indicator (days until paycheck)
@@ -67,26 +63,22 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   const statusStyle = getFinancialStatus(Math.abs(currentSaldo));
 
   return (
-    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all ${
-      onViewDetails ? 'cursor-pointer group' : ''
-    } relative ${statusStyle.ring}`}
-         onClick={onViewDetails}
-         role={onViewDetails ? "button" : undefined}
-         tabIndex={onViewDetails ? 0 : undefined}
-         aria-label={onViewDetails ? "View available balance details" : undefined}
-         onKeyDown={onViewDetails ? (e) => {
-           if (e.key === 'Enter' || e.key === ' ') {
-             e.preventDefault();
-             onViewDetails();
-           }
-         } : undefined}>
+    <div 
+      className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
+      statusStyle.ring
+    }`}
+      onClick={onViewDetails}
+    >
+      {/* Compact layout */}
       <div className="flex items-center justify-between">
         {/* Left side - Main info */}
         <div className="flex-1">
           <div className="text-xs text-slate-300 mb-1">
             Available Balance (in NOK)
           </div>
-          <div className={`text-2xl font-bold mb-1 ${statusStyle.color}`}>
+          <div className={`text-2xl font-bold mb-1 ${
+            currentSaldo < 0 ? 'text-red-400' : 'text-white'
+          }`}>
             {currentSaldo < 0 ? '-' : ''}{Math.abs(currentSaldo).toLocaleString('no-NO', { 
               minimumFractionDigits: 0,
               maximumFractionDigits: 0 
@@ -134,11 +126,22 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
           </div>
         </div>
       </div>
+      
       {/* Bottom info */}
       <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className="text-sm font-medium text-white">
-          Until payday: {paycheckInfo.daysUntilPaycheck} day{paycheckInfo.daysUntilPaycheck !== 1 ? 's' : ''}
+        {/* Dynamic status message */}
+        <div className="text-xs text-slate-400 mt-1">
+          {Math.abs(currentSaldo) >= thresholds.comfortable && '💪 Strong financial position'}
+          {Math.abs(currentSaldo) >= thresholds.adequate && Math.abs(currentSaldo) < thresholds.comfortable && '👍 Adequate reserves'}
+          {Math.abs(currentSaldo) >= thresholds.tight && Math.abs(currentSaldo) < thresholds.adequate && '⚠️ Getting tight'}
+          {Math.abs(currentSaldo) < thresholds.tight && '🚨 Critical - need attention'}
         </div>
+      </div>
+
+      {/* Hover indicator */}
+      <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-xs text-slate-400 mr-2">View details</span>
+        <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
   );
