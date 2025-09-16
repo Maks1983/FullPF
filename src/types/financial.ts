@@ -36,6 +36,22 @@ export interface Goal {
 }
 
 export type TimeframeType = '1M' | '3M' | '6M' | '1Y' | 'ALL';
+
+// Strict type definitions for better type safety
+export type CurrencyCode = 'NOK' | 'USD' | 'EUR';
+export type CardStatus = 'positive' | 'negative' | 'warning' | 'neutral';
+export type Priority = 'high' | 'medium' | 'low';
+
+// Enhanced interfaces with stricter typing
+export interface StrictMetric {
+  readonly title: string;
+  readonly value: number;
+  readonly currency: CurrencyCode;
+  readonly change: number;
+  readonly trend: 'up' | 'down' | 'neutral';
+  readonly status: CardStatus;
+  readonly priority: Priority;
+}
 </parameter>
 </invoke>
 <invoke name="str_replace_editor">

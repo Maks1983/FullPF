@@ -1,24 +1,29 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { mockCurrentPageData } from '../data/currentPageData';
 import type { CurrentPageData } from '../types/current';
+import { FINANCIAL_THRESHOLDS } from '../constants/financial';
 
 export const useCurrentPageData = (): CurrentPageData & {
   criticalAlerts: number;
   isDeficitProjected: boolean;
   daysUntilDeficit: number;
   highPriorityPayments: number;
+  refreshData: () => Promise<void>;
 } => {
-  return useMemo(() => {
+  // Memoized data processing
+  const processedData = useMemo(() => {
     const data = mockCurrentPageData;
     
     // Calculate critical alerts
     const lowBalanceAccounts = data.accounts.filter(acc => 
-      acc.type !== 'credit' && acc.minimumBalance && acc.balance < acc.minimumBalance
+      acc.type !== 'credit' && 
+      acc.minimumBalance && 
+      acc.balance < acc.minimumBalance
     ).length;
     
     const highCreditUtilization = data.accounts.filter(acc => 
       acc.type === 'credit' && acc.creditLimit && 
-      (Math.abs(acc.balance) / acc.creditLimit) > 0.8
+      (Math.abs(acc.balance) / acc.creditLimit) > (FINANCIAL_THRESHOLDS.CREDIT_UTILIZATION_WARNING / 100)
     ).length;
     
     const criticalAlerts = data.overdueCount + lowBalanceAccounts + highCreditUtilization;
@@ -45,4 +50,17 @@ export const useCurrentPageData = (): CurrentPageData & {
       highPriorityPayments
     };
   }, []);
+  
+  // Memoized refresh function
+  const refreshData = useCallback(async () => {
+    // Simulate API call - in real app this would fetch fresh data
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // In real implementation, this would trigger a re-fetch
+    console.log('Data refreshed');
+  }, []);
+  
+  return {
+    ...processedData,
+    refreshData,
+  };
 };
