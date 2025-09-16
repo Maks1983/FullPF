@@ -72,41 +72,96 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
         <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <div className="flex items-center justify-between p-6">
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Your Money Right Now</h2>
-              
-              {/* Hero Amount - What Actually Matters */}
-              <div className="text-center mb-4">
-                <div className={`text-4xl font-black mb-2 ${netAfterPayments >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  NOK {Math.abs(netAfterPayments).toLocaleString()}
+              {/* Money Story - Visual Narrative */}
+              <div className="relative">
+                {/* Title with Emoji Status */}
+                <div className="flex items-center space-x-3 mb-4">
+                  <span className="text-2xl">
+                    {netAfterPayments >= 5000 ? '😎' : 
+                     netAfterPayments >= 0 ? '👍' : 
+                     netAfterPayments >= -2000 ? '😬' : '😰'}
+                  </span>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {netAfterPayments >= 5000 ? 'Looking Good!' : 
+                     netAfterPayments >= 0 ? 'You\'re Covered' : 
+                     netAfterPayments >= -2000 ? 'Getting Tight' : 'Need Action'}
+                  </h2>
                 </div>
-                <div className="text-lg text-gray-700 font-medium">
-                  {netAfterPayments >= 0 ? 'Available after bills' : 'Short after bills'}
-                </div>
-              </div>
 
-              {/* Supporting Math - How We Got There */}
-              <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 mb-4 border border-white/40">
-                <div className="text-sm text-gray-600 text-center">
-                  NOK {netAvailable.toLocaleString()} current balance − NOK {upcomingPaymentsTotal.toLocaleString()} upcoming bills
-                </div>
-              </div>
+                {/* Visual Money Flow */}
+                <div className="flex items-center space-x-4 mb-4">
+                  {/* Current Money */}
+                  <div className="flex-shrink-0 text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-white font-bold text-sm">NOK</span>
+                    </div>
+                    <div className="mt-2">
+                      <div className="font-bold text-gray-900">{(netAvailable / 1000).toFixed(0)}k</div>
+                      <div className="text-xs text-gray-600">Current</div>
+                    </div>
+                  </div>
 
-              {/* Status Indicators - Quick Context */}
-              <div className="flex items-center justify-center space-x-6 text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${daysUntilTight < 7 ? 'bg-red-500' : daysUntilTight < 14 ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
-                  <span className="text-gray-700">{daysUntilTight} days runway</span>
+                  {/* Flow Arrow */}
+                  <div className="flex-1 relative">
+                    <div className="h-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="bg-white rounded-full p-1 shadow-md">
+                        <ArrowUpRight className="h-4 w-4 text-gray-600" />
+                      </div>
+                    </div>
+                    {/* Bills indicator */}
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+                      <div className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium">
+                        -{(upcomingPaymentsTotal / 1000).toFixed(0)}k bills
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Result */}
+                  <div className="flex-shrink-0 text-center">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg ${
+                      netAfterPayments >= 0 
+                        ? 'bg-gradient-to-br from-blue-400 to-blue-600' 
+                        : 'bg-gradient-to-br from-red-400 to-red-600'
+                    }`}>
+                      <span className="text-white font-bold text-sm">
+                        {netAfterPayments >= 0 ? '✓' : '!'}
+                      </span>
+                    </div>
+                    <div className="mt-2">
+                      <div className={`font-bold ${netAfterPayments >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                        {Math.abs(netAfterPayments / 1000).toFixed(0)}k
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {netAfterPayments >= 0 ? 'Free' : 'Short'}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                    getSpendingVelocity() === 'High' ? 'bg-red-500' : 
-                    getSpendingVelocity() === 'Low' ? 'bg-green-500' : 'bg-blue-500'
-                  }`}></div>
-                  <span className="text-gray-700">{getSpendingVelocity().toLowerCase()} spending</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${healthScore >= 85 ? 'bg-green-500' : healthScore >= 70 ? 'bg-blue-500' : 'bg-yellow-500'}`}></div>
-                  <span className="text-gray-700">health {healthScore}/100</span>
+
+                {/* Smart Insights Bar */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-white/60">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1">
+                        <div className={`w-2 h-2 rounded-full ${daysUntilTight < 7 ? 'bg-red-500' : daysUntilTight < 14 ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+                        <span className="text-gray-700 font-medium">{daysUntilTight}d</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <span className="text-gray-500">•</span>
+                        <span className="text-gray-700">{getSpendingVelocity().toLowerCase()}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <span className="text-gray-500">•</span>
+                        <span className={`font-medium ${healthScore >= 85 ? 'text-green-600' : healthScore >= 70 ? 'text-blue-600' : 'text-yellow-600'}`}>
+                          {healthScore}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {nextPaycheckDays} days to payday
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
