@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Activity, ArrowUpRight, ArrowDownRight, Filter, Star, Lock } from 'lucide-react';
-import { FixedSizeList as List } from 'react-window';
+import { FixedSizeList } from 'react-window/fixed-size-list';
 import type { RecentTransaction } from '../../types/current';
+
+const List = FixedSizeList;
 
 interface RecentTransactionsCardProps {
   transactions: RecentTransaction[];
