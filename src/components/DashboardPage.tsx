@@ -1,5 +1,6 @@
 import React, { useState, Suspense } from 'react';
-import { useFinancialData, useMetricsData } from '../hooks/useFinancialData';
+import { useDashboardData } from '../hooks/useCentralizedData';
+import { useMetricsData } from '../hooks/useMetricsData';
 import { activityIcons, insightIcons } from '../theme/icons';
 
 // Import refactored components
@@ -18,6 +19,7 @@ const DashboardPage = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   // Use custom hooks for data management
+  const dashboardData = useDashboardData(timeframe);
   const { 
     cashflowData, 
     portfolioData, 
@@ -26,7 +28,7 @@ const DashboardPage = () => {
     smartInsights, 
     goals, 
     recentActivities 
-  } = useFinancialData(timeframe);
+  } = dashboardData;
   
   const { primaryMetrics, secondaryMetrics } = useMetricsData(cashflowData, netWorthData);
 
