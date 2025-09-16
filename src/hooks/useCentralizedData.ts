@@ -129,7 +129,7 @@ export const useCurrentPageData = () => {
     });
 
     const totalUpcomingPayments = upcomingPayments.reduce((sum, payment) => sum + Math.abs(payment.amount), 0);
-    const netLeftoverUntilPaycheck = totalAvailable - totalUpcomingPayments;
+    const netLeftoverUntilPaycheck = checkingAccount ? checkingAccount.balance - totalUpcomingPayments : 0;
 
     // Mock recent transactions based on centralized data
     // Mock recent transactions
