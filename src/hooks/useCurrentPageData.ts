@@ -38,8 +38,11 @@ export const useCurrentPageData = (): CurrentPageData & {
       status: 'scheduled' as const,
       isRecurring: true,
       accountId: 'acc_checking',
-    const upcomingPayments = [...debtPayments, rentPayment];
       priority: 'high' as const
+    };
+    
+    const upcomingPayments = [...debtPayments, rentPayment];
+    
     // Calculate totals
     const totalUpcomingPayments = upcomingPayments.reduce((sum, payment) => sum + Math.abs(payment.amount), 0); // NOK 13,020
     const netLeftoverUntilPaycheck = totalAvailable - totalUpcomingPayments; // NOK 15,420 - 13,020 = NOK 2,400
