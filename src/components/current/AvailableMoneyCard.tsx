@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wallet, AlertTriangle, TrendingDown, Clock, TrendingUp, ChevronRight } from 'lucide-react';
+import { Wallet, AlertTriangle, ChevronRight } from 'lucide-react';
 import type { CurrentAccount, PaycheckInfo } from '../../types/current';
 
 interface AvailableMoneyCardProps {
@@ -19,45 +19,49 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
   upcomingPayments = [],
   onViewDetails
 }) => {
-  const isDeficit = netLeftover < 0;
+  // Calculate net available after upcoming payments
+  const upcomingPaymentsTotal = upcomingPayments
+    .filter(payment => payment.status !== 'paid')
+    .reduce((sum, payment) => sum + Math.abs(payment.amount), 0);
+  
+  const netAvailable = totalAvailable - upcomingPaymentsTotal;
+  const isDeficit = netAvailable < 0;
+  
+  // Calculate money sustainability (optional stat)
+  const monthlyExpenses = 44000; // This would come from props in real implementation
+  const dailyBurnRate = monthlyExpenses / 30;
+  const daysMoneyLasts = Math.floor(netAvailable / dailyBurnRate);
+  
+  // Critical alerts - only balance-related
+  const hasCriticalAlert = isDeficit || daysMoneyLasts < paycheckInfo.daysUntilPaycheck;
   
   // Calculate progress for circular indicator (days until paycheck)
   const totalDaysInMonth = 30; // Approximate
   const progress = ((totalDaysInMonth - paycheckInfo.daysUntilPaycheck) / totalDaysInMonth) * 100;
-  
-  // Calculate sum of upcoming payments and count
-  const upcomingPaymentsTotal = upcomingPayments
-    .filter(payment => payment.status !== 'paid')
-    .reduce((sum, payment) => sum + Math.abs(payment.amount), 0);
-  const remainingPaymentsCount = upcomingPayments.filter(payment => payment.status !== 'paid').length;
-  
-  // Calculate current saldo: net after payments + upcoming payments
-  const currentSaldo = totalAvailable + upcomingPaymentsTotal;
 
   return (
     <div 
       className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
-      isDeficit ? 'ring-2 ring-red-400' : ''
+      hasCriticalAlert ? 'ring-2 ring-red-400' : ''
     }`}
       onClick={onViewDetails}
     >
-      {/* Compact layout */}
       <div className="flex items-center justify-between">
         {/* Left side - Main info */}
         <div className="flex-1">
           <div className="text-xs text-slate-300 mb-1">
-            Available Balance (in NOK)
+            Net Available (in NOK)
           </div>
-          <div className={`text-2xl font-bold mb-1 ${
-            currentSaldo < 0 ? 'text-red-400' : 'text-white'
+          <div className={`text-3xl font-bold mb-1 ${
+            isDeficit ? 'text-red-400' : 'text-white'
           }`}>
-            {currentSaldo < 0 ? '-' : ''}{Math.abs(currentSaldo).toLocaleString('no-NO', { 
+            {isDeficit ? '-' : ''}{Math.abs(netAvailable).toLocaleString('no-NO', { 
               minimumFractionDigits: 0,
               maximumFractionDigits: 0 
             })}
           </div>
           <div className="text-xs text-slate-400">
-            -{upcomingPaymentsTotal.toLocaleString()} in {remainingPaymentsCount} payments
+            What's left after obligations
           </div>
         </div>
         
@@ -99,15 +103,27 @@ const AvailableMoneyCard: React.FC<AvailableMoneyCardProps> = ({
         </div>
       </div>
       
-      {/* Bottom info */}
-      <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className="text-sm font-medium text-white">
-          Net Available: {totalAvailable < 0 ? '-' : ''}{Math.abs(totalAvailable).toLocaleString('no-NO', { 
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0 
-          })}
+      {/* Optional money sustainability stat */}
+      {!isDeficit && daysMoneyLasts > 0 && (
+        <div className="mt-3 pt-3 border-t border-slate-600">
+          <div className="text-sm text-slate-300">
+            Money lasts: <span className="font-medium text-white">{daysMoneyLasts} days</span>
+            <span className="text-xs text-slate-400 ml-2">at current rate</span>
+          </div>
         </div>
-      </div>
+      )}
+      
+      {/* Critical alert - only balance-related */}
+      {hasCriticalAlert && (
+        <div className="mt-3 pt-3 border-t border-red-400">
+          <div className="flex items-center space-x-2 text-red-400">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-sm font-medium">
+              {isDeficit ? 'Insufficient funds' : 'Money runs out before payday'}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Hover indicator */}
       <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
