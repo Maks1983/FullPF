@@ -1,9 +1,8 @@
 import React, { Suspense } from 'react';
-import { useCurrentPageData } from '../hooks/useCurrentPageData';
-import { useModalState } from '../hooks/useModalState';
-import { useFinancialCalculations } from '../hooks/useFinancialCalculations';
+import { useCurrentPageFinancial } from '../hooks/useConsolidatedFinancial';
 import ErrorBoundary from './common/ErrorBoundary';
 import CardSkeleton from './common/CardSkeleton';
+import ResponsiveGrid from './common/ResponsiveGrid';
 import CurrentPageHeader from './current/CurrentPageHeader';
 import CriticalAlertsSection from './current/CriticalAlertsSection';
 import DetailedModal from './current/DetailedModal';
@@ -15,6 +14,7 @@ import MoneyFlowInsights from './current/MoneyFlowInsights';
 import SmartSuggestions from './current/SmartSuggestions';
 import NetCashflowModal from './current/NetCashflowModal';
 import FinancialAwarenessSummary from './current/FinancialAwarenessSummary';
+import { RESPONSIVE_CLASSES } from '../constants/responsive';
 
 const CurrentPage = () => {
   // Error boundary wrapper for the entire page
@@ -22,15 +22,8 @@ const CurrentPage = () => {
     <ErrorBoundary>{component}</ErrorBoundary>
   );
 
-  const {
-    isModalOpen,
-    setIsModalOpen,
-    isPaymentsModalOpen,
-    setIsPaymentsModalOpen,
-    isNetCashflowModalOpen,
-    setIsNetCashflowModalOpen,
-  } = useModalState();
-  
+  // Use consolidated hook for all financial data
+  const financial = useCurrentPageFinancial();
   const {
     accounts,
     upcomingPayments,
@@ -45,22 +38,38 @@ const CurrentPage = () => {
     criticalAlerts,
     isDeficitProjected,
     daysUntilDeficit,
-    highPriorityPayments
-  } = useCurrentPageData();
-
+    highPriorityPayments,
+    monthlyIncome,
+    monthlyExpenses,
+    savingsRate,
+  } = financial;
+  
   const {
     totalMonthlyIncome,
     totalMonthlyExpenses,
-    savingsRate,
-    netCashflow,
     biggestExpenseCategory,
-  } = useFinancialCalculations(spendingCategories);
+  } = financial.calculations;
+  
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isPaymentsModalOpen,
+    setIsPaymentsModalOpen,
+    isNetCashflowModalOpen,
+    setIsNetCashflowModalOpen,
+  } = financial.modals;
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className={`space-y-8 pb-8 ${RESPONSIVE_CLASSES.paddingResponsive}`}>
       {/* Page Header */}
       {renderWithErrorBoundary(
-        <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-3 gap-6"><CardSkeleton /><CardSkeleton /><CardSkeleton /></div>}>
+        <Suspense fallback={
+          <ResponsiveGrid columns={{ mobile: 1, tablet: 2, desktop: 3 }}>
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </ResponsiveGrid>
+        }>
           <CurrentPageHeader
             accounts={accounts}
             totalAvailable={totalAvailable}
@@ -103,12 +112,15 @@ const CurrentPage = () => {
 
       {/* Main Money Available Card - Top Position */}
       {/* Main Content Grid - Enhanced Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <ResponsiveGrid 
+        columns={{ mobile: 1, desktop: 2, wide: 3 }}
+        gap="lg"
+        className="xl:grid-cols-3"
+      >
         {/* Left Column - Money Status */}
         <div className="xl:col-span-2 space-y-6">
           {/* Additional summary cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          </div>
+          <ResponsiveGrid columns={{ mobile: 1, tablet: 2 }} gap="md" />
           {/* Cashflow Projection - Full Width */}
           {renderWithErrorBoundary(
             <Suspense fallback={<CardSkeleton className="h-80" />}>
@@ -132,7 +144,7 @@ const CurrentPage = () => {
             </Suspense>
           )}
         </div>
-      </div>
+      </ResponsiveGrid>
 
       {/* Smart Suggestions - New Component */}
       {renderWithErrorBoundary(
@@ -157,8 +169,8 @@ const CurrentPage = () => {
       {/* Financial Awareness Summary */}
       {renderWithErrorBoundary(
         <FinancialAwarenessSummary
-          totalMonthlyIncome={totalMonthlyIncome}
-          totalMonthlyExpenses={totalMonthlyExpenses}
+          totalMonthlyIncome={monthlyIncome}
+          totalMonthlyExpenses={monthlyExpenses}
           biggestExpenseCategory={biggestExpenseCategory}
           savingsRate={savingsRate}
           paycheckDays={paycheckInfo.daysUntilPaycheck}
@@ -172,8 +184,8 @@ const CurrentPage = () => {
         onClose={() => setIsModalOpen(false)}
         upcomingPayments={upcomingPayments}
         spendingCategories={spendingCategories}
-        monthlyIncome={totalMonthlyIncome}
-        monthlyExpenses={totalMonthlyExpenses}
+        monthlyIncome={monthlyIncome}
+        monthlyExpenses={monthlyExpenses}
       />
 
       {/* Upcoming Payments Modal */}
@@ -187,8 +199,8 @@ const CurrentPage = () => {
       <NetCashflowModal
         isOpen={isNetCashflowModalOpen}
         onClose={() => setIsNetCashflowModalOpen(false)}
-        monthlyIncome={totalMonthlyIncome}
-        monthlyExpenses={totalMonthlyExpenses}
+        monthlyIncome={monthlyIncome}
+        monthlyExpenses={monthlyExpenses}
         spendingCategories={spendingCategories}
         recentTransactions={recentTransactions}
       />

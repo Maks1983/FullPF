@@ -1,4 +1,8 @@
 // Mock data for the financial dashboard
+import type { CashflowData, NetWorthData, PortfolioData, HealthScoreData } from '../types/financial';
+import type { Goal } from '../types/financial';
+
+// Enhanced mock data with proper typing
 export const allCashflowData = {
   '1M': [
     { month: 'Dec', income: 52000, expenses: 44000, predicted: false },
@@ -46,9 +50,9 @@ export const allCashflowData = {
     { month: 'Jan+1', income: 53000, expenses: 41500, predicted: true },
     { month: 'Feb+1', income: 52000, expenses: 42000, predicted: true },
   ]
-};
+} as const satisfies Record<string, CashflowData[]>;
 
-export const portfolioData = [
+export const portfolioData: PortfolioData[] = [
   { name: 'Savings', value: 144612, color: '#10b981', performance: '+4.2%' },
   { name: 'Stocks', value: 85000, color: '#3b82f6', performance: '+12.8%' },
   { name: 'Real Estate', value: 24890, color: '#8b5cf6', performance: '+8.5%' },
@@ -101,9 +105,9 @@ export const allNetWorthData = {
     { month: 'Nov', assets: 282500, liabilities: 39200, netWorth: 243300 },
     { month: 'Dec', assets: 285000, liabilities: 38450, netWorth: 246550 },
   ]
-};
+} as const satisfies Record<string, NetWorthData[]>;
 
-export const healthScoreData = [
+export const healthScoreData: HealthScoreData[] = [
   { month: 'Jul', score: 78 },
   { month: 'Aug', score: 80 },
   { month: 'Sep', score: 82 },
@@ -192,3 +196,16 @@ export const recentActivitiesData = [
     date: '5 days ago'
   }
 ];
+
+// Financial constants from mock data
+export const MOCK_FINANCIAL_VALUES = {
+  CURRENT_NET_WORTH: 246552,
+  MONTHLY_INCOME: 52000,
+  MONTHLY_EXPENSES: 44000,
+  FINANCIAL_HEALTH_SCORE: 85,
+  PREVIOUS_HEALTH_SCORE: 82,
+  INVESTMENT_RETURNS: 24890,
+  LIQUID_ASSETS: 144612,
+  TOTAL_DEBT: 38450,
+  SAVINGS_RATE: 28.5,
+} as const;

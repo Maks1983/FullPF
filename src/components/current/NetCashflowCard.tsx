@@ -1,6 +1,9 @@
 import React from 'react';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
+import AnimatedCard from '../common/AnimatedCard';
+import { MOCK_FINANCIAL_VALUES } from '../../data/mockData';
 import type { SpendingCategory, RecentTransaction } from '../../types/current';
+import { ARIA_LABELS, ARIA_DESCRIPTIONS } from '../../constants/accessibility';
 
 interface NetCashflowCardProps {
   monthlyIncome: number;
@@ -9,8 +12,8 @@ interface NetCashflowCardProps {
 }
 
 const NetCashflowCard: React.FC<NetCashflowCardProps> = ({
-  monthlyIncome,
-  monthlyExpenses,
+  monthlyIncome = MOCK_FINANCIAL_VALUES.MONTHLY_INCOME,
+  monthlyExpenses = MOCK_FINANCIAL_VALUES.MONTHLY_EXPENSES,
   onClick
 }) => {
   const netCashflow = monthlyIncome - monthlyExpenses;
@@ -18,8 +21,13 @@ const NetCashflowCard: React.FC<NetCashflowCardProps> = ({
   const cashflowPercentage = Math.abs(netCashflow / monthlyIncome) * 100;
 
   return (
-    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
+    <AnimatedCard
       onClick={onClick}
+      ariaLabel={ARIA_LABELS.cashflowCard}
+      ariaDescription={ARIA_DESCRIPTIONS.cashflowCard}
+      animationType="slideIn"
+    >
+    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
     >
       <div className="flex items-center justify-between">
         {/* Left side - Main info */}
@@ -91,6 +99,7 @@ const NetCashflowCard: React.FC<NetCashflowCardProps> = ({
         <ChevronRight className="h-4 w-4 text-slate-400" />
       </div>
     </div>
+    </AnimatedCard>
   );
 };
 

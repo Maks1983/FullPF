@@ -1,5 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { mockCurrentPageData } from '../data/currentPageData';
+import { MOCK_FINANCIAL_VALUES } from '../data/mockData';
 import type { CurrentPageData } from '../types/current';
 import { FINANCIAL_THRESHOLDS } from '../constants/financial';
 
@@ -13,6 +14,10 @@ export const useCurrentPageData = (): CurrentPageData & {
   // Memoized data processing
   const processedData = useMemo(() => {
     const data = mockCurrentPageData;
+    
+    // Use mock data values instead of hardcoded ones
+    const monthlyIncome = MOCK_FINANCIAL_VALUES.MONTHLY_INCOME;
+    const monthlyExpenses = MOCK_FINANCIAL_VALUES.MONTHLY_EXPENSES;
     
     // Calculate critical alerts
     const lowBalanceAccounts = data.accounts.filter(acc => 
@@ -47,7 +52,11 @@ export const useCurrentPageData = (): CurrentPageData & {
       criticalAlerts,
       isDeficitProjected,
       daysUntilDeficit,
-      highPriorityPayments
+      highPriorityPayments,
+      // Add calculated values from mock data
+      monthlyIncome,
+      monthlyExpenses,
+      savingsRate: ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100,
     };
   }, []);
   

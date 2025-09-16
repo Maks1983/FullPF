@@ -1,11 +1,12 @@
 import { useMemo, useCallback } from 'react';
+import { MOCK_FINANCIAL_VALUES } from '../data/mockData';
 import type { SpendingCategory } from '../types/current';
 import { FINANCIAL_THRESHOLDS } from '../constants/financial';
 
 export const useFinancialCalculations = (spendingCategories: SpendingCategory[]) => {
   return useMemo(() => {
     // Calculate insights for awareness
-    const totalMonthlyIncome = 52000; // This would come from data
+    const totalMonthlyIncome = MOCK_FINANCIAL_VALUES.MONTHLY_INCOME;
     const totalMonthlyExpenses = spendingCategories.reduce((sum, cat) => sum + cat.spent, 0);
     const savingsRate = ((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100;
     const biggestExpenseCategory = spendingCategories.reduce((max, cat) => 
@@ -28,9 +29,11 @@ export const useFinancialCalculations = (spendingCategories: SpendingCategory[])
       emergencyFundTarget,
     };
   }, [spendingCategories]);
-  
-  // Memoized calculation functions
-  const calculateFinancialHealth = useCallback((
+};
+
+// Memoized calculation functions
+export const useFinancialHealthCalculator = () => {
+  return useCallback((
     balance: number,
     monthlyExpenses: number
   ) => {
@@ -46,6 +49,4 @@ export const useFinancialCalculations = (spendingCategories: SpendingCategory[])
       return { status: 'critical' as const, message: 'Critical - need attention' };
     }
   }, []);
-  
-  return { calculateFinancialHealth };
 };
