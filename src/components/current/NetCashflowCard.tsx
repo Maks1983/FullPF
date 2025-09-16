@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
+import { MOCK_FINANCIAL_VALUES } from '../../data/mockData';
 import type { SpendingCategory, RecentTransaction } from '../../types/current';
 
 interface NetCashflowCardProps {
@@ -9,8 +10,8 @@ interface NetCashflowCardProps {
 }
 
 const NetCashflowCard: React.FC<NetCashflowCardProps> = ({
-  monthlyIncome,
-  monthlyExpenses,
+  monthlyIncome = MOCK_FINANCIAL_VALUES.MONTHLY_INCOME,
+  monthlyExpenses = MOCK_FINANCIAL_VALUES.MONTHLY_EXPENSES,
   onClick
 }) => {
   const netCashflow = monthlyIncome - monthlyExpenses;
@@ -19,8 +20,16 @@ const NetCashflowCard: React.FC<NetCashflowCardProps> = ({
 
   return (
     <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
-      onClick={onClick}
-    >
+         onClick={onClick}
+         role="button"
+         tabIndex={0}
+         aria-label="View net cashflow details"
+         onKeyDown={(e) => {
+           if (e.key === 'Enter' || e.key === ' ') {
+             e.preventDefault();
+             onClick();
+           }
+         }}>
       <div className="flex items-center justify-between">
         {/* Left side - Main info */}
         <div className="flex-1">

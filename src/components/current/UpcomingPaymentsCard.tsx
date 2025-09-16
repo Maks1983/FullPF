@@ -17,8 +17,16 @@ const UpcomingPaymentsCard: React.FC<UpcomingPaymentsCardProps> = ({
     <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative ${
       overdueCount > 0 ? 'ring-2 ring-red-400' : ''
     }`}
-      onClick={onClick}
-    >
+         onClick={onClick}
+         role="button"
+         tabIndex={0}
+         aria-label="View upcoming payments details"
+         onKeyDown={(e) => {
+           if (e.key === 'Enter' || e.key === ' ') {
+             e.preventDefault();
+             onClick();
+           }
+         }}>
       <div className="flex items-center justify-between">
         {/* Left side - Main info */}
         <div className="flex-1">
