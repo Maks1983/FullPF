@@ -8,14 +8,14 @@ import SpendingCategoriesCard from './current/SpendingCategoriesCard';
 import RecentTransactionsCard from './current/RecentTransactionsCard';
 import MoneyFlowInsights from './current/MoneyFlowInsights';
 import SmartSuggestions from './current/SmartSuggestions';
-import AccountBalanceModal from './current/AccountBalanceModal';
+import NetCashflowModal from './current/NetCashflowModal';
 import { AlertTriangle, TrendingUp, TrendingDown, Clock, Eye, Brain, Heart, Calendar } from 'lucide-react';
 import { ChevronRight } from 'lucide-react';
 
 const CurrentPage = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = React.useState(false);
-  const [isAccountBalanceModalOpen, setIsAccountBalanceModalOpen] = React.useState(false);
+  const [isNetCashflowModalOpen, setIsNetCashflowModalOpen] = React.useState(false);
   
   const {
     accounts,
@@ -151,27 +151,27 @@ const CurrentPage = () => {
           </div>
           
           {/* Account Balances Card */}
+          {/* Net Cashflow Card */}
           <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
-            onClick={() => setIsAccountBalanceModalOpen(true)}
+            onClick={() => setIsNetCashflowModalOpen(true)}
           >
             <div className="flex items-center justify-between">
               {/* Left side - Main info */}
               <div className="flex-1">
                 <div className="text-xs text-slate-300 mb-1">
-                  Account balances (in NOK)
+                  Net cashflow (in NOK)
                 </div>
-                <div className="text-2xl font-bold mb-1 text-white">
-                  {(() => {
-                    const total = accounts
-                    .reduce((sum, acc) => sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0)
-                    return (total < 0 ? '-' : '') + Math.abs(total).toLocaleString('no-NO', { 
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0 
-                    })
-                  })()}
+                <div className={`text-2xl font-bold mb-1 ${
+                  (totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {(totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? '+' : ''}
+                  {(totalMonthlyIncome - totalMonthlyExpenses).toLocaleString('no-NO', { 
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0 
+                  })}
                 </div>
                 <div className="text-xs text-slate-400">
-                  {accounts.length} accounts total
+                  Monthly net flow
                 </div>
               </div>
               
@@ -191,20 +191,22 @@ const CurrentPage = () => {
                       cx="18"
                       cy="18"
                       r="15.9155"
-                      stroke="#10b981"
+                      stroke={((totalMonthlyIncome - totalMonthlyExpenses) >= 0) ? "#10b981" : "#ef4444"}
                       strokeWidth="3"
-                      strokeDasharray={`${Math.min((accounts.filter(acc => acc.status === 'active').length / accounts.length) * 100, 100)}, 100`}
+                      strokeDasharray={`${Math.min(Math.abs((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100, 100)}, 100`}
                       strokeLinecap="round"
                       fill="transparent"
                     />
                   </svg>
                   
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="text-lg font-bold text-white">
-                      {accounts.filter(acc => acc.status === 'active').length}
+                    <div className={`text-lg font-bold ${
+                      (totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {Math.round(Math.abs((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100)}%
                     </div>
                     <div className="text-xs text-slate-300">
-                      active
+                      {(totalMonthlyIncome - totalMonthlyExpenses) >= 0 ? 'surplus' : 'deficit'}
                     </div>
                   </div>
                 </div>
@@ -214,7 +216,7 @@ const CurrentPage = () => {
             {/* Bottom info */}
             <div className="mt-3 pt-3 border-t border-slate-600">
               <div className="text-sm font-medium text-white">
-                {accounts.filter(acc => acc.type !== 'credit').length} deposit • {accounts.filter(acc => acc.type === 'credit').length} credit
+                In: {totalMonthlyIncome.toLocaleString()} • Out: {totalMonthlyExpenses.toLocaleString()}
               </div>
             </div>
 
@@ -373,10 +375,13 @@ const CurrentPage = () => {
       />
 
       {/* Account Balance Modal */}
-      <AccountBalanceModal
-        isOpen={isAccountBalanceModalOpen}
-        onClose={() => setIsAccountBalanceModalOpen(false)}
-        accounts={accounts}
+      <NetCashflowModal
+        isOpen={isNetCashflowModalOpen}
+        onClose={() => setIsNetCashflowModalOpen(false)}
+        monthlyIncome={totalMonthlyIncome}
+        monthlyExpenses={totalMonthlyExpenses}
+        spendingCategories={spendingCategories}
+        recentTransactions={recentTransactions}
       />
     </div>
   );
