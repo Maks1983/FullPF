@@ -146,7 +146,7 @@ export const useCurrentPageData = (): CurrentPageData & {
       isDeficitProjected,
       daysUntilDeficit,
       highPriorityPayments,
-      spendingCategories: spendingCategoriesWithRemaining
+      spendingCategories: spendingCategoriesWithRemaining,
     };
   }, [data]);
 };
