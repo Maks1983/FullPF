@@ -141,12 +141,23 @@ export const useCurrentPageData = (): CurrentPageData & {
       todaySpending: 485.50, // This would be calculated from recent transactions
       totalMonthlyIncome: data.user.monthlyIncome,
       totalMonthlyExpenses: data.totals.monthlyExpenses,
-      ...data,
       criticalAlerts,
       isDeficitProjected,
       daysUntilDeficit,
       highPriorityPayments,
       spendingCategories: spendingCategoriesWithRemaining,
+      // Add back the needed properties from data without spendingCategories
+      user: data.user,
+      accounts: data.accounts,
+      investments: data.investments,
+      physicalAssets: data.physicalAssets,
+      debts: data.debts,
+      goals: data.goals,
+      totals: data.totals,
+      history: data.history,
+      portfolioData: data.portfolioData,
+      smartInsights: data.smartInsights,
+      timeframe: data.timeframe
     };
   }, [data]);
 };
