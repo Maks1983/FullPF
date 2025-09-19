@@ -3,7 +3,6 @@ import { Eye } from 'lucide-react';
 import AvailableMoneyCard from './AvailableMoneyCard';
 import UpcomingPaymentsCard from './UpcomingPaymentsCard';
 import NetCashflowCard from './NetCashflowCard';
-import { formatCurrency } from '../../utils/financial';
 import type { CurrentAccount, PaycheckInfo, UpcomingPayment } from '../../types/current';
 
 interface CurrentPageHeaderProps {
@@ -26,7 +25,6 @@ interface CurrentPageHeaderProps {
 }
 
 const CurrentPageHeader: React.FC<CurrentPageHeaderProps> = ({
-  accounts,
   totalAvailable,
   netLeftoverUntilPaycheck,
   paycheckInfo,
@@ -69,10 +67,10 @@ const CurrentPageHeader: React.FC<CurrentPageHeaderProps> = ({
         aria-label="Financial summary cards"
       >
         <AvailableMoneyCard
-          accounts={accounts}
           totalAvailable={totalAvailable}
           netLeftover={netLeftoverUntilPaycheck}
           paycheckInfo={paycheckInfo}
+          monthlyExpenses={totalMonthlyExpenses}
           upcomingPayments={upcomingPayments}
           onViewDetails={onViewDetails}
         />
@@ -94,3 +92,5 @@ const CurrentPageHeader: React.FC<CurrentPageHeaderProps> = ({
 };
 
 export default CurrentPageHeader;
+
+

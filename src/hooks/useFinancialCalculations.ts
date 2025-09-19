@@ -1,22 +1,34 @@
 import { useMemo } from 'react';
 import type { SpendingCategory } from '../types/current';
 
-export const useFinancialCalculations = (spendingCategories: SpendingCategory[]) => {
+export const useFinancialCalculations = (
+  spendingCategories: SpendingCategory[],
+  totalMonthlyIncome: number
+) => {
   return useMemo(() => {
-    // Calculate insights for awareness
-    const totalMonthlyIncome = 52000; // This would come from data
-    const totalMonthlyExpenses = spendingCategories.reduce((sum, cat) => sum + cat.spent, 0);
-    const savingsRate = ((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome) * 100;
-    const biggestExpenseCategory = spendingCategories.reduce((max, cat) => 
-      cat.spent > max.spent ? cat : max, spendingCategories[0]);
-    const dailyAverageSpending = totalMonthlyExpenses / 30;
+    const normalizedIncome = Number.isFinite(totalMonthlyIncome) ? totalMonthlyIncome : 0;
+    const totalMonthlyExpenses = spendingCategories.reduce((sum, category) => sum + category.spent, 0);
+    const savingsRate = normalizedIncome > 0
+      ? ((normalizedIncome - totalMonthlyExpenses) / normalizedIncome) * 100
+      : 0;
+
+    const biggestExpenseCategory = spendingCategories.reduce<SpendingCategory | undefined>((currentMax, category) => {
+      if (!currentMax || category.spent > currentMax.spent) {
+        return category;
+      }
+      return currentMax;
+    }, undefined);
+
+    const dailyAverageSpending = totalMonthlyExpenses > 0
+      ? totalMonthlyExpenses / 30
+      : 0;
 
     return {
-      totalMonthlyIncome,
+      totalMonthlyIncome: normalizedIncome,
       totalMonthlyExpenses,
       savingsRate,
       biggestExpenseCategory,
       dailyAverageSpending,
     };
-  }, [spendingCategories]);
+  }, [spendingCategories, totalMonthlyIncome]);
 };

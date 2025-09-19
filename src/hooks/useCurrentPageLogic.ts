@@ -2,7 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { useCurrentPageData } from './useCurrentPageData';
 import { useFinancialCalculations } from './useFinancialCalculations';
 import { useModalState } from './useModalState';
-import { formatCurrency, getFinancialHealthStatus } from '../utils/financial';
+import { getFinancialHealthStatus } from '../utils/financial';
 
 export const useCurrentPageLogic = () => {
   const modalState = useModalState();
@@ -18,6 +18,8 @@ export const useCurrentPageLogic = () => {
     netLeftoverUntilPaycheck,
     overdueCount,
     todaySpending,
+    totalMonthlyIncome: dataMonthlyIncome,
+    totalMonthlyExpenses: dataMonthlyExpenses,
     criticalAlerts,
     isDeficitProjected,
     daysUntilDeficit,
@@ -25,16 +27,20 @@ export const useCurrentPageLogic = () => {
   } = useCurrentPageData();
 
   const {
-    totalMonthlyIncome,
-    totalMonthlyExpenses,
+    totalMonthlyExpenses: calculatedMonthlyExpenses,
     savingsRate,
     biggestExpenseCategory,
-  } = useFinancialCalculations(spendingCategories);
+    dailyAverageSpending,
+  } = useFinancialCalculations(spendingCategories, dataMonthlyIncome);
 
-  // Memoize derived data
+  const totalMonthlyIncome = dataMonthlyIncome;
+  const totalMonthlyExpenses = dataMonthlyExpenses ?? calculatedMonthlyExpenses;
+
   const headerData = useMemo(() => {
-    const healthStatus = getFinancialHealthStatus(netLeftoverUntilPaycheck, totalMonthlyIncome);
-    
+    const healthStatus = totalMonthlyIncome > 0
+      ? getFinancialHealthStatus(netLeftoverUntilPaycheck, totalMonthlyIncome)
+      : undefined;
+
     return {
       accounts,
       totalAvailable,
@@ -44,7 +50,7 @@ export const useCurrentPageLogic = () => {
       overdueCount,
       totalMonthlyIncome,
       totalMonthlyExpenses,
-      healthStatus
+      healthStatus,
     };
   }, [
     accounts,
@@ -54,8 +60,7 @@ export const useCurrentPageLogic = () => {
     upcomingPayments,
     overdueCount,
     totalMonthlyIncome,
-    totalMonthlyExpenses,
-    netLeftoverUntilPaycheck
+    totalMonthlyExpenses
   ]);
 
   const alertsData = useMemo(() => ({
@@ -91,13 +96,17 @@ export const useCurrentPageLogic = () => {
     savingsRate,
     spendingCategories,
     overdueCount,
-    daysUntilPaycheck: paycheckInfo.daysUntilPaycheck
+    daysUntilPaycheck: paycheckInfo.daysUntilPaycheck,
+    totalAvailable,
+    monthlyExpenses: totalMonthlyExpenses
   }), [
     netLeftoverUntilPaycheck,
     savingsRate,
     spendingCategories,
     overdueCount,
-    paycheckInfo.daysUntilPaycheck
+    paycheckInfo.daysUntilPaycheck,
+    totalAvailable,
+    totalMonthlyExpenses
   ]);
 
   const awarenessData = useMemo(() => ({
@@ -116,7 +125,6 @@ export const useCurrentPageLogic = () => {
     netLeftoverUntilPaycheck
   ]);
 
-  // Memoized event handlers
   const handleViewDetails = useCallback(() => {
     modalState.setIsModalOpen(true);
   }, [modalState]);
@@ -152,6 +160,10 @@ export const useCurrentPageLogic = () => {
     spendingCategories,
     recentTransactions,
     daysUntilDeficit,
+    dailyAverageSpending,
+    todaySpending,
+    totalMonthlyIncome,
+    totalMonthlyExpenses,
     // Event handlers
     handleViewDetails,
     handleViewPayments,

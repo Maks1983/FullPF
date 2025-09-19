@@ -10,6 +10,10 @@ interface DetailedModalProps {
   spendingCategories: SpendingCategory[];
   monthlyIncome: number;
   monthlyExpenses: number;
+  totalAvailable: number;
+  netLeftoverUntilPaycheck: number;
+  daysUntilPaycheck: number;
+  todaySpending: number;
 }
 
 const DetailedModal: React.FC<DetailedModalProps> = ({
@@ -18,25 +22,34 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   upcomingPayments,
   spendingCategories,
   monthlyIncome,
-  monthlyExpenses
+  monthlyExpenses,
+  totalAvailable,
+  netLeftoverUntilPaycheck,
+  daysUntilPaycheck,
+  todaySpending
 }) => {
   if (!isOpen) return null;
 
-  const netAvailable = 19017.50; // This would come from props
+  const netAvailable = totalAvailable;
   const upcomingPaymentsTotal = upcomingPayments
     .filter(p => p.status !== 'paid')
     .reduce((sum, p) => sum + Math.abs(p.amount), 0);
-  const netAfterPayments = netAvailable - upcomingPaymentsTotal;
-  const nextPaycheckDays = 16; // This would come from props
-  const overduePayments = upcomingPayments.filter(p => p.status === 'overdue');
-  
+  const netAfterPayments = Number.isFinite(netLeftoverUntilPaycheck)
+    ? netLeftoverUntilPaycheck
+    : netAvailable - upcomingPaymentsTotal;
+  const nextPaycheckDays = daysUntilPaycheck;
   // Calculate daily burn rate and projections
-  const dailyBurnRate = monthlyExpenses / 30;
-  const daysUntilTight = Math.floor(netAfterPayments / dailyBurnRate);
+  const dailyBurnRate = monthlyExpenses > 0 ? monthlyExpenses / 30 : 0;
   
-  // Health score calculation (simplified)
-  const healthScore = 85; // This would come from props
-  
+  const normalizedTodaySpending = Number.isFinite(todaySpending) ? todaySpending : 0;
+  const spendingTrendLabel = dailyBurnRate > 0
+    ? normalizedTodaySpending > dailyBurnRate * 1.2
+      ? 'Above average'
+      : normalizedTodaySpending < dailyBurnRate * 0.8
+        ? 'Below average'
+        : 'On track'
+    : 'No baseline yet';
+
   // Dynamic emoji/status thresholds based on user's financial context
   const getFinancialStatusEmoji = (netAmount: number, userIncome: number) => {
     const monthlyIncomeThreshold = userIncome || monthlyIncome;
@@ -58,20 +71,6 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
     if (netAmount >= tightThreshold) return 'You\'re Covered';
     if (netAmount >= -tightThreshold) return 'Getting Tight';
     return 'Need Action';
-  };
-  const getHealthBadgeColor = (score: number) => {
-    if (score >= 85) return 'bg-green-500 text-white';
-    if (score >= 70) return 'bg-blue-500 text-white';
-    if (score >= 50) return 'bg-yellow-500 text-white';
-    return 'bg-red-500 text-white';
-  };
-
-  const getSpendingVelocity = () => {
-    const todaySpending = 485.50; // This would come from props
-    const averageDaily = dailyBurnRate;
-    if (todaySpending > averageDaily * 1.5) return 'High';
-    if (todaySpending < averageDaily * 0.7) return 'Low';
-    return 'Normal';
   };
 
   // Prepare data for horizontal bar charts
@@ -116,6 +115,9 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                     <div className="mt-2">
                       <div className="font-bold text-sm text-gray-900">{(netAvailable / 1000).toFixed(0)}k</div>
                       <div className="text-xs text-gray-600">Current</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Today: NOK {Math.round(normalizedTodaySpending).toLocaleString('no-NO')} ({spendingTrendLabel})
+                      </div>
                     </div>
                   </div>
 
@@ -247,3 +249,25 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
 };
 
 export default DetailedModal;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

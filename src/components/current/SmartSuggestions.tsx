@@ -1,6 +1,18 @@
 import React from 'react';
-import { Lightbulb, Target, AlertCircle, TrendingUp, DollarSign, Calendar, Star, Lock } from 'lucide-react';
+import { Lightbulb, Target, AlertCircle, TrendingUp, DollarSign, Calendar } from 'lucide-react';
 import type { SpendingCategory } from '../../types/current';
+
+type SuggestionColor = 'red' | 'yellow' | 'blue' | 'green';
+
+type Suggestion = {
+  type: 'urgent' | 'warning' | 'improvement' | 'positive' | 'tip';
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  message: string;
+  action: string;
+  color: SuggestionColor;
+  priority: number;
+};
 
 interface SmartSuggestionsProps {
   netLeftover: number;
@@ -8,6 +20,8 @@ interface SmartSuggestionsProps {
   spendingCategories: SpendingCategory[];
   overdueCount: number;
   daysUntilPaycheck: number;
+  totalAvailable: number;
+  monthlyExpenses: number;
 }
 
 const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
@@ -15,11 +29,12 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
   savingsRate,
   spendingCategories,
   overdueCount,
-  daysUntilPaycheck
+  daysUntilPaycheck,
+  totalAvailable,
+  monthlyExpenses
 }) => {
-  const suggestions = [];
+  const suggestions: Suggestion[] = [];
 
-  // Generate smart suggestions based on financial situation
   if (overdueCount > 0) {
     suggestions.push({
       type: 'urgent',
@@ -44,13 +59,12 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
     });
   }
 
-  // Check for over-budget categories
-  const overBudgetCategories = spendingCategories.filter(cat => cat.isOverBudget);
+  const overBudgetCategories = spendingCategories.filter(category => category.isOverBudget);
   if (overBudgetCategories.length > 0) {
-    const worstCategory = overBudgetCategories.reduce((worst, cat) => 
-      Math.abs(cat.remaining) > Math.abs(worst.remaining) ? cat : worst
-    );
-    
+    const worstCategory = overBudgetCategories.reduce((currentWorst, category) =>
+      Math.abs(category.remaining) > Math.abs(currentWorst.remaining) ? category : currentWorst
+    , overBudgetCategories[0]);
+
     suggestions.push({
       type: 'improvement',
       icon: Target,
@@ -62,31 +76,30 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
     });
   }
 
-  // Savings rate suggestions
-  if (savingsRate < 10) {
+  const normalizedSavingsRate = Number.isFinite(savingsRate) ? savingsRate : 0;
+  if (normalizedSavingsRate < 10) {
     suggestions.push({
       type: 'improvement',
       icon: TrendingUp,
       title: 'Boost Your Savings Rate',
-      message: `Your current savings rate is ${savingsRate.toFixed(1)}%. Try to reach 10-20% by finding small areas to cut back.`,
+      message: `Your current savings rate is ${normalizedSavingsRate.toFixed(1)}%. Try to reach 10-20% by finding small areas to cut back.`,
       action: 'Find savings opportunities',
       color: 'blue',
       priority: 4
     });
-  } else if (savingsRate >= 20) {
+  } else if (normalizedSavingsRate >= 20) {
     suggestions.push({
       type: 'positive',
       icon: TrendingUp,
       title: 'Excellent Savings Rate!',
-      message: `Your ${savingsRate.toFixed(1)}% savings rate is fantastic! Consider if you want to invest some of this for growth.`,
+      message: `Your ${normalizedSavingsRate.toFixed(1)}% savings rate is fantastic! Consider if you want to invest some of this for growth.`,
       action: 'Explore investment options',
       color: 'green',
       priority: 5
     });
   }
 
-  // Cash flow timing suggestions
-  if (netLeftover > 0 && daysUntilPaycheck > 14) {
+  if (netLeftover > 0 && daysUntilPaycheck > 0) {
     const dailyBudget = netLeftover / daysUntilPaycheck;
     suggestions.push({
       type: 'tip',
@@ -99,27 +112,25 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
     });
   }
 
-  // Emergency fund suggestion
-  const totalAvailable = 19017.50; // This would come from props
-  const monthlyExpenses = spendingCategories.reduce((sum, cat) => sum + cat.spent, 0);
-  const emergencyFundMonths = totalAvailable / monthlyExpenses;
-  
-  if (emergencyFundMonths < 3) {
-    suggestions.push({
-      type: 'improvement',
-      icon: DollarSign,
-      title: 'Build Emergency Fund',
-      message: `Your current savings cover ${emergencyFundMonths.toFixed(1)} months of expenses. Aim for 3-6 months for financial security.`,
-      action: 'Start emergency fund',
-      color: 'blue',
-      priority: 7
-    });
+  const normalizedMonthlyExpenses = monthlyExpenses || spendingCategories.reduce((sum, category) => sum + category.spent, 0);
+  if (normalizedMonthlyExpenses > 0) {
+    const emergencyFundMonths = totalAvailable / normalizedMonthlyExpenses;
+    if (emergencyFundMonths < 3) {
+      suggestions.push({
+        type: 'improvement',
+        icon: DollarSign,
+        title: 'Build Emergency Fund',
+        message: `Your current savings cover ${emergencyFundMonths.toFixed(1)} months of expenses. Aim for 3-6 months for financial security.`,
+        action: 'Start emergency fund',
+        color: 'blue',
+        priority: 7
+      });
+    }
   }
 
-  // Sort suggestions by priority and take top 4
   const topSuggestions = suggestions
     .sort((a, b) => a.priority - b.priority)
-    .slice(0, 6); // Show more suggestions for free users
+    .slice(0, 6);
 
   if (topSuggestions.length === 0) {
     topSuggestions.push({
@@ -133,7 +144,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
     });
   }
 
-  const getColorClasses = (color: string) => {
+  const getColorClasses = (color: SuggestionColor) => {
     switch (color) {
       case 'red': return 'bg-red-50 border-red-200 text-red-800';
       case 'yellow': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
@@ -143,7 +154,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
     }
   };
 
-  const getIconColor = (color: string) => {
+  const getIconColor = (color: SuggestionColor) => {
     switch (color) {
       case 'red': return 'text-red-600';
       case 'yellow': return 'text-yellow-600';
@@ -152,10 +163,6 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
       default: return 'text-gray-600';
     }
   };
-
-  // Show only 2 suggestions for free users
-  const freeSuggestions = topSuggestions.slice(0, 2);
-  const premiumSuggestions = topSuggestions.slice(2);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -170,7 +177,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
           const Icon = suggestion.icon;
           return (
             <div
-              key={index}
+              key={`${suggestion.title}-${index}`}
               className={`p-4 rounded-lg border ${getColorClasses(suggestion.color)}`}
             >
               <div className="flex items-start space-x-3">
@@ -188,8 +195,6 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
         })}
       </div>
 
-
-      {/* Financial Awareness Tips */}
       <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
         <h4 className="font-semibold text-gray-900 mb-2">💡 Financial Awareness Tips</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">

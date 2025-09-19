@@ -24,6 +24,10 @@ const CurrentPage = () => {
     spendingCategories,
     recentTransactions,
     daysUntilDeficit,
+    todaySpending,
+    dailyAverageSpending,
+    totalMonthlyIncome,
+    totalMonthlyExpenses,
     // Event handlers
     handleViewDetails,
     handleViewPayments,
@@ -66,7 +70,11 @@ const CurrentPage = () => {
             cashflowProjections={cashflowProjections}
             spendingCategories={spendingCategories}
             daysUntilDeficit={daysUntilDeficit}
-            todaySpending={insightsData.todaySpending}
+            todaySpending={todaySpending}
+            dailyAverageSpending={dailyAverageSpending}
+            netLeftover={headerData.netLeftoverUntilPaycheck}
+            monthlyIncome={totalMonthlyIncome}
+            monthlyExpenses={totalMonthlyExpenses}
           />
         </Suspense>
       </ErrorBoundary>
@@ -107,6 +115,10 @@ const CurrentPage = () => {
             recentTransactions={recentTransactions}
             monthlyIncome={headerData.totalMonthlyIncome}
             monthlyExpenses={headerData.totalMonthlyExpenses}
+            totalAvailable={headerData.totalAvailable}
+            netLeftoverUntilPaycheck={headerData.netLeftoverUntilPaycheck}
+            daysUntilPaycheck={headerData.paycheckInfo.daysUntilPaycheck}
+            todaySpending={todaySpending}
             overdueCount={headerData.overdueCount}
           />
         </Suspense>
@@ -116,3 +128,6 @@ const CurrentPage = () => {
 };
 
 export default CurrentPage;
+
+
+

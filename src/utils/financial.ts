@@ -37,6 +37,14 @@ export const getFinancialHealthStatus = (
   emoji: string;
   message: string;
 } => {
+  if (monthlyIncome <= 0) {
+    return {
+      status: 'poor',
+      emoji: '😰',
+      message: 'Update income data'
+    };
+  }
+
   const ratio = netAmount / monthlyIncome;
 
   if (ratio >= 0.15) {
@@ -69,7 +77,6 @@ export const getFinancialHealthStatus = (
     message: 'Need Action'
   };
 };
-
 export const calculateEmergencyFundCoverage = (
   totalSavings: number,
   monthlyExpenses: number
@@ -99,3 +106,5 @@ export const debounce = <T extends (...args: any[]) => any>(
     timeout = setTimeout(() => func(...args), wait);
   };
 };
+
+

@@ -16,6 +16,10 @@ interface CurrentPageModalsProps {
   recentTransactions: RecentTransaction[];
   monthlyIncome: number;
   monthlyExpenses: number;
+  totalAvailable: number;
+  netLeftoverUntilPaycheck: number;
+  daysUntilPaycheck: number;
+  todaySpending: number;
   overdueCount: number;
 }
 
@@ -31,6 +35,10 @@ const CurrentPageModals: React.FC<CurrentPageModalsProps> = memo(({
   recentTransactions,
   monthlyIncome,
   monthlyExpenses,
+  totalAvailable,
+  netLeftoverUntilPaycheck,
+  daysUntilPaycheck,
+  todaySpending,
   overdueCount
 }) => {
   return (
@@ -43,6 +51,10 @@ const CurrentPageModals: React.FC<CurrentPageModalsProps> = memo(({
         spendingCategories={spendingCategories}
         monthlyIncome={monthlyIncome}
         monthlyExpenses={monthlyExpenses}
+        totalAvailable={totalAvailable}
+        netLeftoverUntilPaycheck={netLeftoverUntilPaycheck}
+        daysUntilPaycheck={daysUntilPaycheck}
+        todaySpending={todaySpending}
       />
 
       {/* Upcoming Payments Modal */}
