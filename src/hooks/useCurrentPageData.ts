@@ -145,18 +145,6 @@ export const useCurrentPageData = (): CurrentPageData & {
       isDeficitProjected,
       daysUntilDeficit,
       highPriorityPayments,
-      // Add back the needed properties from data
-      user: data.user,
-      accounts: data.accounts,
-      investments: data.investments,
-      physicalAssets: data.physicalAssets,
-      debts: data.debts,
-      goals: data.goals,
-      totals: data.totals,
-      history: data.history,
-      portfolioData: data.portfolioData,
-      smartInsights: data.smartInsights,
-      timeframe: data.timeframe,
       spendingCategories: spendingCategoriesWithRemaining
     };
   }, [data]);
