@@ -145,8 +145,7 @@ export const useCurrentPageData = (): CurrentPageData & {
       isDeficitProjected,
       daysUntilDeficit,
       highPriorityPayments,
-      spendingCategories: spendingCategoriesWithRemaining,
-      // Add back the needed properties from data without spendingCategories
+      // Add back the needed properties from data
       user: data.user,
       accounts: data.accounts,
       investments: data.investments,
@@ -157,7 +156,8 @@ export const useCurrentPageData = (): CurrentPageData & {
       history: data.history,
       portfolioData: data.portfolioData,
       smartInsights: data.smartInsights,
-      timeframe: data.timeframe
+      timeframe: data.timeframe,
+      spendingCategories: spendingCategoriesWithRemaining
     };
   }, [data]);
 };
