@@ -134,7 +134,6 @@ export const useCurrentPageData = (): CurrentPageData & {
         isEstimated: false
       },
       cashflowProjections,
-      spendingCategories: spendingCategoriesWithRemaining,
       totalAvailable,
       netLeftoverUntilPaycheck,
       overdueCount,
