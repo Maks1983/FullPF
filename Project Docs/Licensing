@@ -1,0 +1,118 @@
+Home
+
+Home
+
+
+
+Personal Cent – (Personal Finances)
+/
+Licensing & Instance Deletion Flow
+Licensing & Instance Deletion Flow
+1. Instance Setup
+Admin deploys a new instance → new per-instance database is created.
+
+Local licenses table is initialized with license key, features, and expiry.
+
+Admin sets up initial users, roles, and system defaults via Admin Panel.
+
+2. License Validation
+Instance starts → checks local license table.
+
+Local enforcement: instance enables features based on local license (bank API integration, advanced dashboards, plugins).
+
+Remote validation (optional, periodic):
+
+Instance sends license key to central server.
+
+Central server responds with status: valid, revoked, or expired.
+
+Offline fallback:
+
+If remote validation fails (no network), instance continues running based on cached local license.
+
+Expiry handling:
+
+When local or remote license expires → features disabled until renewed.
+
+3. Feature Gating
+All sensitive features check license status in local DB.
+
+Examples:
+
+Bank API integrations
+
+Advanced dashboards
+
+Plugins / add-ons
+
+RBAC enforced separately for users.
+
+4. Admin Panel
+Admin can manage:
+
+Users & roles
+
+System configs (DB, SMTP, security policies)
+
+Backup & restore
+
+License management
+
+Full Instance Deletion:
+
+Admin selects instance → confirms deletion.
+
+Instance service stops.
+
+Database dropped (all tables including licenses).
+
+License key invalidated.
+
+Backups/logs deleted.
+
+Audit log updated with timestamp, admin, deleted license key.
+
+Ensures GDPR compliance and no residual data.
+
+5. Mobile Expense App
+Connects to instance → uses local license validation from server for feature gating.
+
+Can operate offline → syncs when online.
+
+Offline entries deleted after successful sync.
+
+6. Summary of License Flow
+auto
+Admin Panel
+   │
+   ▼
+Local License Table (per-instance DB)
+   │
+   ├─> Local enforcement → feature access & RBAC
+   │
+   └─> Remote validation (periodic)
+           │
+           ├─> Valid → continue
+           ├─> Revoked → disable features
+           └─> Network unavailable → fallback to local cached license
+
+7. Full Instance Deletion Flow
+auto
+Admin Panel → Delete Instance
+   │
+   ▼
+Stop Instance Service
+   │
+   ▼
+Drop Instance Database (includes local license)
+   │
+   ▼
+Invalidate License Key
+   │
+   ▼
+Delete Backups & Logs
+   │
+   ▼
+Record Audit Log
+
+
