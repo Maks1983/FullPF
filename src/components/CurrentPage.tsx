@@ -2,8 +2,11 @@ import React, { Suspense } from 'react';
 import { useCurrentPageLogic } from '../hooks/useCurrentPageLogic';
 import ErrorBoundary from './common/ErrorBoundary';
 import SkeletonLoader from './common/SkeletonLoader';
+import AtAGlanceBanner from './current/AtAGlanceBanner';
 import CurrentPageHeader from './current/CurrentPageHeader';
 import CriticalAlertsSection from './current/CriticalAlertsSection';
+import UpcomingPaymentsTimeline from './current/UpcomingPaymentsTimeline';
+import CollapsibleSection from './common/CollapsibleSection';
 import CurrentPageModals from './current/modals/CurrentPageModals';
 
 // Lazy load heavy components
@@ -44,72 +47,97 @@ const CurrentPage = () => {
     modalState.isPaymentsModalOpen ||
     modalState.isNetCashflowModalOpen;
 
+  const nextPayment = headerData.upcomingPayments
+    .filter(payment => payment.status !== 'paid')
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
+
   return (
     <>
       <div
-        className={`space-y-8 pb-8${isAnyModalOpen ? ' pointer-events-none select-none' : ''}`}
+        className={`space-y-6 pb-10${isAnyModalOpen ? ' pointer-events-none select-none' : ''}`}
         aria-hidden={isAnyModalOpen}
         inert={isAnyModalOpen}
       >
-        {/* Page Header */}
-        <ErrorBoundary section="Page Header">
-          <CurrentPageHeader
-            {...headerData}
-            onViewDetails={handleViewDetails}
-            onViewPayments={handleViewPayments}
-            onViewNetCashflow={handleViewNetCashflow}
-          />
-        </ErrorBoundary>
+        <AtAGlanceBanner
+          totalAvailable={headerData.totalAvailable}
+          daysUntilPaycheck={headerData.paycheckInfo.daysUntilPaycheck}
+          nextPayment={nextPayment}
+          deficitDays={daysUntilDeficit}
+          netLeftover={headerData.netLeftoverUntilPaycheck}
+        />
 
-        {/* Critical Alerts */}
-        <ErrorBoundary section="Critical Alerts">
-          <CriticalAlertsSection {...alertsData} />
-        </ErrorBoundary>
+        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <div className="space-y-6">
+            <ErrorBoundary section="Page Header">
+              <CurrentPageHeader
+                {...headerData}
+                onViewDetails={handleViewDetails}
+                onViewPayments={handleViewPayments}
+                onViewNetCashflow={handleViewNetCashflow}
+              />
+            </ErrorBoundary>
 
-        {/* Money Flow Insights - New Component */}
-        <ErrorBoundary section="Money Flow Insights">
-          <Suspense fallback={<SkeletonLoader variant="card" height="200px" />}>
-            <InsightsSection {...insightsData} />
-          </Suspense>
-        </ErrorBoundary>
+            <ErrorBoundary section="Critical Alerts">
+              <CriticalAlertsSection {...alertsData} />
+            </ErrorBoundary>
 
-        {/* Money Flow Section */}
-        <ErrorBoundary section="Money Flow">
-          <Suspense fallback={<SkeletonLoader variant="chart" />}>
-            <MoneyFlowSection
-              cashflowProjections={cashflowProjections}
-              spendingCategories={spendingCategories}
-              daysUntilDeficit={daysUntilDeficit}
-              todaySpending={todaySpending}
-              dailyAverageSpending={dailyAverageSpending}
-              netLeftover={headerData.netLeftoverUntilPaycheck}
-              monthlyIncome={totalMonthlyIncome}
-              monthlyExpenses={totalMonthlyExpenses}
-            />
-          </Suspense>
-        </ErrorBoundary>
+            <ErrorBoundary section="Money Flow">
+              <Suspense fallback={<SkeletonLoader variant="chart" />}>
+                <MoneyFlowSection
+                  cashflowProjections={cashflowProjections}
+                  spendingCategories={spendingCategories}
+                  daysUntilDeficit={daysUntilDeficit}
+                  todaySpending={todaySpending}
+                  dailyAverageSpending={dailyAverageSpending}
+                  netLeftover={headerData.netLeftoverUntilPaycheck}
+                  monthlyIncome={totalMonthlyIncome}
+                  monthlyExpenses={totalMonthlyExpenses}
+                />
+              </Suspense>
+            </ErrorBoundary>
 
-        {/* Smart Suggestions - New Component */}
-        <ErrorBoundary section="Smart Suggestions">
-          <Suspense fallback={<SkeletonLoader variant="card" height="300px" />}>
-            <SuggestionsSection {...suggestionsData} />
-          </Suspense>
-        </ErrorBoundary>
+            <CollapsibleSection
+              title="Insight dashboard"
+              subtitle="Dive deeper when you have a moment"
+              defaultOpen
+              id="insights-section"
+            >
+              <ErrorBoundary section="Money Flow Insights">
+                <Suspense fallback={<SkeletonLoader variant="card" height="200px" />}>
+                  <InsightsSection {...insightsData} />
+                </Suspense>
+              </ErrorBoundary>
+            </CollapsibleSection>
 
-        {/* Recent Transactions - Enhanced */}
+            <CollapsibleSection
+              title="Financial awareness summary"
+              subtitle="Monthly trends and readiness"
+              id="awareness-section"
+            >
+              <ErrorBoundary section="Financial Awareness">
+                <Suspense fallback={<SkeletonLoader variant="card" height="250px" />}>
+                  <AwarenessSection {...awarenessData} />
+                </Suspense>
+              </ErrorBoundary>
+            </CollapsibleSection>
+          </div>
+
+          <div className="space-y-6">
+            <UpcomingPaymentsTimeline payments={headerData.upcomingPayments} />
+
+            <ErrorBoundary section="Smart Suggestions">
+              <Suspense fallback={<SkeletonLoader variant="card" height="300px" />}>
+                <SuggestionsSection {...suggestionsData} />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        </div>
+
         <ErrorBoundary section="Recent Transactions">
           <Suspense fallback={<SkeletonLoader variant="table" count={5} />}>
             <TransactionsSection transactions={recentTransactions} />
           </Suspense>
         </ErrorBoundary>
-
-        {/* Financial Awareness Summary */}
-        <ErrorBoundary section="Financial Awareness">
-          <Suspense fallback={<SkeletonLoader variant="card" height="250px" />}>
-            <AwarenessSection {...awarenessData} />
-          </Suspense>
-        </ErrorBoundary>
-
       </div>
 
       {/* All Modals */}
@@ -140,6 +168,3 @@ const CurrentPage = () => {
 };
 
 export default CurrentPage;
-
-
-

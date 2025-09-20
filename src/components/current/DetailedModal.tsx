@@ -1,5 +1,5 @@
-import React, { useId } from 'react';
-import { X, ArrowUpRight, TrendingUp, TrendingDown, Calendar, AlertTriangle, Zap, Target, PiggyBank, ChevronRight } from 'lucide-react';
+import React, { useId, useMemo, useState } from 'react';
+import { X, Calendar, AlertTriangle, ArrowUpRight, TrendingDown, CheckCircle, ListChecks } from 'lucide-react';
 import type { UpcomingPayment, SpendingCategory } from '../../types/current';
 import HorizontalBarChart from '../charts/HorizontalBarChart';
 
@@ -16,6 +16,14 @@ interface DetailedModalProps {
   todaySpending: number;
 }
 
+type TabKey = 'overview' | 'spending' | 'actions';
+
+const tabs: { key: TabKey; label: string }[] = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'spending', label: 'Spending insights' },
+  { key: 'actions', label: 'Next steps' }
+];
+
 const DetailedModal: React.FC<DetailedModalProps> = ({
   isOpen,
   onClose,
@@ -29,230 +37,307 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   todaySpending
 }) => {
   const titleId = useId();
+  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+
   if (!isOpen) return null;
 
-  const netAvailable = totalAvailable;
-  const upcomingPaymentsTotal = upcomingPayments
-    .filter(p => p.status !== 'paid')
-    .reduce((sum, p) => sum + Math.abs(p.amount), 0);
-  const netAfterPayments = Number.isFinite(netLeftoverUntilPaycheck)
-    ? netLeftoverUntilPaycheck
-    : netAvailable - upcomingPaymentsTotal;
-  const nextPaycheckDays = daysUntilPaycheck;
-  // Calculate daily burn rate and projections
-  const dailyBurnRate = monthlyExpenses > 0 ? monthlyExpenses / 30 : 0;
-  
+  const outstandingPayments = useMemo(
+    () => upcomingPayments.filter(payment => payment.status !== 'paid'),
+    [upcomingPayments]
+  );
+
+  const nextPayment = outstandingPayments
+    .slice()
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
+
+  const upcomingPaymentsTotal = outstandingPayments.reduce(
+    (sum, payment) => sum + Math.abs(payment.amount),
+    0
+  );
+
   const normalizedTodaySpending = Number.isFinite(todaySpending) ? todaySpending : 0;
-  const spendingTrendLabel = dailyBurnRate > 0
-    ? normalizedTodaySpending > dailyBurnRate * 1.2
-      ? 'Above average'
-      : normalizedTodaySpending < dailyBurnRate * 0.8
-        ? 'Below average'
-        : 'On track'
-    : 'No baseline yet';
+  const dailyBurnRate = monthlyExpenses > 0 ? monthlyExpenses / 30 : 0;
+  const todayDelta = dailyBurnRate > 0 ? normalizedTodaySpending - dailyBurnRate : 0;
 
-  // Dynamic emoji/status thresholds based on user's financial context
-  const getFinancialStatusEmoji = (netAmount: number, userIncome: number) => {
-    const monthlyIncomeThreshold = userIncome || monthlyIncome;
-    const comfortableThreshold = monthlyIncomeThreshold * 0.15; // 15% of monthly income
-    const tightThreshold = monthlyIncomeThreshold * 0.05; // 5% of monthly income
-    
-    if (netAmount >= comfortableThreshold) return '😎';
-    if (netAmount >= tightThreshold) return '👍';
-    if (netAmount >= -tightThreshold) return '😬';
-    return '😰';
-  };
-  
-  const getFinancialStatusText = (netAmount: number, userIncome: number) => {
-    const monthlyIncomeThreshold = userIncome || monthlyIncome;
-    const comfortableThreshold = monthlyIncomeThreshold * 0.15;
-    const tightThreshold = monthlyIncomeThreshold * 0.05;
-    
-    if (netAmount >= comfortableThreshold) return 'Looking Great!';
-    if (netAmount >= tightThreshold) return 'You\'re Covered';
-    if (netAmount >= -tightThreshold) return 'Getting Tight';
-    return 'Need Action';
-  };
+  const incomeChartData = useMemo(() => [
+    { category: 'Total income', amount: monthlyIncome, color: '#10b981' }
+  ], [monthlyIncome]);
 
-  // Prepare data for horizontal bar charts
-  const incomeData = [
-    { category: 'Salary', amount: monthlyIncome * 0.85, color: '#10b981' },
-    { category: 'Side Income', amount: monthlyIncome * 0.10, color: '#059669' },
-    { category: 'Investments', amount: monthlyIncome * 0.05, color: '#047857' },
-  ];
+  const expenseChartData = useMemo(
+    () => spendingCategories
+      .map(category => ({
+        category: category.name,
+        amount: category.spent,
+        color: category.color
+      }))
+      .sort((a, b) => b.amount - a.amount),
+    [spendingCategories]
+  );
 
-  const expenseData = spendingCategories.map(cat => ({
-    category: cat.name,
-    amount: cat.spent,
-    color: cat.color
-  })).sort((a, b) => b.amount - a.amount);
+  const actionItems = useMemo(() => {
+    const items: { id: string; title: string; detail: string; tone: 'warn' | 'info' | 'positive' }[] = [];
+
+    if (upcomingPaymentsTotal > totalAvailable) {
+      items.push({
+        id: 'coverage',
+        title: 'Cover the remaining bills',
+        detail: `Upcoming payments exceed cash by NOK ${(upcomingPaymentsTotal - totalAvailable).toLocaleString('no-NO', { maximumFractionDigits: 0 })}. Consider moving money or delaying non-essentials.`,
+        tone: 'warn'
+      });
+    }
+
+    if (spendingCategories.some(category => category.isOverBudget)) {
+      const over = spendingCategories.filter(category => category.isOverBudget);
+      items.push({
+        id: 'budget',
+        title: 'Revisit budgets',
+        detail: `${over.length} categor${over.length === 1 ? 'y is' : 'ies are'} over budget. Trim discretionary spend to rebalance.`,
+        tone: 'warn'
+      });
+    }
+
+    if (todayDelta > dailyBurnRate * 0.25) {
+      items.push({
+        id: 'burn',
+        title: 'Slow today\'s spend',
+        detail: `Today is NOK ${Math.abs(todayDelta).toLocaleString('no-NO', { maximumFractionDigits: 0 })} above a normal day. Take a pause on discretionary purchases.`,
+        tone: 'warn'
+      });
+    }
+
+    if (items.length === 0) {
+      items.push({
+        id: 'good-job',
+        title: 'Everything looks on track',
+        detail: 'Cash covers the upcoming bills and spending sits within plan. Keep following the routine.',
+        tone: 'positive'
+      });
+    }
+
+    return items;
+  }, [upcomingPaymentsTotal, totalAvailable, spendingCategories, todayDelta, dailyBurnRate]);
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden border border-slate-200"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
       >
-        {/* Hero Section - Financial Flow */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-          <div className="flex items-start justify-between p-4">
-            <div className="flex-1 pr-4">
-              {/* Money Story - Visual Narrative */}
-              <div className="relative">
-                {/* Title with Emoji Status */}
-                <div className="flex items-center space-x-3 mb-3">
-                  <span className="text-2xl">
-                    {getFinancialStatusEmoji(netAfterPayments, monthlyIncome)}
-                  </span>
-                  <h2 id={titleId} className="text-lg font-bold text-gray-900">
-                    {getFinancialStatusText(netAfterPayments, monthlyIncome)}
-                  </h2>
-                </div>
-
-                {/* Visual Money Flow */}
-                <div className="flex items-center space-x-3 mb-3">
-                  {/* Current Money */}
-                  <div className="flex-shrink-0 text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-white font-bold text-xs">NOK</span>
-                    </div>
-                    <div className="mt-2">
-                      <div className="font-bold text-sm text-gray-900">{(netAvailable / 1000).toFixed(0)}k</div>
-                      <div className="text-xs text-gray-600">Current</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Today: NOK {Math.round(normalizedTodaySpending).toLocaleString('no-NO')} ({spendingTrendLabel})
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Flow Arrow */}
-                  <div className="flex-1 relative">
-                    {/* Timeline Labels */}
-                    <div className="flex justify-between mb-1">
-                      <span className="text-xs font-medium text-gray-600">Today</span>
-                      <span className="text-xs font-medium text-gray-600">Payday</span>
-                    </div>
-                    <div className="h-1.5 bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 rounded-full"></div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="bg-white rounded-full p-1 shadow-md">
-                        <ArrowUpRight className="h-3 w-3 text-gray-600" />
-                      </div>
-                    </div>
-                    {/* Bills indicator */}
-                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-medium">
-                        -{(upcomingPaymentsTotal / 1000).toFixed(0)}k bills
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Result */}
-                  <div className="flex-shrink-0 text-center">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg ${
-                      netAfterPayments >= 0 
-                        ? 'bg-gradient-to-br from-blue-400 to-blue-600' 
-                        : 'bg-gradient-to-br from-red-400 to-red-600'
-                    }`}>
-                      <span className="text-white font-bold text-xs">
-                        {netAfterPayments >= 0 ? '✓' : '!'}
-                      </span>
-                    </div>
-                    <div className="mt-2">
-                      <div className={`font-bold text-sm ${netAfterPayments >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                        {Math.abs(netAfterPayments / 1000).toFixed(0)}k
-                      </div>
-                      <div className="text-xs text-gray-600">
-                        {netAfterPayments >= 0 ? 'Free' : 'Short'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Close button - properly positioned */}
-            <button
-              onClick={onClose}
-              className="flex-shrink-0 p-2 hover:bg-white/50 rounded-lg transition-colors"
-            >
-              <X className="h-5 w-5 text-gray-500" />
-            </button>
+        <header className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+          <div>
+            <h2 id={titleId} className="text-xl font-semibold text-gray-900">Detailed cash overview</h2>
+            <p className="text-sm text-slate-500">Understand runway, spending and the next decisions</p>
           </div>
-        </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-white border border-transparent hover:border-slate-200"
+            aria-label="Close detailed overview"
+          >
+            <X className="h-5 w-5 text-slate-500" />
+          </button>
+        </header>
 
-        {/* Content - Horizontal Bar Charts */}
-        <div className="p-3 overflow-y-auto max-h-[55vh]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Income Breakdown */}
-            <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-              <div className="flex items-center space-x-3 mb-4">
-                <ArrowUpRight className="h-5 w-5 text-green-600" />
-                <h4 className="font-semibold text-gray-900">Income Sources</h4>
-              </div>
-              <div className="mb-2">
-                <p className="text-lg font-bold text-green-600">NOK {monthlyIncome.toLocaleString()}</p>
-                <p className="text-sm text-gray-600">Total monthly income</p>
-              </div>
-              <HorizontalBarChart data={incomeData} />
+        <nav className="flex border-b border-slate-200 bg-white px-6">
+          <ul className="flex w-full" role="tablist">
+            {tabs.map(tab => (
+              <li key={tab.key} className="flex-1">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`w-full px-3 py-3 text-sm font-medium border-b-2 transition ${
+                    activeTab === tab.key
+                      ? 'text-slate-900 border-slate-600'
+                      : 'text-slate-500 border-transparent hover:text-slate-700'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="overflow-y-auto max-h-[65vh] px-6 py-6 space-y-6">
+          {activeTab === 'overview' && (
+            <div className="space-y-6" role="tabpanel" aria-labelledby="overview">
+              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Cash available</p>
+                  <p className="text-2xl font-semibold text-gray-900 mt-1">
+                    NOK {totalAvailable.toLocaleString('no-NO', { maximumFractionDigits: 0 })}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Upcoming bills</p>
+                  <p className="text-2xl font-semibold text-amber-600 mt-1">
+                    NOK {upcomingPaymentsTotal.toLocaleString('no-NO', { maximumFractionDigits: 0 })}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Runway</p>
+                  <p className={`text-2xl font-semibold ${netLeftoverUntilPaycheck >= 0 ? 'text-emerald-600' : 'text-amber-600'} mt-1`}>
+                    {netLeftoverUntilPaycheck >= 0 ? 'Covered' : 'Shortfall'}
+                  </p>
+                  <p className="text-xs text-slate-500">Payday in {daysUntilPaycheck} days</p>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Today&apos;s spend</p>
+                  <p className="text-2xl font-semibold text-gray-900 mt-1">
+                    NOK {normalizedTodaySpending.toLocaleString('no-NO', { maximumFractionDigits: 0 })}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Daily baseline {dailyBurnRate.toLocaleString('no-NO', { maximumFractionDigits: 0 })}
+                  </p>
+                </div>
+              </section>
+
+              <section className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-slate-800">Next payment</p>
+                  {nextPayment ? (
+                    <p className="text-sm text-slate-600">
+                      {nextPayment.description} • {new Date(nextPayment.dueDate).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-slate-600">You are clear until payday</p>
+                  )}
+                </div>
+                <div className="text-right text-sm text-slate-500">
+                  <p>Outstanding: NOK {upcomingPaymentsTotal.toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
+                  <p>After bills: NOK {netLeftoverUntilPaycheck.toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
+                </div>
+              </section>
             </div>
+          )}
 
-            {/* Expense Breakdown */}
-            <div className="bg-red-50 p-3 rounded-lg border border-red-200 flex flex-col">
-              <div className="flex items-center space-x-3 mb-4">
-                <TrendingDown className="h-5 w-5 text-red-600" />
-                <h4 className="font-semibold text-gray-900">Expense Categories</h4>
-              </div>
-              <div className="mb-2">
-                <p className="text-lg font-bold text-red-600">NOK {monthlyExpenses.toLocaleString()}</p>
-                <p className="text-sm text-gray-600">Total monthly expenses</p>
-              </div>
-              {/* Optimized scrollable expense chart for 11-12 categories */}
-              <div className="flex-1 overflow-y-auto pr-2 min-h-0" style={{ maxHeight: '280px' }}>
-                <HorizontalBarChart data={expenseData} />
-              </div>
-              {/* Enhanced mobile-friendly scroll indicator */}
-              {expenseData.length > 6 && (
-                <div className="mt-2 pt-2 border-t border-red-200 bg-red-50 rounded-b-lg">
-                  <div className="flex items-center justify-center space-x-2 text-xs text-gray-600">
-                    <div className="flex flex-col items-center">
-                      <div className="text-lg leading-none">↕</div>
-                      <div className="w-8 h-0.5 bg-gray-400 rounded-full animate-pulse"></div>
-                    </div>
-                    <span className="font-medium">Scroll to see all {expenseData.length} categories</span>
+          {activeTab === 'spending' && (
+            <div className="space-y-6" role="tabpanel" aria-labelledby="spending">
+              <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                    <h3 className="text-sm font-semibold text-gray-900">Income breakdown</h3>
                   </div>
-                  {/* Mobile touch indicator */}
-                  <div className="mt-1 text-center">
-                    <span className="text-xs text-gray-500 md:hidden">👆 Swipe up/down to scroll</span>
-                    <span className="text-xs text-gray-500 hidden md:inline">Use mouse wheel or scrollbar</span>
+                  <HorizontalBarChart data={incomeChartData} />
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <TrendingDown className="h-4 w-4 text-slate-600" />
+                    <h3 className="text-sm font-semibold text-gray-900">Expense categories</h3>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto pr-2">
+                    <HorizontalBarChart data={expenseChartData} />
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
+              </section>
 
-        {/* Quick Actions Footer */}
-        <div className="sticky bottom-0 px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-          <div className="flex space-x-3">
-          </div>
-          <div className="flex space-x-3">
-            <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
-              Export Data
-            </button>
-            <button 
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Close
-            </button>
-          </div>
+              <section className="rounded-xl border border-gray-200 bg-white p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Over-budget categories</h3>
+                {spendingCategories.some(category => category.isOverBudget) ? (
+                  <ul className="space-y-2">
+                    {spendingCategories
+                      .filter(category => category.isOverBudget)
+                      .map(category => (
+                        <li key={category.name} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                          {category.name}: {Math.abs(category.remaining).toLocaleString('no-NO', { maximumFractionDigits: 0 })} over plan
+                        </li>
+                      ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-slate-500">All tracked categories are within their limits.</p>
+                )}
+              </section>
+            </div>
+          )}
+
+          {activeTab === 'actions' && (
+            <div className="space-y-6" role="tabpanel" aria-labelledby="actions">
+              <section className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="flex items-center space-x-2 mb-3">
+                  <ListChecks className="h-4 w-4 text-slate-600" />
+                  <h3 className="text-sm font-semibold text-gray-900">Recommendations</h3>
+                </div>
+                <ul className="space-y-3">
+                  {actionItems.map(item => (
+                    <li
+                      key={item.id}
+                      className={`rounded-lg px-3 py-2 text-sm ${
+                        item.tone === 'warn'
+                          ? 'border border-amber-200 bg-amber-50 text-amber-800'
+                          : item.tone === 'positive'
+                            ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                            : 'border border-slate-200 bg-slate-50 text-slate-700'
+                      }`}
+                    >
+                      <p className="font-medium">{item.title}</p>
+                      <p>{item.detail}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Calendar className="h-4 w-4 text-slate-600" />
+                  <h3 className="text-sm font-semibold text-gray-900">Upcoming schedule</h3>
+                </div>
+                <div className="space-y-2">
+                  {outstandingPayments.length === 0 ? (
+                    <p className="text-sm text-slate-500">No payments left before payday.</p>
+                  ) : (
+                    outstandingPayments.map(payment => (
+                      <div
+                        key={payment.id}
+                        className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${
+                          payment.status === 'overdue'
+                            ? 'border-red-200 bg-red-50 text-red-700'
+                            : 'border-gray-200 bg-slate-50 text-slate-700'
+                        }`}
+                      >
+                        <div>
+                          <p className="font-medium">{payment.description}</p>
+                          <p className="text-xs text-slate-500">
+                            {new Date(payment.dueDate).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })} • {payment.category}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">-NOK {Math.abs(payment.amount).toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
+                          {payment.status === 'overdue' && (
+                            <p className="text-xs text-red-600 font-medium">
+                              <AlertTriangle className="inline h-3.5 w-3.5 mr-1" />
+                              {payment.daysOverdue ?? 0} days overdue
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+
+              <section className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-emerald-800">Ready for payday</p>
+                  <p className="text-xs text-emerald-700 mt-1">
+                    Tick items off as you complete them to keep momentum.
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2 text-emerald-700 text-sm">
+                  <CheckCircle className="h-4 w-4" />
+                  <span>{Math.max(daysUntilPaycheck, 0)} days to go</span>
+                </div>
+              </section>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -260,30 +345,3 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
 };
 
 export default DetailedModal;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

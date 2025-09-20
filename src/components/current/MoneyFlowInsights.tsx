@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowUpRight, TrendingUp, PieChart, Calendar } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { PieChart, TrendingUp, Compass } from 'lucide-react';
 import type { SpendingCategory, RecentTransaction } from '../../types/current';
 
 interface MoneyFlowInsightsProps {
@@ -20,150 +20,194 @@ const MoneyFlowInsights: React.FC<MoneyFlowInsightsProps> = ({
   const categories = spendingCategories ?? [];
   const transactions = recentTransactions ?? [];
 
-  const netFlow = monthlyIncome - monthlyExpenses;
-  const dailyAverageSpending = monthlyExpenses > 0 ? monthlyExpenses / 30 : 0;
-  const isSpendingHighToday = dailyAverageSpending > 0
-    ? todaySpending > dailyAverageSpending * 1.5
-    : todaySpending > 0;
+  const topCategories = useMemo(() => {
+    return [...categories]
+      .sort((a, b) => b.spent - a.spent)
+      .slice(0, 3);
+  }, [categories]);
 
-  const topSpendingCategory = categories.reduce<SpendingCategory | undefined>((currentMax, category) => {
-    if (!currentMax || category.spent > currentMax.spent) {
-      return category;
+  const totalTracked = categories.reduce((sum, category) => sum + category.spent, 0);
+
+  const lastSevenDays = useMemo(() => {
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 6);
+
+    const periodTransactions = transactions.filter(tx => {
+      const txDate = new Date(tx.date);
+      return txDate >= sevenDaysAgo && txDate <= today;
+    });
+
+    const spending = periodTransactions
+      .filter(tx => tx.amount < 0)
+      .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+
+    const income = periodTransactions
+      .filter(tx => tx.amount > 0)
+      .reduce((sum, tx) => sum + tx.amount, 0);
+
+    const averageDailySpend = monthlyExpenses > 0 ? monthlyExpenses / 30 : 0;
+    const averageDailyIncome = monthlyIncome > 0 ? monthlyIncome / 30 : 0;
+
+    return {
+      income,
+      spending,
+      spendDelta: averageDailySpend > 0 ? ((spending / 7) / averageDailySpend) - 1 : 0,
+      incomeDelta: averageDailyIncome > 0 ? ((income / 7) / averageDailyIncome) - 1 : 0,
+    };
+  }, [transactions, monthlyExpenses, monthlyIncome]);
+
+  const spotlight = useMemo(() => {
+    if (todaySpending === 0 && monthlyExpenses === 0) {
+      return {
+        title: 'Track your spending baseline',
+        message: 'Connect more accounts or log a purchase to start seeing personalised tips.',
+        tone: 'info' as const
+      };
     }
-    return currentMax;
-  }, undefined);
 
-  const overBudgetCategories = categories.filter(category => category.isOverBudget);
-
-  const expenseTransactions = transactions.filter(transaction => transaction.amount < 0);
-  const incomeTransactions = transactions.filter(transaction => transaction.amount > 0);
-
-  const frequentMerchants = expenseTransactions.reduce<Record<string, number>>((accumulator, transaction) => {
-    if (transaction.merchant) {
-      accumulator[transaction.merchant] = (accumulator[transaction.merchant] || 0) + 1;
+    const dailyAverageSpending = monthlyExpenses > 0 ? monthlyExpenses / 30 : 0;
+    if (dailyAverageSpending > 0 && todaySpending > dailyAverageSpending * 1.25) {
+      return {
+        title: 'Spending is running hot',
+        message: `Today is NOK ${(todaySpending - dailyAverageSpending).toLocaleString('no-NO', { maximumFractionDigits: 0 })} above your daily baseline. Consider pausing discretionary purchases.`,
+        tone: 'warn' as const
+      };
     }
-    return accumulator;
-  }, {});
 
-  const mostFrequentMerchant = Object.entries(frequentMerchants)
-    .sort(([, countA], [, countB]) => countB - countA)[0];
+    if (categories.some(category => category.isOverBudget)) {
+      const worst = categories
+        .filter(category => category.isOverBudget)
+        .sort((a, b) => Math.abs(b.remaining) - Math.abs(a.remaining))[0];
+      return {
+        title: `Watch ${worst.name}`,
+        message: `You are NOK ${Math.abs(worst.remaining).toLocaleString('no-NO', { maximumFractionDigits: 0 })} over budget. Trim this category to stay on track.`,
+        tone: 'warn' as const
+      };
+    }
 
-  const largestExpense = expenseTransactions.length > 0
-    ? Math.min(...expenseTransactions.map(transaction => transaction.amount))
-    : 0;
+    const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome) * 100 : 0;
+    if (savingsRate >= 20) {
+      return {
+        title: 'Great savings momentum',
+        message: `You are keeping ${savingsRate.toFixed(1)}% of your income. Think about directing some into investments or an emergency fund.`,
+        tone: 'positive' as const
+      };
+    }
+
+    return {
+      title: 'You are on track',
+      message: 'Spending is sitting within typical levels today. Keep following your plan.',
+      tone: 'info' as const
+    };
+  }, [todaySpending, monthlyExpenses, monthlyIncome, categories]);
+
+  const getSpotlightTone = (tone: 'warn' | 'positive' | 'info') => {
+    switch (tone) {
+      case 'warn':
+        return 'border-amber-300 bg-amber-50 text-amber-800';
+      case 'positive':
+        return 'border-emerald-300 bg-emerald-50 text-emerald-800';
+      default:
+        return 'border-slate-200 bg-slate-50 text-slate-700';
+    }
+  };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center space-x-3 mb-6">
-        <TrendingUp className="h-6 w-6 text-blue-600" />
-        <h3 className="text-lg font-semibold text-gray-900">Money Flow Insights</h3>
-        <span className="text-sm text-gray-500">Understanding where your money goes</span>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-green-50 to-blue-50 p-4 rounded-lg border border-green-200">
-          <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-            <ArrowUpRight className="h-4 w-4 mr-2 text-green-600" />
-            Monthly Money Flow
-          </h4>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Money In</span>
-              <span className="font-semibold text-green-600">+NOK {monthlyIncome.toLocaleString()}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Money Out</span>
-              <span className="font-semibold text-red-600">-NOK {monthlyExpenses.toLocaleString()}</span>
-            </div>
-            <div className="border-t pt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Net Flow</span>
-                <span className={`font-bold ${netFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {netFlow >= 0 ? '+' : ''}NOK {netFlow.toLocaleString()}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-xs text-gray-600">
-              <span>Today's spending</span>
-              <span className={isSpendingHighToday ? 'text-red-600 font-medium' : 'text-gray-700'}>
-                NOK {todaySpending.toLocaleString()} {dailyAverageSpending > 0 && (
-                  <span className="text-gray-500">
-                    (avg {Math.round(dailyAverageSpending).toLocaleString()})
-                  </span>
-                )}
-              </span>
-            </div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="col-span-1 lg:col-span-1 bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div className="flex items-center space-x-3 px-5 pt-5">
+          <div className="p-2 bg-slate-100 rounded-lg">
+            <PieChart className="h-5 w-5 text-slate-600" aria-hidden="true" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-gray-900">Where is money going?</h3>
+            <p className="text-xs text-gray-500">Top categories this month</p>
           </div>
         </div>
-
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
-          <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-            <PieChart className="h-4 w-4 mr-2 text-purple-600" />
-            Spending Patterns
-          </h4>
-          <div className="space-y-3">
-            <div>
-              <p className="text-sm text-gray-600">Biggest Category</p>
-              <p className="font-semibold text-purple-600">{topSpendingCategory?.name ?? 'No data yet'}</p>
-              <p className="text-xs text-gray-500">
-                {topSpendingCategory ? `NOK ${topSpendingCategory.spent.toLocaleString()} spent` : 'Connect accounts to see category totals'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Daily Average</p>
-              <p className="font-semibold text-gray-900">NOK {Math.round(dailyAverageSpending).toLocaleString()}</p>
-              <p className={`text-xs ${isSpendingHighToday ? 'text-red-500' : 'text-green-500'}`}>
-                Today: NOK {todaySpending.toLocaleString()} {isSpendingHighToday ? '(Above average)' : '(On track)'}
-              </p>
-            </div>
-            {overBudgetCategories.length > 0 ? (
-              <div>
-                <p className="text-sm text-red-600 font-medium">Over Budget</p>
-                <p className="text-xs text-red-500">
-                  {overBudgetCategories.length} categor{overBudgetCategories.length > 1 ? 'ies' : 'y'} over limit
+        <div className="px-5 py-6 space-y-4">
+          {topCategories.map(category => {
+            const percentage = totalTracked > 0 ? (category.spent / totalTracked) * 100 : 0;
+            return (
+              <div key={category.name}>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-900">{category.name}</span>
+                  <span className="text-sm text-gray-600">{percentage.toFixed(0)}%</span>
+                </div>
+                <div className="mt-2 h-2 w-full bg-gray-200 rounded-full">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.min(percentage, 100)}%`,
+                      backgroundColor: category.color
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  NOK {category.spent.toLocaleString('no-NO', { maximumFractionDigits: 0 })}
                 </p>
               </div>
-            ) : (
-              <div>
-                <p className="text-sm text-green-600 font-medium">Within Budget</p>
-                <p className="text-xs text-green-500">All tracked categories are within set limits</p>
-              </div>
-            )}
+            );
+          })}
+
+          {topCategories.length === 0 && (
+            <p className="text-sm text-gray-500">No category data yet. Connect accounts to see category insights.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div className="flex items-center space-x-3 px-5 pt-5">
+          <div className="p-2 bg-slate-100 rounded-lg">
+            <TrendingUp className="h-5 w-5 text-slate-600" aria-hidden="true" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-gray-900">What changed this week?</h3>
+            <p className="text-xs text-gray-500">Last 7 days versus daily baseline</p>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-4 rounded-lg border border-orange-200">
-          <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-            <Calendar className="h-4 w-4 mr-2 text-orange-600" />
-            Recent Activity
-          </h4>
-          <div className="space-y-3">
-            <div>
-              <p className="text-sm text-gray-600">Recent Transactions</p>
-              <p className="font-semibold text-gray-900">{transactions.length} in last 5 days</p>
-              <p className="text-xs text-gray-500">
-                {incomeTransactions.length} income, {expenseTransactions.length} expenses
+        <div className="px-5 py-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-lg border border-gray-200 bg-slate-50 px-3 py-3 text-center">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Income</p>
+              <p className="text-lg font-semibold text-gray-900">NOK {lastSevenDays.income.toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
+              <p className={`text-xs ${lastSevenDays.incomeDelta >= 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                {lastSevenDays.incomeDelta >= 0 ? '+' : ''}{(lastSevenDays.incomeDelta * 100).toFixed(0)}% vs avg
               </p>
             </div>
-            {mostFrequentMerchant && (
-              <div>
-                <p className="text-sm text-gray-600">Most Frequent</p>
-                <p className="font-semibold text-orange-600">{mostFrequentMerchant[0]}</p>
-                <p className="text-xs text-gray-500">{mostFrequentMerchant[1]} transaction{mostFrequentMerchant[1] > 1 ? 's' : ''}</p>
-              </div>
-            )}
-            <div>
-              <p className="text-sm text-gray-600">Largest Recent Expense</p>
-              <p className="font-semibold text-red-600">
-                {expenseTransactions.length > 0
-                  ? `NOK ${Math.abs(largestExpense).toLocaleString()}`
-                  : 'No expenses recorded'}
+
+            <div className="rounded-lg border border-gray-200 bg-slate-50 px-3 py-3 text-center">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Spending</p>
+              <p className="text-lg font-semibold text-gray-900">NOK {lastSevenDays.spending.toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
+              <p className={`text-xs ${lastSevenDays.spendDelta <= 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                {lastSevenDays.spendDelta >= 0 ? '+' : ''}{(lastSevenDays.spendDelta * 100).toFixed(0)}% vs avg
               </p>
             </div>
+          </div>
+
+          <div className="rounded-lg border border-gray-100 bg-white px-4 py-3">
+            <h4 className="text-sm font-medium text-gray-900">Daily spend pattern</h4>
+            <p className="text-xs text-gray-500 mt-1">
+              Today you have spent NOK {todaySpending.toLocaleString('no-NO', { maximumFractionDigits: 0 })}. Your average day is NOK {(monthlyExpenses / 30).toLocaleString('no-NO', { maximumFractionDigits: 0 })}.
+            </p>
           </div>
         </div>
       </div>
 
+      <div className={`border rounded-xl shadow-sm px-5 py-6 ${getSpotlightTone(spotlight.tone)}`}>
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="p-2 bg-white/40 rounded-lg">
+            <Compass className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold">What should you do now?</h3>
+            <p className="text-xs opacity-80">One focused recommendation</p>
+          </div>
+        </div>
+        <h4 className="text-lg font-semibold mb-2">{spotlight.title}</h4>
+        <p className="text-sm leading-relaxed">{spotlight.message}</p>
+      </div>
     </div>
   );
 };

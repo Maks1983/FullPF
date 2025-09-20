@@ -1,6 +1,5 @@
 import React from 'react';
 import { ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
-import type { SpendingCategory, RecentTransaction } from '../../types/current';
 
 interface NetCashflowCardProps {
   monthlyIncome: number;
@@ -15,82 +14,48 @@ const NetCashflowCard: React.FC<NetCashflowCardProps> = ({
 }) => {
   const netCashflow = monthlyIncome - monthlyExpenses;
   const isPositive = netCashflow >= 0;
-  const cashflowPercentage = Math.abs(netCashflow / monthlyIncome) * 100;
+  const cashflowPercentage = monthlyIncome > 0 ? Math.abs(netCashflow / monthlyIncome) * 100 : 0;
 
   return (
-    <div className={`bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer group relative`}
+    <button
+      type="button"
       onClick={onClick}
+      className="h-full w-full rounded-lg border border-gray-200 bg-slate-50 p-4 text-left transition hover:border-slate-300 hover:bg-white"
     >
       <div className="flex items-center justify-between">
-        {/* Left side - Main info */}
-        <div className="flex-1">
-          <div className="text-xs text-slate-300 mb-1">
-            Net cashflow (in NOK)
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-slate-100 rounded-lg">
+            {isPositive ? (
+              <TrendingUp className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+            ) : (
+              <TrendingDown className="h-5 w-5 text-amber-600" aria-hidden="true" />
+            )}
           </div>
-          <div className={`text-2xl font-bold mb-1 ${
-            isPositive ? 'text-green-400' : 'text-red-400'
-          }`}>
-            {isPositive ? '+' : ''}
-            {netCashflow.toLocaleString('no-NO', { 
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0 
-            })}
-          </div>
-          <div className="text-xs text-slate-400">
-            Monthly net flow
+          <div>
+            <p className="text-xs uppercase tracking-wide text-slate-500">Net cashflow</p>
+            <p className={`text-2xl font-semibold ${isPositive ? 'text-emerald-600' : 'text-amber-600'}`}>
+              {isPositive ? '+' : '-'}NOK {Math.abs(netCashflow).toLocaleString('no-NO', { maximumFractionDigits: 0 })}
+            </p>
           </div>
         </div>
-        
-        {/* Right side - Circular progress */}
-        <div className="relative ml-4">
-          <div className="w-16 h-16">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              <circle
-                cx="18"
-                cy="18"
-                r="15.9155"
-                stroke="#475569"
-                strokeWidth="3"
-                fill="transparent"
-              />
-              <circle
-                cx="18"
-                cy="18"
-                r="15.9155"
-                stroke={isPositive ? "#10b981" : "#ef4444"}
-                strokeWidth="3"
-                strokeDasharray={`${Math.min(cashflowPercentage, 100)}, 100`}
-                strokeLinecap="round"
-                fill="transparent"
-              />
-            </svg>
-            
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className={`text-lg font-bold ${
-                isPositive ? 'text-green-400' : 'text-red-400'
-              }`}>
-                {Math.round(cashflowPercentage)}%
-              </div>
-              <div className="text-xs text-slate-300">
-                {isPositive ? 'surplus' : 'deficit'}
-              </div>
-            </div>
-          </div>
-        </div>
+        <ChevronRight className="h-4 w-4 text-slate-400" aria-hidden="true" />
       </div>
-      
-      {/* Bottom info */}
-      <div className="mt-3 pt-3 border-t border-slate-600">
-        <div className="text-sm font-medium text-white">
-          In: {monthlyIncome.toLocaleString()} • Out: {monthlyExpenses.toLocaleString()}
+
+      <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-500">
+        <div>
+          <p className="font-medium text-slate-500">Money in</p>
+          <p className="text-base font-semibold text-gray-900">NOK {monthlyIncome.toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
+        </div>
+        <div>
+          <p className="font-medium text-slate-500">Money out</p>
+          <p className="text-base font-semibold text-gray-900">NOK {monthlyExpenses.toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
         </div>
       </div>
 
-      <div className="flex items-center justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-xs text-slate-400 mr-2">View details</span>
-        <ChevronRight className="h-4 w-4 text-slate-400" />
-      </div>
-    </div>
+      <p className="mt-3 text-xs text-slate-500">
+        Savings rate: {cashflowPercentage.toFixed(1)}%
+      </p>
+    </button>
   );
 };
 
