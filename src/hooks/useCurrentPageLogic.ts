@@ -24,21 +24,14 @@ export const useCurrentPageLogic = () => {
     setActiveModal(prev => (open ? 'netCashflow' : prev === 'netCashflow' ? null : prev));
   }, []);
 
-  const modalState = useMemo(() => ({
+  const modalState = {
     isModalOpen,
     setIsModalOpen,
     isPaymentsModalOpen,
     setIsPaymentsModalOpen,
     isNetCashflowModalOpen,
     setIsNetCashflowModalOpen,
-  }), [
-    isModalOpen,
-    setIsModalOpen,
-    isPaymentsModalOpen,
-    setIsPaymentsModalOpen,
-    isNetCashflowModalOpen,
-    setIsNetCashflowModalOpen,
-  ]);
+  };
 
   const {
     accounts,
