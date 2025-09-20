@@ -1,44 +1,11 @@
 import { useMemo, useCallback, useState } from 'react';
 import { useCurrentPageData } from './useCurrentPageData';
 import { useFinancialCalculations } from './useFinancialCalculations';
+import { useModalManager } from './useModalManager';
 import { getFinancialHealthStatus } from '../utils/financial';
 
-type ModalKey = 'details' | 'payments' | 'netCashflow' | null;
-
 export const useCurrentPageLogic = () => {
-  const [activeModal, setActiveModal] = useState<ModalKey>(null);
-
-  const isModalOpen = activeModal === 'details';
-  const isPaymentsModalOpen = activeModal === 'payments';
-  const isNetCashflowModalOpen = activeModal === 'netCashflow';
-
-  const setIsModalOpen = useCallback((open: boolean) => {
-    setActiveModal(prev => (open ? 'details' : prev === 'details' ? null : prev));
-  }, []);
-
-  const setIsPaymentsModalOpen = useCallback((open: boolean) => {
-    setActiveModal(prev => (open ? 'payments' : prev === 'payments' ? null : prev));
-  }, []);
-
-  const setIsNetCashflowModalOpen = useCallback((open: boolean) => {
-    setActiveModal(prev => (open ? 'netCashflow' : prev === 'netCashflow' ? null : prev));
-  }, []);
-
-  const modalState = useMemo(() => ({
-    isModalOpen,
-    setIsModalOpen,
-    isPaymentsModalOpen,
-    setIsPaymentsModalOpen,
-    isNetCashflowModalOpen,
-    setIsNetCashflowModalOpen,
-  }), [
-    isModalOpen,
-    setIsModalOpen,
-    isPaymentsModalOpen,
-    setIsPaymentsModalOpen,
-    isNetCashflowModalOpen,
-    setIsNetCashflowModalOpen,
-  ]);
+  const modalManager = useModalManager();
 
   const {
     accounts,
@@ -158,32 +125,46 @@ export const useCurrentPageLogic = () => {
     netLeftoverUntilPaycheck
   ]);
 
+  // Modal handlers - simplified with the new modal manager
   const handleViewDetails = useCallback(() => {
-    setActiveModal('details');
-  }, []);
+    modalManager.openModal('details');
+  }, [modalManager]);
 
   const handleViewPayments = useCallback(() => {
-    setActiveModal('payments');
-  }, []);
+    modalManager.openModal('payments');
+  }, [modalManager]);
 
   const handleViewNetCashflow = useCallback(() => {
-    setActiveModal('netCashflow');
-  }, []);
+    modalManager.openModal('netCashflow');
+  }, [modalManager]);
 
   const handleCloseModal = useCallback(() => {
-    setActiveModal(prev => (prev === 'details' ? null : prev));
-  }, []);
+    modalManager.closeModal();
+  }, [modalManager]);
 
   const handleClosePaymentsModal = useCallback(() => {
-    setActiveModal(prev => (prev === 'payments' ? null : prev));
-  }, []);
+    modalManager.closeModal();
+  }, [modalManager]);
 
   const handleCloseNetCashflowModal = useCallback(() => {
-    setActiveModal(prev => (prev === 'netCashflow' ? null : prev));
-  }, []);
+    modalManager.closeModal();
+  }, [modalManager]);
 
   return {
-    modalState,
+    modalManager,
+    headerData,
+    alertsData,
+    insightsData,
+    suggestionsData,
+    awarenessData,
+    cashflowProjections,
+    spendingCategories,
+    recentTransactions,
+    daysUntilDeficit,
+    dailyAverageSpending,
+    todaySpending,
+    totalMonthlyIncome,
+    totalMonthlyExpenses,
     headerData,
     alertsData,
     insightsData,

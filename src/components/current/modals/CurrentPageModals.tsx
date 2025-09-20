@@ -41,35 +41,6 @@ const CurrentPageModals: React.FC<CurrentPageModalsProps> = memo(({
   todaySpending,
   overdueCount
 }) => {
-  const anyModalOpen = isModalOpen || isPaymentsModalOpen || isNetCashflowModalOpen;
-
-  const previousOverflowRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') {
-      return;
-    }
-
-    const { style } = document.body;
-
-    if (anyModalOpen) {
-      if (previousOverflowRef.current === null) {
-        previousOverflowRef.current = style.overflow;
-      }
-      style.overflow = 'hidden';
-    } else if (previousOverflowRef.current !== null) {
-      style.overflow = previousOverflowRef.current;
-      previousOverflowRef.current = null;
-    }
-
-    return () => {
-      if (previousOverflowRef.current !== null) {
-        style.overflow = previousOverflowRef.current;
-        previousOverflowRef.current = null;
-      }
-    };
-  }, [anyModalOpen]);
-
   return (
     <>
       {/* Detailed Modal */}

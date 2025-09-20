@@ -134,6 +134,7 @@ export const useCurrentPageData = (): CurrentPageData & {
         isEstimated: false
       },
       cashflowProjections,
+      spendingCategories: spendingCategoriesWithRemaining,
       totalAvailable,
       netLeftoverUntilPaycheck,
       overdueCount,
@@ -143,8 +144,7 @@ export const useCurrentPageData = (): CurrentPageData & {
       criticalAlerts,
       isDeficitProjected,
       daysUntilDeficit,
-      highPriorityPayments,
-      spendingCategories: spendingCategoriesWithRemaining
+      highPriorityPayments
     };
   }, [data]);
 };
