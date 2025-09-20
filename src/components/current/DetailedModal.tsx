@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ArrowUpRight, TrendingUp, TrendingDown, Calendar, AlertTriangle, Zap, Target, PiggyBank, ChevronRight } from 'lucide-react';
+import { X, ArrowUpRight, TrendingDown } from 'lucide-react';
 import type { UpcomingPayment, SpendingCategory } from '../../types/current';
 import HorizontalBarChart from '../charts/HorizontalBarChart';
 
@@ -27,15 +27,8 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
     .filter(p => p.status !== 'paid')
     .reduce((sum, p) => sum + Math.abs(p.amount), 0);
   const netAfterPayments = netAvailable - upcomingPaymentsTotal;
-  const nextPaycheckDays = 16; // This would come from props
-  const overduePayments = upcomingPayments.filter(p => p.status === 'overdue');
-  
-  // Calculate daily burn rate and projections
-  const dailyBurnRate = monthlyExpenses / 30;
-  const daysUntilTight = Math.floor(netAfterPayments / dailyBurnRate);
   
   // Health score calculation (simplified)
-  const healthScore = 85; // This would come from props
   
   // Dynamic emoji/status thresholds based on user's financial context
   const getFinancialStatusEmoji = (netAmount: number, userIncome: number) => {
@@ -59,21 +52,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
     if (netAmount >= -tightThreshold) return 'Getting Tight';
     return 'Need Action';
   };
-  const getHealthBadgeColor = (score: number) => {
-    if (score >= 85) return 'bg-green-500 text-white';
-    if (score >= 70) return 'bg-blue-500 text-white';
-    if (score >= 50) return 'bg-yellow-500 text-white';
-    return 'bg-red-500 text-white';
-  };
-
-  const getSpendingVelocity = () => {
-    const todaySpending = 485.50; // This would come from props
-    const averageDaily = dailyBurnRate;
-    if (todaySpending > averageDaily * 1.5) return 'High';
-    if (todaySpending < averageDaily * 0.7) return 'Low';
-    return 'Normal';
-  };
-
+  
   // Prepare data for horizontal bar charts
   const incomeData = [
     { category: 'Salary', amount: monthlyIncome * 0.85, color: '#10b981' },
