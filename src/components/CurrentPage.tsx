@@ -100,6 +100,19 @@ const CurrentPage = () => {
             </Suspense>
           </ErrorBoundary>
         </div>
+
+        <ErrorBoundary section="Financial Awareness">
+          <Suspense fallback={<SkeletonLoader variant="card" />}>
+            <AwarenessSection
+              totalMonthlyIncome={totalMonthlyIncome}
+              totalMonthlyExpenses={totalMonthlyExpenses}
+              biggestExpenseCategory={awarenessData.biggestExpenseCategory}
+              savingsRate={awarenessData.savingsRate}
+              paycheckDays={awarenessData.paycheckDays}
+              netLeftoverUntilPaycheck={awarenessData.netLeftoverUntilPaycheck}
+            />
+          </Suspense>
+        </ErrorBoundary>
       </div>
 
       <CurrentPageModals
