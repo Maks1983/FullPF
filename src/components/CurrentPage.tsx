@@ -117,17 +117,22 @@ const CurrentPage = () => {
 
       <CurrentPageModals
         modalManager={modalManager}
-        headerData={headerData}
-        alertsData={alertsData}
-        insightsData={insightsData}
-        suggestionsData={suggestionsData}
-        awarenessData={awarenessData}
-        cashflowProjections={cashflowProjections}
+        isModalOpen={modalManager.isModalOpen}
+        onCloseModal={handleCloseModal}
+        isPaymentsModalOpen={modalManager.isPaymentsModalOpen}
+        onClosePaymentsModal={handleClosePaymentsModal}
+        isNetCashflowModalOpen={modalManager.isNetCashflowModalOpen}
+        onCloseNetCashflowModal={handleCloseNetCashflowModal}
+        upcomingPayments={headerData.upcomingPayments}
         spendingCategories={spendingCategories}
         recentTransactions={recentTransactions}
-        onCloseModal={handleCloseModal}
-        onClosePaymentsModal={handleClosePaymentsModal}
-        onCloseNetCashflowModal={handleCloseNetCashflowModal}
+        monthlyIncome={totalMonthlyIncome}
+        monthlyExpenses={totalMonthlyExpenses}
+        totalAvailable={headerData.totalAvailable}
+        netLeftoverUntilPaycheck={headerData.netLeftoverUntilPaycheck}
+        daysUntilPaycheck={headerData.paycheckInfo.daysUntilPaycheck}
+        todaySpending={todaySpending}
+        overdueCount={headerData.overdueCount}
       />
     </>
   );
