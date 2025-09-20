@@ -3,16 +3,13 @@ import { useCurrentPageLogic } from '../hooks/useCurrentPageLogic';
 import ErrorBoundary from './common/ErrorBoundary';
 import SkeletonLoader from './common/SkeletonLoader';
 import AtAGlanceBanner from './current/AtAGlanceBanner';
-import CriticalAlertsSection from './current/CriticalAlertsSection';
 import UpcomingPaymentsTimeline from './current/UpcomingPaymentsTimeline';
-import CollapsibleSection from './common/CollapsibleSection';
 import CurrentPageModals from './current/modals/CurrentPageModals';
+import CashflowProjectionChart from './current/CashflowProjectionChart';
+import SpendingCategoriesCard from './current/SpendingCategoriesCard';
+import SmartSuggestions from './current/SmartSuggestions';
 
 // Lazy load heavy components
-const MoneyFlowSection = React.lazy(() => import('./current/sections/MoneyFlowSection'));
-const InsightsSection = React.lazy(() => import('./current/sections/InsightsSection'));
-const SuggestionsSection = React.lazy(() => import('./current/sections/SuggestionsSection'));
-const TransactionsSection = React.lazy(() => import('./current/sections/TransactionsSection'));
 const AwarenessSection = React.lazy(() => import('./current/sections/AwarenessSection'));
 
 const CurrentPage = () => {
@@ -35,9 +32,7 @@ const CurrentPage = () => {
     handleViewDetails,
     handleViewPayments,
     handleViewNetCashflow,
-    handleCloseModal,
-    handleClosePaymentsModal,
-    handleCloseNetCashflowModal
+        handleCloseModal
   } = useCurrentPageLogic();
 
   const nextPayment = headerData.upcomingPayments
@@ -47,7 +42,7 @@ const CurrentPage = () => {
   return (
     <>
       <div
-        className={`space-y-6 pb-10${modalManager.anyModalOpen ? ' pointer-events-none select-none' : ''}`}
+        className={`space-y-8 pb-10${modalManager.anyModalOpen ? ' pointer-events-none select-none' : ''}`}
         aria-hidden={modalManager.anyModalOpen}
         inert={modalManager.anyModalOpen}
       >
@@ -67,50 +62,61 @@ const CurrentPage = () => {
           onViewNetCashflow={handleViewNetCashflow}
         />
 
-        <ErrorBoundary section="Critical Alerts">
-          <CriticalAlertsSection {...alertsData} />
-        </ErrorBoundary>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Cashflow & Spending */}
+          <div className="lg:col-span-2 space-y-6">
+            <ErrorBoundary section="Cashflow Projection">
+              <CashflowProjectionChart
+                projections={cashflowProjections}
+                daysUntilDeficit={daysUntilDeficit}
+              />
+            </ErrorBoundary>
+          </div>
 
-        <ErrorBoundary section="Money Flow">
-          <Suspense fallback={<SkeletonLoader variant="chart" />}>
-            <MoneyFlowSection
-              cashflowProjections={cashflowProjections}
-              spendingCategories={spendingCategories}
-              daysUntilDeficit={daysUntilDeficit}
-              todaySpending={todaySpending}
-              dailyAverageSpending={dailyAverageSpending}
-              netLeftover={headerData.netLeftoverUntilPaycheck}
-              monthlyIncome={totalMonthlyIncome}
-              monthlyExpenses={totalMonthlyExpenses}
-            />
-          </Suspense>
-        </ErrorBoundary>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <ErrorBoundary section="Upcoming Payments">
-            <UpcomingPaymentsTimeline
-              payments={headerData.upcomingPayments}
-              overdueCount={headerData.overdueCount}
-            />
-          </ErrorBoundary>
-
-          <ErrorBoundary section="Smart Suggestions">
-            <Suspense fallback={<SkeletonLoader variant="card" />}>
-              <SuggestionsSection {...suggestionsData} />
-            </Suspense>
-          </ErrorBoundary>
+          {/* Right Column - Categories */}
+          <div className="space-y-6">
+            <ErrorBoundary section="Spending Categories">
+              <SpendingCategoriesCard
+                categories={spendingCategories}
+                todaySpending={todaySpending}
+              />
+            </ErrorBoundary>
+          </div>
         </div>
 
+        {/* Two Column Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Upcoming Payments */}
+          <div className="space-y-6">
+            <ErrorBoundary section="Upcoming Payments">
+              <UpcomingPaymentsTimeline
+                payments={headerData.upcomingPayments}
+                overdueCount={headerData.overdueCount}
+              />
+            </ErrorBoundary>
+          </div>
+
+          {/* Smart Suggestions */}
+          <div className="space-y-6">
+            <ErrorBoundary section="Smart Suggestions">
+              <SmartSuggestions
+                netLeftover={suggestionsData.netLeftover}
+                savingsRate={suggestionsData.savingsRate}
+                spendingCategories={suggestionsData.spendingCategories}
+                overdueCount={suggestionsData.overdueCount}
+                daysUntilPaycheck={suggestionsData.daysUntilPaycheck}
+                totalAvailable={suggestionsData.totalAvailable}
+                monthlyExpenses={suggestionsData.monthlyExpenses}
+              />
+            </ErrorBoundary>
+          </div>
+        </div>
+
+        {/* Financial Awareness Summary - Full Width at Bottom */}
         <ErrorBoundary section="Financial Awareness">
           <Suspense fallback={<SkeletonLoader variant="card" />}>
-            <AwarenessSection
-              totalMonthlyIncome={totalMonthlyIncome}
-              totalMonthlyExpenses={totalMonthlyExpenses}
-              biggestExpenseCategory={awarenessData.biggestExpenseCategory}
-              savingsRate={awarenessData.savingsRate}
-              paycheckDays={awarenessData.paycheckDays}
-              netLeftoverUntilPaycheck={awarenessData.netLeftoverUntilPaycheck}
-            />
+            <AwarenessSection {...awarenessData} />
           </Suspense>
         </ErrorBoundary>
       </div>
@@ -120,9 +126,9 @@ const CurrentPage = () => {
         isModalOpen={modalManager.isModalOpen}
         onCloseModal={handleCloseModal}
         isPaymentsModalOpen={modalManager.isPaymentsModalOpen}
-        onClosePaymentsModal={handleClosePaymentsModal}
-        isNetCashflowModalOpen={modalManager.isNetCashflowModalOpen}
-        onCloseNetCashflowModal={handleCloseNetCashflowModal}
+        onCloseModal={handleCloseModal}
+        onClosePaymentsModal={handleCloseModal}
+        onCloseNetCashflowModal={handleCloseModal}
         upcomingPayments={headerData.upcomingPayments}
         spendingCategories={spendingCategories}
         recentTransactions={recentTransactions}
