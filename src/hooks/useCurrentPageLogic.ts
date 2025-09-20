@@ -5,7 +5,23 @@ import { useModalState } from './useModalState';
 import { getFinancialHealthStatus } from '../utils/financial';
 
 export const useCurrentPageLogic = () => {
-  const modalState = useModalState();
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    isPaymentsModalOpen,
+    setIsPaymentsModalOpen,
+    isNetCashflowModalOpen,
+    setIsNetCashflowModalOpen,
+  } = useModalState();
+  
+  const modalState = {
+    isModalOpen,
+    setIsModalOpen,
+    isPaymentsModalOpen,
+    setIsPaymentsModalOpen,
+    isNetCashflowModalOpen,
+    setIsNetCashflowModalOpen,
+  };
   
   const {
     accounts,
@@ -126,28 +142,34 @@ export const useCurrentPageLogic = () => {
   ]);
 
   const handleViewDetails = useCallback(() => {
-    modalState.setIsModalOpen(true);
-  }, [modalState]);
+    setIsPaymentsModalOpen(false);
+    setIsNetCashflowModalOpen(false);
+    setIsModalOpen(true);
+  }, [setIsModalOpen, setIsPaymentsModalOpen, setIsNetCashflowModalOpen]);
 
   const handleViewPayments = useCallback(() => {
-    modalState.setIsPaymentsModalOpen(true);
-  }, [modalState]);
+    setIsModalOpen(false);
+    setIsNetCashflowModalOpen(false);
+    setIsPaymentsModalOpen(true);
+  }, [setIsModalOpen, setIsPaymentsModalOpen, setIsNetCashflowModalOpen]);
 
   const handleViewNetCashflow = useCallback(() => {
-    modalState.setIsNetCashflowModalOpen(true);
-  }, [modalState]);
+    setIsModalOpen(false);
+    setIsPaymentsModalOpen(false);
+    setIsNetCashflowModalOpen(true);
+  }, [setIsModalOpen, setIsPaymentsModalOpen, setIsNetCashflowModalOpen]);
 
   const handleCloseModal = useCallback(() => {
-    modalState.setIsModalOpen(false);
-  }, [modalState]);
+    setIsModalOpen(false);
+  }, [setIsModalOpen]);
 
   const handleClosePaymentsModal = useCallback(() => {
-    modalState.setIsPaymentsModalOpen(false);
-  }, [modalState]);
+    setIsPaymentsModalOpen(false);
+  }, [setIsPaymentsModalOpen]);
 
   const handleCloseNetCashflowModal = useCallback(() => {
-    modalState.setIsNetCashflowModalOpen(false);
-  }, [modalState]);
+    setIsNetCashflowModalOpen(false);
+  }, [setIsNetCashflowModalOpen]);
 
   return {
     modalState,
