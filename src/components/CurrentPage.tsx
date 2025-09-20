@@ -81,6 +81,14 @@ const CurrentPage = () => {
             />
           </ErrorBoundary>
 
+          {/* Upcoming Payments */}
+          <ErrorBoundary section="Upcoming Payments">
+            <UpcomingPaymentsTimeline
+              payments={headerData.upcomingPayments}
+              limit={5}
+            />
+          </ErrorBoundary>
+
           {/* Smart Suggestions */}
           <ErrorBoundary section="Smart Suggestions">
             <SmartSuggestions
@@ -91,14 +99,6 @@ const CurrentPage = () => {
               daysUntilPaycheck={suggestionsData.daysUntilPaycheck}
               totalAvailable={suggestionsData.totalAvailable}
               monthlyExpenses={suggestionsData.monthlyExpenses}
-            />
-          </ErrorBoundary>
-
-          {/* Upcoming Payments */}
-          <ErrorBoundary section="Upcoming Payments">
-            <UpcomingPaymentsTimeline
-              payments={headerData.upcomingPayments}
-              limit={5}
             />
           </ErrorBoundary>
         </div>
