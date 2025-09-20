@@ -90,7 +90,19 @@ const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-3">
+        <div
+          className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-3 cursor-pointer transition hover:bg-slate-800/90 focus-within:ring-2 focus-within:ring-sky-300"
+          role="button"
+          tabIndex={0}
+          onClick={onViewDetails}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              onViewDetails();
+            }
+          }}
+          aria-label="Open cash details"
+        >
           <div className="p-2 bg-slate-900/60 rounded-lg">
             <Wallet2 className="h-5 w-5 text-sky-300" aria-hidden="true" />
           </div>
@@ -182,3 +194,4 @@ const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
 };
 
 export default AtAGlanceBanner;
+
