@@ -18,68 +18,52 @@ const FinancialAwarenessSummary: React.FC<FinancialAwarenessSummaryProps> = ({
   paycheckDays,
   netLeftoverUntilPaycheck
 }) => {
-  const netResult = totalMonthlyIncome - totalMonthlyExpenses;
-
   return (
-    <div className="space-y-5">
-      <div className="flex items-center space-x-3">
-        <div className="p-2 bg-slate-100 rounded-lg">
-          <Brain className="h-5 w-5 text-slate-600" aria-hidden="true" />
-        </div>
-        <div>
-          <h3 className="text-base font-semibold text-gray-900">Monthly pulse</h3>
-          <p className="text-xs text-gray-500">Quick view of how income and spending balance out</p>
-        </div>
+    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6">
+      <div className="flex items-center space-x-3 mb-4">
+        <Brain className="h-6 w-6 text-green-600" />
+        <h3 className="text-lg font-semibold text-gray-900">Your Money Story This Month</h3>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-center">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Money in</p>
-          <p className="text-2xl font-semibold text-gray-900">NOK {totalMonthlyIncome.toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="text-center">
+          <div className="text-3xl font-bold text-green-600 mb-2">
+            NOK {totalMonthlyIncome.toLocaleString()}
+          </div>
+          <p className="text-sm text-gray-600">Money Coming In</p>
+          <p className="text-xs text-gray-500 mt-1">Your total income this month</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-center">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Money out</p>
-          <p className="text-2xl font-semibold text-gray-900">NOK {totalMonthlyExpenses.toLocaleString('no-NO', { maximumFractionDigits: 0 })}</p>
+        
+        <div className="text-center">
+          <div className="text-3xl font-bold text-red-600 mb-2">
+            NOK {totalMonthlyExpenses.toLocaleString()}
+          </div>
+          <p className="text-sm text-gray-600">Money Going Out</p>
+          <p className="text-xs text-gray-500 mt-1">Your total expenses this month</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-center">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Net result</p>
-          <p className={`text-2xl font-semibold ${netResult >= 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
-            {netResult >= 0 ? '+' : '-'}NOK {Math.abs(netResult).toLocaleString('no-NO', { maximumFractionDigits: 0 })}
+        
+        <div className="text-center">
+          <div className={`text-3xl font-bold mb-2 ${
+            totalMonthlyIncome - totalMonthlyExpenses > 0 ? 'text-green-600' : 'text-red-600'
+          }`}>
+            NOK {(totalMonthlyIncome - totalMonthlyExpenses).toLocaleString()}
+          </div>
+          <p className="text-sm text-gray-600">Net Result</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {totalMonthlyIncome - totalMonthlyExpenses > 0 ? 'Money saved' : 'Overspent'} this month
           </p>
         </div>
       </div>
 
-      <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-gray-100 bg-slate-50 px-4 py-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-500">Biggest expense</dt>
-          <dd className="text-sm text-gray-900">
-            {biggestExpenseCategory ? (
-              <>
-                {biggestExpenseCategory.name}
-                <span className="ml-1 text-xs text-gray-500">
-                  NOK {biggestExpenseCategory.spent.toLocaleString('no-NO', { maximumFractionDigits: 0 })}
-                </span>
-              </>
-            ) : (
-              'No category data yet'
-            )}
-          </dd>
-        </div>
-        <div className="rounded-lg border border-gray-100 bg-slate-50 px-4 py-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-500">Savings rate</dt>
-          <dd className="text-sm text-gray-900">{savingsRate.toFixed(1)}% of income</dd>
-        </div>
-        <div className="rounded-lg border border-gray-100 bg-slate-50 px-4 py-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-500">Days to payday</dt>
-          <dd className="text-sm text-gray-900">{paycheckDays}</dd>
-        </div>
-        <div className="rounded-lg border border-gray-100 bg-slate-50 px-4 py-3">
-          <dt className="text-xs uppercase tracking-wide text-slate-500">Runway status</dt>
-          <dd className={`text-sm font-medium ${netLeftoverUntilPaycheck >= 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
-            {netLeftoverUntilPaycheck >= 0 ? 'Covered until payday' : 'Short before payday'}
-          </dd>
-        </div>
-      </dl>
+      <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+        <h4 className="font-semibold text-gray-900 mb-2">💡 Key Insights About Your Money</h4>
+        <ul className="text-sm text-gray-700 space-y-2">
+          <li>• Your biggest expense category is <strong>{biggestExpenseCategory?.name}</strong> at NOK {biggestExpenseCategory?.spent.toLocaleString()}</li>
+          <li>• You're saving <strong>{savingsRate.toFixed(1)}%</strong> of your income {savingsRate >= 20 ? '(Excellent!)' : savingsRate >= 10 ? '(Good)' : '(Could improve)'}</li>
+          <li>• You have <strong>{paycheckDays} days</strong> until your next paycheck</li>
+          <li>• Your money will {netLeftoverUntilPaycheck >= 0 ? 'last until payday' : 'run short before payday'}</li>
+        </ul>
+      </div>
     </div>
   );
 };
