@@ -90,38 +90,24 @@ const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div
-          className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-3 cursor-pointer transition hover:bg-slate-800/90 focus-within:ring-2 focus-within:ring-sky-300"
-          role="button"
-          tabIndex={0}
-          onClick={onViewDetails}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              onViewDetails();
-            }
-          }}
-          aria-label="Open cash details"
-        >
-          <div className="p-2 bg-slate-900/60 rounded-lg">
-            <Wallet2 className="h-5 w-5 text-sky-300" aria-hidden="true" />
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">Available now</p>
-            <p className="text-2xl font-semibold">NOK {formatCurrency(totalAvailable)}</p>
-            <p className="text-xs text-slate-400">After bills: NOK {formatCurrency(netLeftover)}</p>
-          </div>
+        <div className="p-2 bg-slate-900/60 rounded-lg">
+          <Wallet2 className="h-5 w-5 text-sky-300" aria-hidden="true" />
         </div>
+        <div>
+          <p className="text-xs uppercase tracking-wide text-slate-400">Available now</p>
+          <p className="text-2xl font-semibold">NOK {formatCurrency(totalAvailable)}</p>
+          <p className="text-xs text-slate-400">After bills: NOK {formatCurrency(netLeftover)}</p>
+        </div>
+      </div>
 
-        <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-3">
-          <div className="p-2 bg-slate-900/60 rounded-lg">
-            <Timer className="h-5 w-5 text-sky-300" aria-hidden="true" />
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">Runway</p>
-            <p className={`text-2xl font-semibold ${runwayTone}`}>{runwayLabel}</p>
-            <p className="text-xs text-slate-400">Projected balance stays {netLeftover >= 0 ? 'positive' : 'negative'} before payday</p>
-          </div>
+      <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-3">
+        <div className="p-2 bg-slate-900/60 rounded-lg">
+          <Timer className="h-5 w-5 text-sky-300" aria-hidden="true" />
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-wide text-slate-400">Runway</p>
+          <p className={`text-2xl font-semibold ${runwayTone}`}>{runwayLabel}</p>
+          <p className="text-xs text-slate-400">Projected balance stays {netLeftover >= 0 ? 'positive' : 'negative'} before payday</p>
         </div>
 
         <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-3">
