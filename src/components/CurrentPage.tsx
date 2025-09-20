@@ -3,7 +3,6 @@ import { useCurrentPageLogic } from '../hooks/useCurrentPageLogic';
 import ErrorBoundary from './common/ErrorBoundary';
 import SkeletonLoader from './common/SkeletonLoader';
 import AtAGlanceBanner from './current/AtAGlanceBanner';
-import CurrentPageHeader from './current/CurrentPageHeader';
 import CriticalAlertsSection from './current/CriticalAlertsSection';
 import UpcomingPaymentsTimeline from './current/UpcomingPaymentsTimeline';
 import CollapsibleSection from './common/CollapsibleSection';
@@ -60,23 +59,22 @@ const CurrentPage = () => {
       >
         <AtAGlanceBanner
           totalAvailable={headerData.totalAvailable}
-          daysUntilPaycheck={headerData.paycheckInfo.daysUntilPaycheck}
-          nextPayment={nextPayment}
-          deficitDays={daysUntilDeficit}
           netLeftover={headerData.netLeftoverUntilPaycheck}
+          daysUntilPaycheck={headerData.paycheckInfo.daysUntilPaycheck}
+          deficitDays={daysUntilDeficit}
+          nextPayment={nextPayment}
+          monthlyIncome={headerData.totalMonthlyIncome}
+          monthlyExpenses={headerData.totalMonthlyExpenses}
+          overdueCount={headerData.overdueCount}
+          todaySpending={todaySpending}
+          healthStatus={headerData.healthStatus}
+          onViewDetails={handleViewDetails}
+          onViewPayments={handleViewPayments}
+          onViewNetCashflow={handleViewNetCashflow}
         />
 
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
           <div className="space-y-6">
-            <ErrorBoundary section="Page Header">
-              <CurrentPageHeader
-                {...headerData}
-                onViewDetails={handleViewDetails}
-                onViewPayments={handleViewPayments}
-                onViewNetCashflow={handleViewNetCashflow}
-              />
-            </ErrorBoundary>
-
             <ErrorBoundary section="Critical Alerts">
               <CriticalAlertsSection {...alertsData} />
             </ErrorBoundary>
