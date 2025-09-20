@@ -152,7 +152,7 @@ const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={onViewDetails}
+            onClick={onViewPayments}
             className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/70 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
           >
             <Wallet2 className="h-4 w-4" aria-hidden="true" />
