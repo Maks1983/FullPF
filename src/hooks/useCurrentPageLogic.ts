@@ -1,28 +1,45 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useCurrentPageData } from './useCurrentPageData';
 import { useFinancialCalculations } from './useFinancialCalculations';
-import { useModalState } from './useModalState';
 import { getFinancialHealthStatus } from '../utils/financial';
 
+type ModalKey = 'details' | 'payments' | 'netCashflow' | null;
+
 export const useCurrentPageLogic = () => {
-  const {
+  const [activeModal, setActiveModal] = useState<ModalKey>(null);
+
+  const isModalOpen = activeModal === 'details';
+  const isPaymentsModalOpen = activeModal === 'payments';
+  const isNetCashflowModalOpen = activeModal === 'netCashflow';
+
+  const setIsModalOpen = useCallback((open: boolean) => {
+    setActiveModal(prev => (open ? 'details' : prev === 'details' ? null : prev));
+  }, []);
+
+  const setIsPaymentsModalOpen = useCallback((open: boolean) => {
+    setActiveModal(prev => (open ? 'payments' : prev === 'payments' ? null : prev));
+  }, []);
+
+  const setIsNetCashflowModalOpen = useCallback((open: boolean) => {
+    setActiveModal(prev => (open ? 'netCashflow' : prev === 'netCashflow' ? null : prev));
+  }, []);
+
+  const modalState = useMemo(() => ({
     isModalOpen,
     setIsModalOpen,
     isPaymentsModalOpen,
     setIsPaymentsModalOpen,
     isNetCashflowModalOpen,
     setIsNetCashflowModalOpen,
-  } = useModalState();
-  
-  const modalState = {
+  }), [
     isModalOpen,
     setIsModalOpen,
     isPaymentsModalOpen,
     setIsPaymentsModalOpen,
     isNetCashflowModalOpen,
     setIsNetCashflowModalOpen,
-  };
-  
+  ]);
+
   const {
     accounts,
     upcomingPayments,
@@ -142,34 +159,28 @@ export const useCurrentPageLogic = () => {
   ]);
 
   const handleViewDetails = useCallback(() => {
-    setIsPaymentsModalOpen(false);
-    setIsNetCashflowModalOpen(false);
-    setIsModalOpen(true);
-  }, [setIsModalOpen, setIsPaymentsModalOpen, setIsNetCashflowModalOpen]);
+    setActiveModal('details');
+  }, []);
 
   const handleViewPayments = useCallback(() => {
-    setIsModalOpen(false);
-    setIsNetCashflowModalOpen(false);
-    setIsPaymentsModalOpen(true);
-  }, [setIsModalOpen, setIsPaymentsModalOpen, setIsNetCashflowModalOpen]);
+    setActiveModal('payments');
+  }, []);
 
   const handleViewNetCashflow = useCallback(() => {
-    setIsModalOpen(false);
-    setIsPaymentsModalOpen(false);
-    setIsNetCashflowModalOpen(true);
-  }, [setIsModalOpen, setIsPaymentsModalOpen, setIsNetCashflowModalOpen]);
+    setActiveModal('netCashflow');
+  }, []);
 
   const handleCloseModal = useCallback(() => {
-    setIsModalOpen(false);
-  }, [setIsModalOpen]);
+    setActiveModal(prev => (prev === 'details' ? null : prev));
+  }, []);
 
   const handleClosePaymentsModal = useCallback(() => {
-    setIsPaymentsModalOpen(false);
-  }, [setIsPaymentsModalOpen]);
+    setActiveModal(prev => (prev === 'payments' ? null : prev));
+  }, []);
 
   const handleCloseNetCashflowModal = useCallback(() => {
-    setIsNetCashflowModalOpen(false);
-  }, [setIsNetCashflowModalOpen]);
+    setActiveModal(prev => (prev === 'netCashflow' ? null : prev));
+  }, []);
 
   return {
     modalState,
