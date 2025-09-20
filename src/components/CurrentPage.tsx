@@ -63,44 +63,54 @@ const CurrentPage = () => {
         />
 
         {/* Main Content Grid */}
-        {/* Full Width Cashflow Chart */}
-        <ErrorBoundary section="Cashflow Projection">
-          <CashflowProjectionChart
-            projections={cashflowProjections}
-            daysUntilDeficit={daysUntilDeficit}
-          />
-        </ErrorBoundary>
-
-        {/* Three Column Grid - All Similar Heights */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Spending Categories */}
-          <ErrorBoundary section="Spending Categories">
-            <SpendingCategoriesCard
-              categories={spendingCategories}
-              todaySpending={todaySpending}
-            />
-          </ErrorBoundary>
+          {/* Left Column - Cashflow & Spending */}
+          <div className="lg:col-span-2 space-y-6">
+            <ErrorBoundary section="Cashflow Projection">
+              <CashflowProjectionChart
+                projections={cashflowProjections}
+                daysUntilDeficit={daysUntilDeficit}
+              />
+            </ErrorBoundary>
+          </div>
 
+          {/* Right Column - Categories */}
+          <div className="space-y-6">
+            <ErrorBoundary section="Spending Categories">
+              <SpendingCategoriesCard
+                categories={spendingCategories}
+                todaySpending={todaySpending}
+              />
+            </ErrorBoundary>
+          </div>
+        </div>
+
+        {/* Two Column Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Upcoming Payments */}
-          <ErrorBoundary section="Upcoming Payments">
-            <UpcomingPaymentsTimeline
-              payments={headerData.upcomingPayments}
-              limit={5}
-            />
-          </ErrorBoundary>
+          <div className="space-y-6">
+            <ErrorBoundary section="Upcoming Payments">
+              <UpcomingPaymentsTimeline
+                payments={headerData.upcomingPayments}
+                overdueCount={headerData.overdueCount}
+              />
+            </ErrorBoundary>
+          </div>
 
           {/* Smart Suggestions */}
-          <ErrorBoundary section="Smart Suggestions">
-            <SmartSuggestions
-              netLeftover={suggestionsData.netLeftover}
-              savingsRate={suggestionsData.savingsRate}
-              spendingCategories={suggestionsData.spendingCategories}
-              overdueCount={suggestionsData.overdueCount}
-              daysUntilPaycheck={suggestionsData.daysUntilPaycheck}
-              totalAvailable={suggestionsData.totalAvailable}
-              monthlyExpenses={suggestionsData.monthlyExpenses}
-            />
-          </ErrorBoundary>
+          <div className="space-y-6">
+            <ErrorBoundary section="Smart Suggestions">
+              <SmartSuggestions
+                netLeftover={suggestionsData.netLeftover}
+                savingsRate={suggestionsData.savingsRate}
+                spendingCategories={suggestionsData.spendingCategories}
+                overdueCount={suggestionsData.overdueCount}
+                daysUntilPaycheck={suggestionsData.daysUntilPaycheck}
+                totalAvailable={suggestionsData.totalAvailable}
+                monthlyExpenses={suggestionsData.monthlyExpenses}
+              />
+            </ErrorBoundary>
+          </div>
         </div>
 
         {/* Financial Awareness Summary - Full Width at Bottom */}
