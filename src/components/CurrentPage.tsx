@@ -63,16 +63,28 @@ const CurrentPage = () => {
         />
 
         {/* Main Content Grid */}
-        {/* Full Width Cashflow Chart */}
-        <ErrorBoundary section="Cashflow Projection">
-          <CashflowProjectionChart
-            projections={cashflowProjections}
-            daysUntilDeficit={daysUntilDeficit}
-          />
-        </ErrorBoundary>
-
-        {/* Three Column Grid - All Similar Heights */}
+        {/* Cashflow Chart with Next Payments */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <ErrorBoundary section="Cashflow Projection">
+              <CashflowProjectionChart
+                projections={cashflowProjections}
+                daysUntilDeficit={daysUntilDeficit}
+              />
+            </ErrorBoundary>
+          </div>
+          <div className="lg:col-span-1">
+            <ErrorBoundary section="Upcoming Payments">
+              <UpcomingPaymentsTimeline
+                payments={headerData.upcomingPayments}
+                limit={5}
+              />
+            </ErrorBoundary>
+          </div>
+        </div>
+
+        {/* Two Column Grid - Remaining Components */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Spending Categories */}
           <ErrorBoundary section="Spending Categories">
             <SpendingCategoriesCard
@@ -91,14 +103,6 @@ const CurrentPage = () => {
               daysUntilPaycheck={suggestionsData.daysUntilPaycheck}
               totalAvailable={suggestionsData.totalAvailable}
               monthlyExpenses={suggestionsData.monthlyExpenses}
-            />
-          </ErrorBoundary>
-
-          {/* Upcoming Payments */}
-          <ErrorBoundary section="Upcoming Payments">
-            <UpcomingPaymentsTimeline
-              payments={headerData.upcomingPayments}
-              limit={5}
             />
           </ErrorBoundary>
         </div>
