@@ -39,66 +39,78 @@ const CurrentPage = () => {
     modalState
   } = useCurrentPageLogic();
 
+  const isAnyModalOpen =
+    modalState.isModalOpen ||
+    modalState.isPaymentsModalOpen ||
+    modalState.isNetCashflowModalOpen;
+
   return (
-    <div className="space-y-8 pb-8">
-      {/* Page Header */}
-      <ErrorBoundary section="Page Header">
-        <CurrentPageHeader
-          {...headerData}
-          onViewDetails={handleViewDetails}
-          onViewPayments={handleViewPayments}
-          onViewNetCashflow={handleViewNetCashflow}
-        />
-      </ErrorBoundary>
-
-      {/* Critical Alerts */}
-      <ErrorBoundary section="Critical Alerts">
-        <CriticalAlertsSection {...alertsData} />
-      </ErrorBoundary>
-
-      {/* Money Flow Insights - New Component */}
-      <ErrorBoundary section="Money Flow Insights">
-        <Suspense fallback={<SkeletonLoader variant="card" height="200px" />}>
-          <InsightsSection {...insightsData} />
-        </Suspense>
-      </ErrorBoundary>
-
-      {/* Money Flow Section */}
-      <ErrorBoundary section="Money Flow">
-        <Suspense fallback={<SkeletonLoader variant="chart" />}>
-          <MoneyFlowSection
-            cashflowProjections={cashflowProjections}
-            spendingCategories={spendingCategories}
-            daysUntilDeficit={daysUntilDeficit}
-            todaySpending={todaySpending}
-            dailyAverageSpending={dailyAverageSpending}
-            netLeftover={headerData.netLeftoverUntilPaycheck}
-            monthlyIncome={totalMonthlyIncome}
-            monthlyExpenses={totalMonthlyExpenses}
+    <>
+      <div
+        className={`space-y-8 pb-8${isAnyModalOpen ? ' pointer-events-none select-none' : ''}`}
+        aria-hidden={isAnyModalOpen}
+        inert={isAnyModalOpen}
+      >
+        {/* Page Header */}
+        <ErrorBoundary section="Page Header">
+          <CurrentPageHeader
+            {...headerData}
+            onViewDetails={handleViewDetails}
+            onViewPayments={handleViewPayments}
+            onViewNetCashflow={handleViewNetCashflow}
           />
-        </Suspense>
-      </ErrorBoundary>
+        </ErrorBoundary>
 
-      {/* Smart Suggestions - New Component */}
-      <ErrorBoundary section="Smart Suggestions">
-        <Suspense fallback={<SkeletonLoader variant="card" height="300px" />}>
-          <SuggestionsSection {...suggestionsData} />
-        </Suspense>
-      </ErrorBoundary>
+        {/* Critical Alerts */}
+        <ErrorBoundary section="Critical Alerts">
+          <CriticalAlertsSection {...alertsData} />
+        </ErrorBoundary>
 
-      {/* Recent Transactions - Enhanced */}
-      <ErrorBoundary section="Recent Transactions">
-        <Suspense fallback={<SkeletonLoader variant="table" count={5} />}>
-          <TransactionsSection transactions={recentTransactions} />
-        </Suspense>
-      </ErrorBoundary>
+        {/* Money Flow Insights - New Component */}
+        <ErrorBoundary section="Money Flow Insights">
+          <Suspense fallback={<SkeletonLoader variant="card" height="200px" />}>
+            <InsightsSection {...insightsData} />
+          </Suspense>
+        </ErrorBoundary>
 
-      {/* Financial Awareness Summary */}
-      <ErrorBoundary section="Financial Awareness">
-        <Suspense fallback={<SkeletonLoader variant="card" height="250px" />}>
-          <AwarenessSection {...awarenessData} />
-        </Suspense>
-      </ErrorBoundary>
+        {/* Money Flow Section */}
+        <ErrorBoundary section="Money Flow">
+          <Suspense fallback={<SkeletonLoader variant="chart" />}>
+            <MoneyFlowSection
+              cashflowProjections={cashflowProjections}
+              spendingCategories={spendingCategories}
+              daysUntilDeficit={daysUntilDeficit}
+              todaySpending={todaySpending}
+              dailyAverageSpending={dailyAverageSpending}
+              netLeftover={headerData.netLeftoverUntilPaycheck}
+              monthlyIncome={totalMonthlyIncome}
+              monthlyExpenses={totalMonthlyExpenses}
+            />
+          </Suspense>
+        </ErrorBoundary>
+
+        {/* Smart Suggestions - New Component */}
+        <ErrorBoundary section="Smart Suggestions">
+          <Suspense fallback={<SkeletonLoader variant="card" height="300px" />}>
+            <SuggestionsSection {...suggestionsData} />
+          </Suspense>
+        </ErrorBoundary>
+
+        {/* Recent Transactions - Enhanced */}
+        <ErrorBoundary section="Recent Transactions">
+          <Suspense fallback={<SkeletonLoader variant="table" count={5} />}>
+            <TransactionsSection transactions={recentTransactions} />
+          </Suspense>
+        </ErrorBoundary>
+
+        {/* Financial Awareness Summary */}
+        <ErrorBoundary section="Financial Awareness">
+          <Suspense fallback={<SkeletonLoader variant="card" height="250px" />}>
+            <AwarenessSection {...awarenessData} />
+          </Suspense>
+        </ErrorBoundary>
+
+      </div>
 
       {/* All Modals */}
       <ErrorBoundary section="Modals">
@@ -123,7 +135,7 @@ const CurrentPage = () => {
           />
         </Suspense>
       </ErrorBoundary>
-    </div>
+    </>
   );
 };
 

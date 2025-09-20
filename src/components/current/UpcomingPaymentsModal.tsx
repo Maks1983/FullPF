@@ -16,6 +16,7 @@ const UpcomingPaymentsModal: React.FC<UpcomingPaymentsModalProps> = ({
   overdueCount
 }) => {
   const [filter, setFilter] = React.useState<'all' | 'overdue' | 'upcoming'>('all');
+  const titleId = React.useId();
   
   if (!isOpen) return null;
 
@@ -67,8 +68,18 @@ const UpcomingPaymentsModal: React.FC<UpcomingPaymentsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(event) => event.stopPropagation()}
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <div className="flex items-center space-x-3">
@@ -76,7 +87,7 @@ const UpcomingPaymentsModal: React.FC<UpcomingPaymentsModalProps> = ({
               <Calendar className={`h-5 w-5 ${overdueCount > 0 ? 'text-red-600' : 'text-blue-600'}`} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Upcoming Payments</h2>
+              <h2 id={titleId} className="text-xl font-bold text-gray-900">Upcoming Payments</h2>
               <p className="text-sm text-gray-600">
                 {totalUpcoming.toLocaleString()} (in NOK) total
               </p>
@@ -222,3 +233,5 @@ const UpcomingPaymentsModal: React.FC<UpcomingPaymentsModalProps> = ({
 };
 
 export default UpcomingPaymentsModal;
+
+

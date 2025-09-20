@@ -19,6 +19,7 @@ const NetCashflowModal: React.FC<NetCashflowModalProps> = ({
   spendingCategories,
   recentTransactions
 }) => {
+  const titleId = React.useId();
   if (!isOpen) return null;
 
   const netCashflow = monthlyIncome - monthlyExpenses;
@@ -45,8 +46,18 @@ const NetCashflowModal: React.FC<NetCashflowModalProps> = ({
     .slice(0, 5);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(event) => event.stopPropagation()}
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <div className="flex items-center space-x-3">
@@ -58,7 +69,7 @@ const NetCashflowModal: React.FC<NetCashflowModalProps> = ({
               )}
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Net Cashflow Analysis</h2>
+              <h2 id={titleId} className="text-xl font-bold text-gray-900">Net Cashflow Analysis</h2>
               <p className="text-sm text-gray-600">
                 {isPositive ? 'Positive' : 'Negative'} flow: NOK {Math.abs(netCashflow).toLocaleString()}
               </p>
@@ -246,3 +257,6 @@ const NetCashflowModal: React.FC<NetCashflowModalProps> = ({
 };
 
 export default NetCashflowModal;
+
+
+
