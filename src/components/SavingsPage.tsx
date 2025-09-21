@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { TrendingUp, Plus, Target, Zap, Calendar, DollarSign, Award, Sparkles } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useSavingsData } from '../hooks/useCentralizedData';
+import type { TimeframeType } from '../types/financial';
 import SavingsNarrativeHeader from './savings/SavingsNarrativeHeader';
 import UnifiedAccountGoalCard from './savings/UnifiedAccountGoalCard';
 import SmartProjectionChart from './savings/SmartProjectionChart';
@@ -10,14 +11,34 @@ import SavingsTransactionsTable from './savings/SavingsTransactionsTable';
 const SavingsPage = () => {
   const [projectionMode, setProjectionMode] = useState<'conservative' | 'expected' | 'optimistic'>('expected');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const savingsData = useSavingsData();
-  
-  // Calculate narrative insights
-  const monthsToEmergencyGoal = Math.ceil((180000 - savingsData.currentSavings) / 8000); // 8k monthly avg
-  const acceleratedMonths = Math.ceil((180000 - savingsData.currentSavings) / 8500); // with extra 500
+  const [timeframe, setTimeframe] = useState<TimeframeType>('6M');
+  const savingsData = useSavingsData(timeframe);
+
+  const emergencyTarget = 180000;
+  const baselineContribution = 8000;
+  const acceleratedContribution = 8500;
+  const remainingToGoal = Math.max(emergencyTarget - savingsData.currentSavings, 0);
+
+  const monthsToEmergencyGoal = baselineContribution > 0
+    ? Math.ceil(remainingToGoal / baselineContribution)
+    : 0;
+  const acceleratedMonths = acceleratedContribution > 0
+    ? Math.ceil(remainingToGoal / acceleratedContribution)
+    : 0;
   const monthsSaved = acceleratedMonths > 0 ? monthsToEmergencyGoal - acceleratedMonths : 0;
-  
-  const monthsOfCoverage = savingsData.currentSavings / 30000; // Assuming 30k monthly expenses
+
+  const monthsOfCoverage = savingsData.monthlyExpenses > 0
+    ? savingsData.currentSavings / savingsData.monthlyExpenses
+    : 0;
+  const averageMonthlyGrowth = useMemo(() => {
+    const history = savingsData.monthlyGrowth;
+    if (history.length < 2) return 0;
+    let total = 0;
+    for (let i = 1; i < history.length; i += 1) {
+      total += history[i].value - history[i - 1].value;
+    }
+    return total / (history.length - 1);
+  }, [savingsData.monthlyGrowth]);
   const isAheadOfSchedule = savingsData.savingsRate > 20;
   
   // Enhanced account data with goal connections
@@ -119,13 +140,18 @@ const SavingsPage = () => {
     <div className="space-y-8 pb-8">
       {/* Narrative Header */}
       <SavingsNarrativeHeader
-        monthsToGoal={monthsToEmergencyGoal}
-        acceleratedMonths={acceleratedMonths}
-        monthsSaved={monthsSaved}
-        monthsOfCoverage={monthsOfCoverage}
-        isAheadOfSchedule={isAheadOfSchedule}
+        timeframe={timeframe}
+        onTimeframeChange={setTimeframe}
+        goalName="Emergency Fund"
+        targetAmount={emergencyTarget}
         currentSavings={savingsData.currentSavings}
+        remainingToGoal={remainingToGoal}
+        coverageMonths={monthsOfCoverage}
         savingsRate={savingsData.savingsRate}
+        averageMonthlyGrowth={averageMonthlyGrowth}
+        monthsToGoal={monthsToEmergencyGoal}
+        monthsSaved={monthsSaved}
+        isAheadOfSchedule={isAheadOfSchedule}
       />
 
       {/* Impact-Oriented Metrics */}
