@@ -4,7 +4,6 @@ import ErrorBoundary from './common/ErrorBoundary';
 import SkeletonLoader from './common/SkeletonLoader';
 import AtAGlanceBanner from './current/AtAGlanceBanner';
 import CriticalAlertsSection from './current/CriticalAlertsSection';
-import UpcomingPaymentsTimeline from './current/UpcomingPaymentsTimeline';
 import CollapsibleSection from './common/CollapsibleSection';
 import CurrentPageModals from './current/modals/CurrentPageModals';
 
@@ -28,7 +27,6 @@ const CurrentPage = () => {
     recentTransactions,
     daysUntilDeficit,
     todaySpending,
-    dailyAverageSpending,
     totalMonthlyIncome,
     totalMonthlyExpenses,
     // Event handlers
@@ -78,28 +76,16 @@ const CurrentPage = () => {
               spendingCategories={spendingCategories}
               daysUntilDeficit={daysUntilDeficit}
               todaySpending={todaySpending}
-              dailyAverageSpending={dailyAverageSpending}
-              netLeftover={headerData.netLeftoverUntilPaycheck}
-              monthlyIncome={totalMonthlyIncome}
-              monthlyExpenses={totalMonthlyExpenses}
+              upcomingPayments={headerData.upcomingPayments}
             />
           </Suspense>
         </ErrorBoundary>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <ErrorBoundary section="Upcoming Payments">
-            <UpcomingPaymentsTimeline
-              payments={headerData.upcomingPayments}
-              overdueCount={headerData.overdueCount}
-            />
-          </ErrorBoundary>
-
-          <ErrorBoundary section="Smart Suggestions">
-            <Suspense fallback={<SkeletonLoader variant="card" />}>
-              <SuggestionsSection {...suggestionsData} />
-            </Suspense>
-          </ErrorBoundary>
-        </div>
+        <ErrorBoundary section="Smart Suggestions">
+          <Suspense fallback={<SkeletonLoader variant="card" />}>
+            <SuggestionsSection {...suggestionsData} />
+          </Suspense>
+        </ErrorBoundary>
 
         <ErrorBoundary section="Financial Awareness">
           <Suspense fallback={<SkeletonLoader variant="card" />}>
