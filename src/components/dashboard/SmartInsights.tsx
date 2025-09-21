@@ -1,7 +1,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 import { useLicenseGating } from '../../hooks/useLicenseGating';
-import { SmartInsightCard } from '../common/SmartInsightCard';
+import SmartInsightCard from '../common/SmartInsightCard';
 
 interface SmartInsight {
   id: string;
