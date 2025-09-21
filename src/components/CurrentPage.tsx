@@ -4,14 +4,11 @@ import ErrorBoundary from './common/ErrorBoundary';
 import SkeletonLoader from './common/SkeletonLoader';
 import AtAGlanceBanner from './current/AtAGlanceBanner';
 import CriticalAlertsSection from './current/CriticalAlertsSection';
-import CollapsibleSection from './common/CollapsibleSection';
 import CurrentPageModals from './current/modals/CurrentPageModals';
 
 // Lazy load heavy components
 const MoneyFlowSection = React.lazy(() => import('./current/sections/MoneyFlowSection'));
-const InsightsSection = React.lazy(() => import('./current/sections/InsightsSection'));
 const SuggestionsSection = React.lazy(() => import('./current/sections/SuggestionsSection'));
-const TransactionsSection = React.lazy(() => import('./current/sections/TransactionsSection'));
 const AwarenessSection = React.lazy(() => import('./current/sections/AwarenessSection'));
 
 const CurrentPage = () => {
@@ -19,7 +16,6 @@ const CurrentPage = () => {
     modalManager,
     headerData,
     alertsData,
-    insightsData,
     suggestionsData,
     awarenessData,
     cashflowProjections,
@@ -47,7 +43,6 @@ const CurrentPage = () => {
       <div
         className={`space-y-6 pb-10${modalManager.anyModalOpen ? ' pointer-events-none select-none' : ''}`}
         aria-hidden={modalManager.anyModalOpen}
-        inert={modalManager.anyModalOpen}
       >
         <AtAGlanceBanner
           totalAvailable={headerData.totalAvailable}
@@ -102,7 +97,6 @@ const CurrentPage = () => {
       </div>
 
       <CurrentPageModals
-        modalManager={modalManager}
         isModalOpen={modalManager.isModalOpen}
         onCloseModal={handleCloseModal}
         isPaymentsModalOpen={modalManager.isPaymentsModalOpen}
