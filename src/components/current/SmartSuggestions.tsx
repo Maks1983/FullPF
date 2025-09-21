@@ -130,7 +130,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
 
   const topSuggestions = suggestions
     .sort((a, b) => a.priority - b.priority)
-    .slice(0, 6);
+    .slice(0, 3);
 
   if (topSuggestions.length === 0) {
     topSuggestions.push({
@@ -172,7 +172,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
         <span className="text-sm text-gray-500">Personalized tips to improve your finances</span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {topSuggestions.map((suggestion, index) => {
           const Icon = suggestion.icon;
           return (
