@@ -10,7 +10,8 @@ import {
   Home,
   Calendar,
   Menu,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 import DashboardPage from './components/DashboardPage';
 import CurrentPage from './components/CurrentPage';
@@ -20,6 +21,7 @@ import InvestmentsPage from './components/InvestmentsPage';
 import AssetsPage from './components/AssetsPage';
 import LiabilitiesPage from './components/LiabilitiesPage';
 import NetWorthPage from './components/NetWorthPage';
+import SettingsPage from './components/SettingsPage';
 
 const navigation = [
   { id: 'dashboard', name: 'Dashboard', icon: Home },
@@ -30,6 +32,7 @@ const navigation = [
   { id: 'assets', name: 'Assets', icon: Building },
   { id: 'liabilities', name: 'Liabilities', icon: Scale },
   { id: 'networth', name: 'Net Worth', icon: Wallet },
+  { id: 'settings', name: 'Settings', icon: Settings },
 ];
 
 function App() {
@@ -46,6 +49,7 @@ function App() {
       case 'assets': return <AssetsPage />;
       case 'liabilities': return <LiabilitiesPage />;
       case 'networth': return <NetWorthPage />;
+      case 'settings': return <SettingsPage />;
       default: return <DashboardPage />;
     }
   };
