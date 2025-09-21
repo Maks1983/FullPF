@@ -39,6 +39,32 @@ const SavingsPage = () => {
     }
     return total / (history.length - 1);
   }, [savingsData.monthlyGrowth]);
+
+  const momentumMultiplier = useMemo(() => {
+    const history = savingsData.monthlyGrowth;
+    if (history.length < 4) return averageMonthlyGrowth > 0 ? 1 : 0;
+
+    const midpoint = Math.floor(history.length / 2);
+    const computeAverageChange = (series: typeof history) => {
+      if (series.length < 2) return 0;
+      let total = 0;
+      for (let i = 1; i < series.length; i += 1) {
+        total += series[i].value - series[i - 1].value;
+      }
+      return total / (series.length - 1);
+    };
+
+    const earlier = computeAverageChange(history.slice(0, midpoint + 1));
+    const recent = computeAverageChange(history.slice(midpoint));
+
+    if (earlier === 0) {
+      return recent > 0 ? 2 : 0;
+    }
+
+    return recent / earlier;
+  }, [averageMonthlyGrowth, savingsData.monthlyGrowth]);
+
+  const goalWeeksAhead = monthsSaved > 0 ? Math.max(Math.round(monthsSaved * 4), 1) : 0;
   const isAheadOfSchedule = savingsData.savingsRate > 20;
   
   // Enhanced account data with goal connections
@@ -151,6 +177,8 @@ const SavingsPage = () => {
         averageMonthlyGrowth={averageMonthlyGrowth}
         monthsToGoal={monthsToEmergencyGoal}
         monthsSaved={monthsSaved}
+        goalWeeksAhead={goalWeeksAhead}
+        momentumMultiplier={momentumMultiplier}
         isAheadOfSchedule={isAheadOfSchedule}
       />
 
