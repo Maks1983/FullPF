@@ -23,13 +23,13 @@ interface LicenseInfo {
 // Mock license - in production this would be fetched from your license table
 const mockLicense: LicenseInfo = {
   isValid: true,
-  tier: 'premium', // Change this to test different tiers
+  tier: 'free', // Change this to test different tiers
   features: {
-    smartInsights: true,
-    smartSuggestions: true,
-    advancedAnalytics: true,
-    premiumReports: true,
-    bankIntegration: true,
+    smartInsights: false,
+    smartSuggestions: false,
+    advancedAnalytics: false,
+    premiumReports: false,
+    bankIntegration: false,
   },
   expiresAt: '2024-12-31',
 };
