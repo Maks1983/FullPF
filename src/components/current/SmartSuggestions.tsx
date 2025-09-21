@@ -1,6 +1,5 @@
 import React from 'react';
-import { Lightbulb, Target, AlertCircle, TrendingUp, DollarSign, Calendar } from 'lucide-react';
-import LicenseGate from '../common/LicenseGate';
+import { Lightbulb, Target, AlertCircle, TrendingUp, DollarSign, Calendar, Star } from 'lucide-react';
 import { useLicenseGating } from '../../hooks/useLicenseGating';
 import type { SpendingCategory } from '../../types/current';
 
@@ -168,65 +167,113 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
     }
   };
 
-  return (
-    <LicenseGate
-      isLicensed={canUseSmartSuggestions}
-      featureName="Smart Suggestions"
-      upgradeMessage={getUpgradeMessage('Smart Suggestions')}
-    >
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Lightbulb className="h-6 w-6 text-yellow-500" />
-          <h3 className="text-lg font-semibold text-gray-900">Smart Suggestions</h3>
-          <span className="text-sm text-gray-500">Personalized tips to improve your finances</span>
+  if (!canUseSmartSuggestions) {
+    return (
+      <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Star className="h-6 w-6 text-purple-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-900">Smart Suggestions</h3>
+            <span className="ml-2 px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-800 rounded-full">PREMIUM</span>
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {topSuggestions.map((suggestion, index) => {
-            const Icon = suggestion.icon;
-            return (
-              <div
-                key={`${suggestion.title}-${index}`}
-                className={`p-4 rounded-lg border ${getColorClasses(suggestion.color)}`}
-              >
+        
+        <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 mb-4 border border-purple-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[1, 2, 3].map((index) => (
+              <div key={index} className="p-4 bg-gray-100 rounded-lg border border-gray-200">
                 <div className="flex items-start space-x-3">
-                  <Icon className={`h-5 w-5 mt-0.5 ${getIconColor(suggestion.color)}`} />
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1">{suggestion.title}</h4>
-                    <p className="text-sm text-gray-700 mb-3">{suggestion.message}</p>
-                    <button className={`text-sm font-medium ${getIconColor(suggestion.color)} hover:underline`}>
-                      {suggestion.action} →
-                    </button>
+                  <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-3 bg-gray-300 rounded animate-pulse w-3/4"></div>
+                    <div className="h-3 bg-gray-300 rounded animate-pulse w-1/2"></div>
                   </div>
                 </div>
+                <div className="flex items-center justify-between mt-3">
+                  <div className="h-4 bg-gray-300 rounded animate-pulse w-1/4"></div>
+                  <div className="h-4 bg-gray-300 rounded animate-pulse w-1/3"></div>
+                </div>
               </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
-          <h4 className="font-semibold text-gray-900 mb-2">💡 Financial Awareness Tips</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-            <div>
-              <p className="font-medium mb-1">Track Daily Spending</p>
-              <p>Small purchases add up. Being aware of daily spending helps you stay on budget.</p>
-            </div>
-            <div>
-              <p className="font-medium mb-1">Review Weekly</p>
-              <p>Check your finances weekly to catch issues early and stay on track with goals.</p>
-            </div>
-            <div>
-              <p className="font-medium mb-1">Automate Savings</p>
-              <p>Set up automatic transfers to savings so you pay yourself first.</p>
-            </div>
-            <div>
-              <p className="font-medium mb-1">Plan for Irregular Expenses</p>
-              <p>Car repairs, medical bills, and other surprises are easier to handle when planned for.</p>
+            ))}
+          </div>
+          
+          <div className="mt-6 p-4 bg-gray-100 rounded-lg border border-gray-200">
+            <div className="h-4 bg-gray-300 rounded animate-pulse mb-2"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-3 bg-gray-300 rounded animate-pulse w-3/4"></div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-3 bg-gray-300 rounded animate-pulse w-3/4"></div>
+              </div>
             </div>
           </div>
         </div>
+        
+        <p className="text-gray-700 mb-4">{getUpgradeMessage('Smart Suggestions')}</p>
+        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+          Upgrade to Premium
+        </button>
       </div>
-    </LicenseGate>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="flex items-center space-x-3 mb-6">
+        <Lightbulb className="h-6 w-6 text-yellow-500" />
+        <h3 className="text-lg font-semibold text-gray-900">Smart Suggestions</h3>
+        <span className="text-sm text-gray-500">Personalized tips to improve your finances</span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {topSuggestions.map((suggestion, index) => {
+          const Icon = suggestion.icon;
+          return (
+            <div
+              key={`${suggestion.title}-${index}`}
+              className={`p-4 rounded-lg border ${getColorClasses(suggestion.color)}`}
+            >
+              <div className="flex items-start space-x-3">
+                <Icon className={`h-5 w-5 mt-0.5 ${getIconColor(suggestion.color)}`} />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 mb-1">{suggestion.title}</h4>
+                  <p className="text-sm text-gray-700 mb-3">{suggestion.message}</p>
+                  <button className={`text-sm font-medium ${getIconColor(suggestion.color)} hover:underline`}>
+                    {suggestion.action} →
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+        <h4 className="font-semibold text-gray-900 mb-2">💡 Financial Awareness Tips</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+          <div>
+            <p className="font-medium mb-1">Track Daily Spending</p>
+            <p>Small purchases add up. Being aware of daily spending helps you stay on budget.</p>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Review Weekly</p>
+            <p>Check your finances weekly to catch issues early and stay on track with goals.</p>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Automate Savings</p>
+            <p>Set up automatic transfers to savings so you pay yourself first.</p>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Plan for Irregular Expenses</p>
+            <p>Car repairs, medical bills, and other surprises are easier to handle when planned for.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
