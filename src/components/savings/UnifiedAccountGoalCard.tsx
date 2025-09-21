@@ -44,6 +44,9 @@ const UnifiedAccountGoalCard: React.FC<UnifiedAccountGoalCardProps> = ({ account
 
   const runwayBadge = getRunwayBadge(account.runwayMonths);
 
+  // Calculate if ahead of schedule based on account performance
+  const isAheadOfSchedule = account.trend === 'up' && account.recentGrowth > 5;
+
   return (
     <div 
       className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 relative overflow-hidden"
