@@ -34,8 +34,8 @@ const SavingsTransactionsTable: React.FC<SavingsTransactionsTableProps> = ({
               <Activity className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Recent Savings Activity</h3>
-              <p className="text-sm text-gray-600">Track deposits, withdrawals, and goal impact</p>
+              <h3 className="text-lg font-semibold text-gray-900">Your Wealth-Building Actions</h3>
+              <p className="text-sm text-gray-600">Every transaction moves you closer to your goals</p>
             </div>
           </div>
           

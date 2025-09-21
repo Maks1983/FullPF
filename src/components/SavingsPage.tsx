@@ -193,10 +193,13 @@ const SavingsPage = () => {
       {/* Unified Account + Goal Cards */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold text-gray-900">Your Savings Accounts & Goals</h3>
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900">Your Wealth-Building Accounts</h3>
+            <p className="text-sm text-gray-600 mt-1">Each account is working toward your financial goals</p>
+          </div>
           <button className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
             <Plus className="h-4 w-4 mr-2" />
-            Add Account
+            Start New Goal
           </button>
         </div>
         

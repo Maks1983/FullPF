@@ -163,7 +163,7 @@ const SmartProjectionChart: React.FC<SmartProjectionChartProps> = ({
       {/* Motivational Insight */}
       <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
         <p className="text-sm text-gray-700 text-center">
-          💡 <strong>Insight:</strong> Adding just NOK 500 more per month could boost your 6-month total by NOK 3,000!
+          💡 <strong>Power Move:</strong> Adding just NOK 500 more per month could boost your 6-month total by NOK 3,000! That's the power of consistent action.
         </p>
       </div>
     </div>

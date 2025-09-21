@@ -17,13 +17,13 @@ const ImpactMetrics: React.FC<ImpactMetricsProps> = ({
   const getImpactMessage = (metric: string, value: number | string) => {
     switch (metric) {
       case 'coverage':
-        return `Your savings can cover ${value} months of expenses`;
+        return `You've built ${value} months of financial security - that's real peace of mind`;
       case 'growth':
-        return `You're growing ${value}× faster than last quarter`;
+        return `Your wealth is accelerating ${value}× faster than last quarter - momentum is building!`;
       case 'runway':
-        return `You're NOK ${typeof value === 'number' ? value.toLocaleString() : value} away from 12-month runway`;
+        return `Just NOK ${typeof value === 'number' ? value.toLocaleString() : value} away from ultimate financial freedom (12-month runway)`;
       case 'momentum':
-        return `Your savings momentum is building wealth automatically`;
+        return `Your disciplined saving is creating unstoppable wealth momentum`;
       default:
         return '';
     }

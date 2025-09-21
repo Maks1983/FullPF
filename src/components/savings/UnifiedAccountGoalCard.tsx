@@ -174,7 +174,7 @@ const UnifiedAccountGoalCard: React.FC<UnifiedAccountGoalCardProps> = ({ account
         {/* Motivational Message */}
         <div className="mt-4 text-center">
           <p className="text-xs text-green-600 font-medium">
-            {isAheadOfSchedule ? 'Ahead of schedule by 2 weeks! 🚀' : 'Steady progress builds wealth 📈'}
+            {isAheadOfSchedule ? 'You\'re crushing it! Ahead by 2 weeks! 🚀' : 'Steady progress builds lasting wealth 📈'}
           </p>
         </div>
       </div>

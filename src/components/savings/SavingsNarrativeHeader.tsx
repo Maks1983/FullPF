@@ -50,20 +50,21 @@ const SavingsNarrativeHeader: React.FC<SavingsNarrativeHeaderProps> = ({
 
   const statusMessage = (() => {
     if (monthsToGoal <= 0) {
-      return `🎉 ${goalName} is fully funded. Time to define your next savings milestone.`;
+      return `🎉 Congratulations! Your ${goalName} is fully funded. You've built serious financial security - time to set your next wealth-building milestone.`;
     }
 
     if (monthsSaved > 0) {
-      return `You are ${monthsToGoal} months away from ${goalName}. Boosting contributions trims about ${monthsSaved} month${monthsSaved === 1 ? '' : 's'} off that timeline.`;
+      return `You're ${monthsToGoal} months away from completing your ${goalName}. Here's the exciting part: boosting contributions by just NOK 500/month could cut ${monthsSaved} month${monthsSaved === 1 ? '' : 's'} off that timeline!`;
     }
 
-    return `About ${monthsToGoal} month${monthsToGoal === 1 ? '' : 's'} remain to reach ${goalName}. Keep saving consistently to stay on track.`;
+    return `You're ${monthsToGoal} month${monthsToGoal === 1 ? '' : 's'} away from reaching your ${goalName}. Your consistent saving is building real financial security - every deposit gets you closer to peace of mind.`;
   })();
 
   const coverageMessage = (() => {
-    if (coverageMonths >= 6) return 'Safety net secured — six months of expenses covered.';
-    if (coverageMonths >= 3) return 'Solid footing — over three months of expenses covered.';
-    return 'Keep building your cushion — aim for at least three months of coverage.';
+    if (coverageMonths >= 6) return 'Outstanding! You have rock-solid financial security with 6+ months covered.';
+    if (coverageMonths >= 3) return 'Great progress! You have solid financial footing with 3+ months covered.';
+    if (coverageMonths >= 1) return 'You\'re building momentum! Keep going to reach the 3-month safety milestone.';
+    return 'Every deposit counts! You\'re building the foundation of financial security.';
   })();
 
   const quickActions = [
@@ -113,7 +114,7 @@ const SavingsNarrativeHeader: React.FC<SavingsNarrativeHeaderProps> = ({
           <div>
             <p className="text-xs uppercase tracking-wide text-slate-400">Coverage months</p>
             <p className="text-2xl font-semibold text-white">{coverageMonths.toFixed(1)} months</p>
-            <p className="text-xs text-slate-400">How long your savings cover expenses</p>
+            <p className="text-xs text-slate-400">Financial security runway</p>
             <p className="text-xs text-slate-300 mt-1">{coverageMessage}</p>
           </div>
         </div>
@@ -127,7 +128,7 @@ const SavingsNarrativeHeader: React.FC<SavingsNarrativeHeaderProps> = ({
             <p className="text-2xl font-semibold text-white">
               {coveragePercentage >= 100 ? 'Goal reached' : `${coveragePercentage.toFixed(0)}% complete`}
             </p>
-            <p className="text-xs text-slate-300">
+            <p className="text-xs text-slate-300 font-medium">
               {goalWeeksAhead > 0
                 ? `Ahead by ~${goalWeeksAhead} week${goalWeeksAhead === 1 ? '' : 's'} 🚀`
                 : remainingToGoal > 0
@@ -144,7 +145,7 @@ const SavingsNarrativeHeader: React.FC<SavingsNarrativeHeaderProps> = ({
           <div>
             <p className="text-xs uppercase tracking-wide text-slate-400">Savings momentum</p>
             <p className="text-2xl font-semibold text-white">{momentumCopy}</p>
-            <p className="text-xs text-slate-300">vs previous period in this view</p>
+            <p className="text-xs text-slate-300">Your wealth-building acceleration</p>
           </div>
         </div>
 
@@ -156,7 +157,7 @@ const SavingsNarrativeHeader: React.FC<SavingsNarrativeHeaderProps> = ({
             <p className="text-xs uppercase tracking-wide text-slate-400">Savings rate</p>
             <p className="text-2xl font-semibold text-white">{formatPercentage(savingsRate)}</p>
             <p className={`text-xs font-semibold ${isAheadOfSchedule ? 'text-emerald-300' : 'text-slate-300'}`}>
-              {isAheadOfSchedule ? 'Ahead of target' : 'Benchmark: 20% of income'}
+              {isAheadOfSchedule ? 'Crushing your targets! 💪' : 'Target: 20% of income'}
             </p>
           </div>
         </div>
