@@ -41,7 +41,7 @@ export const getFinancialHealthStatus = (
     return {
       status: 'poor',
       emoji: '😰',
-      message: 'Update income data'
+      message: 'Let\'s get your income data set up to unlock insights!'
     };
   }
 
@@ -51,7 +51,7 @@ export const getFinancialHealthStatus = (
     return {
       status: 'excellent',
       emoji: '😎',
-      message: 'Looking Great!'
+      message: 'You\'re crushing it! Your finances are in excellent shape 🎉'
     };
   }
   
@@ -59,7 +59,7 @@ export const getFinancialHealthStatus = (
     return {
       status: 'good',
       emoji: '👍',
-      message: 'You\'re Covered'
+      message: 'Nice work! You\'re in a solid financial position'
     };
   }
   
@@ -67,14 +67,14 @@ export const getFinancialHealthStatus = (
     return {
       status: 'fair',
       emoji: '😬',
-      message: 'Getting Tight'
+      message: 'Things are tight, but you\'ve got this! Small adjustments can help'
     };
   }
   
   return {
     status: 'poor',
     emoji: '😰',
-    message: 'Need Action'
+    message: 'Time to take action - every small step forward counts!'
   };
 };
 export const calculateEmergencyFundCoverage = (
