@@ -45,13 +45,20 @@ export const getFinancialHealthStatus = (
     };
   }
 
+  // Calculate what percentage of monthly income you have left after bills
   const ratio = netAmount / monthlyIncome;
+  
+  // Financial Health Brackets:
+  // Excellent: 15%+ of monthly income left (e.g., NOK 7,800+ if earning NOK 52,000)
+  // Good: 5-15% of monthly income left (e.g., NOK 2,600-7,800)
+  // Fair: -5% to +5% of monthly income (e.g., NOK -2,600 to +2,600)
+  // Poor: More than 5% short (e.g., less than NOK -2,600)
 
   if (ratio >= 0.15) {
     return {
       status: 'excellent',
       emoji: '😎',
-      message: 'You\'re crushing it! Your finances are in excellent shape 🎉'
+      message: `You're crushing it! You have ${(ratio * 100).toFixed(1)}% of your income left after bills 🎉`
     };
   }
   
@@ -59,7 +66,7 @@ export const getFinancialHealthStatus = (
     return {
       status: 'good',
       emoji: '👍',
-      message: 'Nice work! You\'re in a solid financial position'
+      message: `Nice work! You have ${(ratio * 100).toFixed(1)}% of your income cushion`
     };
   }
   
@@ -67,14 +74,14 @@ export const getFinancialHealthStatus = (
     return {
       status: 'fair',
       emoji: '😬',
-      message: 'Things are tight, but you\'ve got this! Small adjustments can help'
+      message: `Things are tight (${Math.abs(ratio * 100).toFixed(1)}% ${ratio >= 0 ? 'cushion' : 'short'}), but you've got this!`
     };
   }
   
   return {
     status: 'poor',
     emoji: '😰',
-    message: 'Time to take action - every small step forward counts!'
+    message: `You're ${Math.abs(ratio * 100).toFixed(1)}% short this period - time to take action!`
   };
 };
 export const calculateEmergencyFundCoverage = (
