@@ -15,6 +15,16 @@ const AccountBalanceModal: React.FC<AccountBalanceModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const titleId = React.useId();
+
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   const totalBalance = accounts.reduce((sum, acc) => 
     sum + (acc.type === 'credit' ? acc.availableBalance : acc.balance), 0
   );
@@ -40,8 +50,18 @@ const AccountBalanceModal: React.FC<AccountBalanceModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <div className="flex items-center space-x-3">
@@ -49,7 +69,7 @@ const AccountBalanceModal: React.FC<AccountBalanceModalProps> = ({
               <Wallet className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Account Balances</h2>
+              <h2 id={titleId} className="text-xl font-bold text-gray-900">Account Balances</h2>
               <p className="text-sm text-gray-600">
                 Total: NOK {totalBalance.toLocaleString()}
               </p>
