@@ -209,17 +209,41 @@ export const useCurrentPageData = () => {
   }, [data]);
 };
 
-export const useSavingsData = () => {
-  const data = useCentralizedFinancialData();
-  
-  return useMemo(() => ({
-    currentSavings: data.totals.liquidAssets,
-    savingsGoal: 250000,
-    monthlyGrowth: data.history.savings,
-    savingsAccounts: data.accounts.filter(acc => acc.type === 'savings'),
-    emergencyFund: data.goals.find(goal => goal.id === 'goal_emergency'),
-    savingsRate: data.totals.savingsRate
-  }), [data]);
+export const useSavingsData = (timeframe: TimeframeType = '6M') => {
+  const data = useCentralizedFinancialData(timeframe);
+
+  return useMemo(() => {
+    const savingsAccounts = data.accounts.filter(acc => acc.type === 'savings');
+    const currentSavings = savingsAccounts.reduce((sum, acc) => sum + acc.balance, 0);
+    const primaryGoal = data.goals.find(goal => goal.id === 'goal_emergency') ?? data.goals[0];
+    const savingsGoal = primaryGoal?.target ?? currentSavings;
+
+    const savingsHistory = data.history.savings;
+    const recentWindow = savingsHistory.slice(-4);
+    const monthlyChanges = recentWindow
+      .map((point, index) => (index === 0 ? null : point.value - recentWindow[index - 1].value))
+      .filter((value): value is number => value !== null);
+    const averageMonthlyGrowth = monthlyChanges.length > 0
+      ? monthlyChanges.reduce((sum, value) => sum + value, 0) / monthlyChanges.length
+      : 0;
+
+    const emergencyCoverageMonths = data.totals.monthlyExpenses > 0
+      ? currentSavings / data.totals.monthlyExpenses
+      : null;
+
+    return {
+      currentSavings,
+      savingsGoal,
+      monthlyGrowth: savingsHistory,
+      savingsAccounts,
+      primaryGoal,
+      additionalGoals: data.goals.filter(goal => (primaryGoal ? goal.id !== primaryGoal.id : true)),
+      savingsRate: data.totals.savingsRate,
+      averageMonthlyGrowth,
+      monthlyExpenses: data.totals.monthlyExpenses,
+      emergencyCoverageMonths,
+    };
+  }, [data]);
 };
 
 export const useDebtsData = () => {
