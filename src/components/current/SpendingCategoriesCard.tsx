@@ -5,11 +5,13 @@ import type { SpendingCategory } from '../../types/current';
 interface SpendingCategoriesCardProps {
   categories: SpendingCategory[];
   todaySpending: number;
+  className?: string;
 }
 
 const SpendingCategoriesCard: React.FC<SpendingCategoriesCardProps> = ({
   categories,
-  todaySpending
+  todaySpending,
+  className
 }) => {
   const overBudgetCategories = categories.filter(cat => cat.isOverBudget);
   const totalBudget = categories.reduce((sum, cat) => sum + cat.budget, 0);
@@ -19,7 +21,7 @@ const SpendingCategoriesCard: React.FC<SpendingCategoriesCardProps> = ({
   return (
     <div className={`bg-white p-6 rounded-xl shadow-sm border transition-all hover:shadow-md ${
       overBudgetCategories.length > 0 ? 'border-red-200' : 'border-gray-200'
-    }`}>
+    } ${className ?? ''}`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <div className={`p-2 rounded-lg ${overBudgetCategories.length > 0 ? 'bg-red-100' : 'bg-green-100'}`}>
@@ -57,53 +59,55 @@ const SpendingCategoriesCard: React.FC<SpendingCategoriesCardProps> = ({
 
       {/* Categories */}
       <div className="space-y-4">
-        {categories.map((category) => (
-          <div key={category.name} className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
+        <div className="max-h-[480px] overflow-y-auto pr-2 space-y-4">
+          {categories.map((category) => (
+            <div key={category.name} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: category.color }}
+                  />
+                  <span className="font-medium text-gray-900">{category.name}</span>
+                  {category.isOverBudget && (
+                    <AlertTriangle className="h-4 w-4 text-red-500" />
+                  )}
+                </div>
+                <div className="text-right">
+                  <span className={`font-semibold ${category.isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
+                    NOK {category.spent.toLocaleString()}
+                  </span>
+                  <span className="text-sm text-gray-600 ml-1">
+                    / {category.budget.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="bg-gray-200 rounded-full h-2">
                 <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: category.color }}
+                  className={`h-2 rounded-full transition-all ${
+                    category.isOverBudget ? 'bg-red-500' :
+                    category.percentUsed > 80 ? 'bg-yellow-500' :
+                    'bg-green-500'
+                  }`}
+                  style={{ width: `${Math.min(category.percentUsed, 100)}%` }}
                 />
-                <span className="font-medium text-gray-900">{category.name}</span>
-                {category.isOverBudget && (
-                  <AlertTriangle className="h-4 w-4 text-red-500" />
-                )}
               </div>
-              <div className="text-right">
-                <span className={`font-semibold ${category.isOverBudget ? 'text-red-600' : 'text-gray-900'}`}>
-                  NOK {category.spent.toLocaleString()}
+              
+              <div className="flex justify-between text-xs">
+                <span className={`${category.isOverBudget ? 'text-red-600' : 'text-gray-600'}`}>
+                  {category.isOverBudget ? 
+                    `Over by NOK ${Math.abs(category.remaining).toLocaleString()}` :
+                    `NOK ${category.remaining.toLocaleString()} remaining`
+                  }
                 </span>
-                <span className="text-sm text-gray-600 ml-1">
-                  / {category.budget.toLocaleString()}
+                <span className="text-gray-500">
+                  {category.percentUsed.toFixed(1)}% used
                 </span>
               </div>
             </div>
-            
-            <div className="bg-gray-200 rounded-full h-2">
-              <div 
-                className={`h-2 rounded-full transition-all ${
-                  category.isOverBudget ? 'bg-red-500' :
-                  category.percentUsed > 80 ? 'bg-yellow-500' :
-                  'bg-green-500'
-                }`}
-                style={{ width: `${Math.min(category.percentUsed, 100)}%` }}
-              />
-            </div>
-            
-            <div className="flex justify-between text-xs">
-              <span className={`${category.isOverBudget ? 'text-red-600' : 'text-gray-600'}`}>
-                {category.isOverBudget ? 
-                  `Over by NOK ${Math.abs(category.remaining).toLocaleString()}` :
-                  `NOK ${category.remaining.toLocaleString()} remaining`
-                }
-              </span>
-              <span className="text-gray-500">
-                {category.percentUsed.toFixed(1)}% used
-              </span>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Summary */}
