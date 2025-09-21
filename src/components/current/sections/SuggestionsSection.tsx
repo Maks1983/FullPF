@@ -8,6 +8,8 @@ interface SuggestionsSectionProps {
   spendingCategories: SpendingCategory[];
   overdueCount: number;
   daysUntilPaycheck: number;
+  totalAvailable: number;
+  monthlyExpenses: number;
 }
 
 const SuggestionsSection: React.FC<SuggestionsSectionProps> = memo(({
@@ -15,7 +17,9 @@ const SuggestionsSection: React.FC<SuggestionsSectionProps> = memo(({
   savingsRate,
   spendingCategories,
   overdueCount,
-  daysUntilPaycheck
+  daysUntilPaycheck,
+  totalAvailable,
+  monthlyExpenses
 }) => {
   return (
     <SmartSuggestions 
@@ -24,6 +28,8 @@ const SuggestionsSection: React.FC<SuggestionsSectionProps> = memo(({
       spendingCategories={spendingCategories}
       overdueCount={overdueCount}
       daysUntilPaycheck={daysUntilPaycheck}
+      totalAvailable={totalAvailable}
+      monthlyExpenses={monthlyExpenses}
     />
   );
 });
