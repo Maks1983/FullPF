@@ -3,8 +3,9 @@ import { useCurrentPageData } from './useCurrentPageData';
 import { useFinancialCalculations } from './useFinancialCalculations';
 import { useModalManager } from './useModalManager';
 import { getFinancialHealthStatus } from '../utils/financial';
+import type { TimeframeType } from '../types/financial';
 
-export const useCurrentPageLogic = () => {
+export const useCurrentPageLogic = (timeframe: TimeframeType = '1M') => {
   const modalManager = useModalManager();
 
   const {
@@ -17,14 +18,13 @@ export const useCurrentPageLogic = () => {
     totalAvailable,
     netLeftoverUntilPaycheck,
     overdueCount,
-    todaySpending,
     totalMonthlyIncome: dataMonthlyIncome,
     totalMonthlyExpenses: dataMonthlyExpenses,
     criticalAlerts,
     isDeficitProjected,
     daysUntilDeficit,
     highPriorityPayments
-  } = useCurrentPageData();
+  } = useCurrentPageData(timeframe);
 
   const {
     totalMonthlyExpenses: calculatedMonthlyExpenses,
@@ -81,13 +81,11 @@ export const useCurrentPageLogic = () => {
     monthlyIncome: totalMonthlyIncome,
     monthlyExpenses: totalMonthlyExpenses,
     spendingCategories,
-    todaySpending,
     recentTransactions
   }), [
     totalMonthlyIncome,
     totalMonthlyExpenses,
     spendingCategories,
-    todaySpending,
     recentTransactions
   ]);
 
@@ -162,7 +160,6 @@ export const useCurrentPageLogic = () => {
     recentTransactions,
     daysUntilDeficit,
     dailyAverageSpending,
-    todaySpending,
     totalMonthlyIncome,
     totalMonthlyExpenses,
     // Event handlers

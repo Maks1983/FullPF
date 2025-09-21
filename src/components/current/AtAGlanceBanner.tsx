@@ -8,6 +8,7 @@ import {
   BellRing
 } from 'lucide-react';
 import type { UpcomingPayment } from '../../types/current';
+import type { TimeframeType } from '../../types/financial';
 
 interface HealthStatus {
   status: string;
@@ -16,6 +17,8 @@ interface HealthStatus {
 }
 
 interface AtAGlanceBannerProps {
+  timeframe: TimeframeType;
+  onTimeframeChange: (timeframe: TimeframeType) => void;
   totalAvailable: number;
   netLeftover: number;
   daysUntilPaycheck: number;
@@ -24,7 +27,6 @@ interface AtAGlanceBannerProps {
   monthlyIncome: number;
   monthlyExpenses: number;
   overdueCount: number;
-  todaySpending: number;
   healthStatus?: HealthStatus;
   onViewDetails: () => void;
   onViewPayments: () => void;
@@ -34,6 +36,8 @@ interface AtAGlanceBannerProps {
 const formatCurrency = (value: number) => value.toLocaleString('no-NO', { maximumFractionDigits: 0 });
 
 const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
+  timeframe,
+  onTimeframeChange,
   totalAvailable,
   netLeftover,
   daysUntilPaycheck,
@@ -42,7 +46,6 @@ const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
   monthlyIncome,
   monthlyExpenses,
   overdueCount,
-  todaySpending,
   healthStatus,
   onViewDetails,
   onViewPayments,
@@ -79,13 +82,24 @@ const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2 text-xs text-slate-300">
-          <span className="rounded-full bg-slate-800/70 px-3 py-1">
-            Today&apos;s spend: NOK {formatCurrency(todaySpending)}
-          </span>
-          <span className={`rounded-full px-3 py-1 ${overdueCount > 0 ? 'bg-red-500/20 text-red-200' : 'bg-slate-800/70'}`}>
-            {overdueCount > 0 ? `${overdueCount} overdue bill${overdueCount === 1 ? '' : 's'}` : 'No overdue bills'}
-          </span>
+        {/* Timeframe Selector */}
+        <div className="flex items-center space-x-3">
+          <span className="text-xs uppercase tracking-wide text-slate-400">View:</span>
+          <div className="flex bg-slate-800/70 rounded-lg p-1">
+            {(['1M', '3M', '6M', '1Y'] as const).map((period) => (
+              <button
+                key={period}
+                onClick={() => onTimeframeChange(period)}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  timeframe === period
+                    ? 'bg-slate-700 text-white shadow-sm'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                {period}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

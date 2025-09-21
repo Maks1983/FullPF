@@ -1,10 +1,12 @@
 import React, { Suspense } from 'react';
+import { useState } from 'react';
 import { useCurrentPageLogic } from '../hooks/useCurrentPageLogic';
 import ErrorBoundary from './common/ErrorBoundary';
 import SkeletonLoader from './common/SkeletonLoader';
 import AtAGlanceBanner from './current/AtAGlanceBanner';
 import CriticalAlertsSection from './current/CriticalAlertsSection';
 import CurrentPageModals from './current/modals/CurrentPageModals';
+import type { TimeframeType } from '../types/financial';
 
 // Lazy load heavy components
 const MoneyFlowSection = React.lazy(() => import('./current/sections/MoneyFlowSection'));
@@ -12,6 +14,8 @@ const SuggestionsSection = React.lazy(() => import('./current/sections/Suggestio
 const AwarenessSection = React.lazy(() => import('./current/sections/AwarenessSection'));
 
 const CurrentPage = () => {
+  const [timeframe, setTimeframe] = useState<TimeframeType>('1M');
+
   const {
     modalManager,
     headerData,
@@ -22,7 +26,6 @@ const CurrentPage = () => {
     spendingCategories,
     recentTransactions,
     daysUntilDeficit,
-    todaySpending,
     totalMonthlyIncome,
     totalMonthlyExpenses,
     // Event handlers
@@ -32,7 +35,7 @@ const CurrentPage = () => {
     handleCloseModal,
     handleClosePaymentsModal,
     handleCloseNetCashflowModal
-  } = useCurrentPageLogic();
+  } = useCurrentPageLogic(timeframe);
 
   const nextPayment = headerData.upcomingPayments
     .filter(payment => payment.status !== 'paid')
@@ -45,6 +48,8 @@ const CurrentPage = () => {
         aria-hidden={modalManager.anyModalOpen}
       >
         <AtAGlanceBanner
+          timeframe={timeframe}
+          onTimeframeChange={setTimeframe}
           totalAvailable={headerData.totalAvailable}
           netLeftover={headerData.netLeftoverUntilPaycheck}
           daysUntilPaycheck={headerData.paycheckInfo.daysUntilPaycheck}
@@ -53,7 +58,6 @@ const CurrentPage = () => {
           monthlyIncome={headerData.totalMonthlyIncome}
           monthlyExpenses={headerData.totalMonthlyExpenses}
           overdueCount={headerData.overdueCount}
-          todaySpending={todaySpending}
           healthStatus={headerData.healthStatus}
           onViewDetails={handleViewDetails}
           onViewPayments={handleViewPayments}
@@ -70,7 +74,6 @@ const CurrentPage = () => {
               cashflowProjections={cashflowProjections}
               spendingCategories={spendingCategories}
               daysUntilDeficit={daysUntilDeficit}
-              todaySpending={todaySpending}
               upcomingPayments={headerData.upcomingPayments}
             />
           </Suspense>
@@ -111,7 +114,6 @@ const CurrentPage = () => {
         totalAvailable={headerData.totalAvailable}
         netLeftoverUntilPaycheck={headerData.netLeftoverUntilPaycheck}
         daysUntilPaycheck={headerData.paycheckInfo.daysUntilPaycheck}
-        todaySpending={todaySpending}
         overdueCount={headerData.overdueCount}
       />
     </>

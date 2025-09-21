@@ -8,7 +8,6 @@ interface MoneyFlowSectionProps {
   cashflowProjections: CashflowProjection[];
   spendingCategories: SpendingCategory[];
   daysUntilDeficit: number;
-  todaySpending: number;
   upcomingPayments: UpcomingPayment[];
 }
 
@@ -16,7 +15,6 @@ const MoneyFlowSection: React.FC<MoneyFlowSectionProps> = ({
   cashflowProjections,
   spendingCategories,
   daysUntilDeficit,
-  todaySpending,
   upcomingPayments
 }) => {
   return (
@@ -36,7 +34,6 @@ const MoneyFlowSection: React.FC<MoneyFlowSectionProps> = ({
       <div className="w-full xl:h-full">
         <SpendingCategoriesCard
           categories={spendingCategories}
-          todaySpending={todaySpending}
           className="h-full"
         />
       </div>

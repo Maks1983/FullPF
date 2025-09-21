@@ -4,13 +4,11 @@ import type { SpendingCategory } from '../../types/current';
 
 interface SpendingCategoriesCardProps {
   categories: SpendingCategory[];
-  todaySpending: number;
   className?: string;
 }
 
 const SpendingCategoriesCard: React.FC<SpendingCategoriesCardProps> = ({
   categories,
-  todaySpending,
   className
 }) => {
   const overBudgetCategories = categories.filter(cat => cat.isOverBudget);
@@ -42,19 +40,6 @@ const SpendingCategoriesCard: React.FC<SpendingCategoriesCardProps> = ({
             </span>
           </div>
         )}
-      </div>
-
-      {/* Today's Spending */}
-      <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-gray-900">Today's Spending</span>
-          </div>
-          <span className="text-lg font-bold text-blue-600">
-            NOK {todaySpending.toLocaleString()}
-          </span>
-        </div>
       </div>
 
       {/* Categories */}

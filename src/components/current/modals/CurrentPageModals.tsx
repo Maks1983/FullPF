@@ -19,7 +19,6 @@ interface CurrentPageModalsProps {
   totalAvailable: number;
   netLeftoverUntilPaycheck: number;
   daysUntilPaycheck: number;
-  todaySpending: number;
   overdueCount: number;
 }
 
@@ -38,7 +37,6 @@ const CurrentPageModals: React.FC<CurrentPageModalsProps> = memo(({
   totalAvailable,
   netLeftoverUntilPaycheck,
   daysUntilPaycheck,
-  todaySpending,
   overdueCount
 }) => {
   return (
@@ -54,7 +52,6 @@ const CurrentPageModals: React.FC<CurrentPageModalsProps> = memo(({
         totalAvailable={totalAvailable}
         netLeftoverUntilPaycheck={netLeftoverUntilPaycheck}
         daysUntilPaycheck={daysUntilPaycheck}
-        todaySpending={todaySpending}
       />
 
       {/* Upcoming Payments Modal */}

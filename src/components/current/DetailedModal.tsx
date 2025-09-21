@@ -10,6 +10,9 @@ interface DetailedModalProps {
   spendingCategories: SpendingCategory[];
   monthlyIncome: number;
   monthlyExpenses: number;
+  totalAvailable: number;
+  netLeftoverUntilPaycheck: number;
+  daysUntilPaycheck: number;
 }
 
 const DetailedModal: React.FC<DetailedModalProps> = ({
@@ -18,7 +21,10 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   upcomingPayments,
   spendingCategories,
   monthlyIncome,
-  monthlyExpenses
+  monthlyExpenses,
+  totalAvailable,
+  netLeftoverUntilPaycheck,
+  daysUntilPaycheck
 }) => {
   const titleId = React.useId();
 
@@ -32,11 +38,10 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
 
   if (!isOpen) return null;
 
-  const netAvailable = 19017.50; // This would come from props
   const upcomingPaymentsTotal = upcomingPayments
     .filter(p => p.status !== 'paid')
     .reduce((sum, p) => sum + Math.abs(p.amount), 0);
-  const netAfterPayments = netAvailable - upcomingPaymentsTotal;
+  const netAfterPayments = netLeftoverUntilPaycheck;
   
   // Health score calculation (simplified)
   
@@ -113,7 +118,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                       <span className="text-white font-bold text-xs">NOK</span>
                     </div>
                     <div className="mt-2">
-                      <div className="font-bold text-sm text-gray-900">{(netAvailable / 1000).toFixed(0)}k</div>
+                      <div className="font-bold text-sm text-gray-900">{(totalAvailable / 1000).toFixed(0)}k</div>
                       <div className="text-xs text-gray-600">Current</div>
                     </div>
                   </div>

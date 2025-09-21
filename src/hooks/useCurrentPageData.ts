@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 import { useCentralizedFinancialData } from './useCentralizedData';
 import type { CurrentPageData } from '../types/current';
+import type { TimeframeType } from '../types/financial';
 
-export const useCurrentPageData = (): CurrentPageData & {
+export const useCurrentPageData = (timeframe: TimeframeType = '1M'): CurrentPageData & {
   criticalAlerts: number;
   isDeficitProjected: boolean;
   daysUntilDeficit: number;
   highPriorityPayments: number;
 } => {
-  const data = useCentralizedFinancialData();
+  const data = useCentralizedFinancialData(timeframe);
   
   return useMemo(() => {
     // Calculate available balance from checking account only
@@ -138,7 +139,6 @@ export const useCurrentPageData = (): CurrentPageData & {
       totalAvailable,
       netLeftoverUntilPaycheck,
       overdueCount,
-      todaySpending: 485.50, // This would be calculated from recent transactions
       totalMonthlyIncome: data.user.monthlyIncome,
       totalMonthlyExpenses: data.totals.monthlyExpenses,
       criticalAlerts,
@@ -146,5 +146,5 @@ export const useCurrentPageData = (): CurrentPageData & {
       daysUntilDeficit,
       highPriorityPayments
     };
-  }, [data]);
+  }, [data, timeframe]);
 };

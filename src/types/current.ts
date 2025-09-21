@@ -71,7 +71,6 @@ export interface CurrentPageData {
   totalAvailable: number;
   netLeftoverUntilPaycheck: number;
   overdueCount: number;
-  todaySpending: number;
   totalMonthlyIncome: number;
   totalMonthlyExpenses: number;
 }
