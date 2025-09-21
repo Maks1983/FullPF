@@ -7,6 +7,7 @@ import UnifiedAccountGoalCard from './savings/UnifiedAccountGoalCard';
 import SmartProjectionChart from './savings/SmartProjectionChart';
 import ImpactMetrics from './savings/ImpactMetrics';
 import SavingsTransactionsTable from './savings/SavingsTransactionsTable';
+import SmartSavingsSuggestions from './savings/SmartSavingsSuggestions';
 
 const SavingsPage = () => {
   const [projectionMode, setProjectionMode] = useState<'conservative' | 'expected' | 'optimistic'>('expected');
@@ -212,6 +213,19 @@ const SavingsPage = () => {
           ))}
         </div>
       </div>
+
+      {/* Smart Savings Suggestions */}
+      <SmartSavingsSuggestions
+        currentSavings={savingsData.currentSavings}
+        monthlyContribution={baselineContribution}
+        savingsRate={savingsData.savingsRate}
+        monthsOfCoverage={monthsOfCoverage}
+        goalProgress={(savingsData.currentSavings / emergencyTarget) * 100}
+        targetAmount={emergencyTarget}
+        monthsToGoal={monthsToEmergencyGoal}
+        averageMonthlyGrowth={averageMonthlyGrowth}
+        totalMonthlyIncome={52000}
+      />
 
       {/* Smart Projection Chart */}
       <SmartProjectionChart
