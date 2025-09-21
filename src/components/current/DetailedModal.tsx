@@ -22,8 +22,6 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
 }) => {
   const titleId = React.useId();
 
-  if (!isOpen) return null;
-
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -31,6 +29,8 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+
+  if (!isOpen) return null;
 
   const netAvailable = 19017.50; // This would come from props
   const upcomingPaymentsTotal = upcomingPayments
