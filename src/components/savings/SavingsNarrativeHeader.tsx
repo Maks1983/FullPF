@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, TrendingUp, Calendar, Sparkles } from 'lucide-react';
+import { Target, TrendingUp, Calendar, Sparkles, Award, Plus, Zap } from 'lucide-react';
 
 interface SavingsNarrativeHeaderProps {
   monthsToGoal: number;
