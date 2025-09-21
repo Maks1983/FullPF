@@ -20,9 +20,9 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   monthlyIncome,
   monthlyExpenses
 }) => {
-  if (!isOpen) return null;
-
   const titleId = React.useId();
+
+  if (!isOpen) return null;
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
