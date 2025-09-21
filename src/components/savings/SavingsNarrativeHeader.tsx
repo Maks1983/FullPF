@@ -72,6 +72,9 @@ const SavingsNarrativeHeader: React.FC<SavingsNarrativeHeaderProps> = ({
     { id: 'schedule', label: 'Adjust timeline', icon: Calendar }
   ];
 
+  const boundedMomentum = momentumMultiplier > 0 ? Math.min(momentumMultiplier, 4) : 0;
+  const momentumCopy = boundedMomentum > 0 ? `${boundedMomentum.toFixed(1)}× faster` : 'Steady pace';
+
   return (
     <section className="bg-slate-900 text-white rounded-xl px-6 py-6 shadow-lg border border-slate-800">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -104,37 +107,14 @@ const SavingsNarrativeHeader: React.FC<SavingsNarrativeHeaderProps> = ({
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-4">
-          <div className="p-2 bg-slate-900/60 rounded-lg text-sky-300">
-            <TrendingUp className="h-5 w-5" aria-hidden="true" />
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">Savings momentum</p>
-            <p className="text-2xl font-semibold text-white">{momentumMultiplier > 0 ? `${momentumMultiplier.toFixed(1)}× faster` : 'On hold'}</p>
-            <p className="text-xs text-slate-400">vs previous period in this view</p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-4">
           <div className="p-2 bg-slate-900/60 rounded-lg text-indigo-300">
             <Calendar className="h-5 w-5" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">Emergency coverage</p>
+            <p className="text-xs uppercase tracking-wide text-slate-400">Coverage months</p>
             <p className="text-2xl font-semibold text-white">{coverageMonths.toFixed(1)} months</p>
             <p className="text-xs text-slate-400">How long your savings cover expenses</p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-4">
-          <div className="p-2 bg-slate-900/60 rounded-lg text-fuchsia-300">
-            <Sparkles className="h-5 w-5" aria-hidden="true" />
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400">Savings rate</p>
-            <p className="text-2xl font-semibold text-white">{formatPercentage(savingsRate)}</p>
-            <p className={`text-xs font-semibold ${isAheadOfSchedule ? 'text-emerald-300' : 'text-slate-400'}`}>
-              {isAheadOfSchedule ? 'Ahead of target' : 'Aim for 20% savings rate'}
-            </p>
+            <p className="text-xs text-slate-300 mt-1">{coverageMessage}</p>
           </div>
         </div>
 
@@ -147,12 +127,36 @@ const SavingsNarrativeHeader: React.FC<SavingsNarrativeHeaderProps> = ({
             <p className="text-2xl font-semibold text-white">
               {coveragePercentage >= 100 ? 'Goal reached' : `${coveragePercentage.toFixed(0)}% complete`}
             </p>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               {goalWeeksAhead > 0
                 ? `Ahead by ~${goalWeeksAhead} week${goalWeeksAhead === 1 ? '' : 's'} 🚀`
                 : remainingToGoal > 0
                   ? `${formatCurrency(remainingToGoal)} remaining`
                   : `${formatCurrency(Math.abs(remainingToGoal))} surplus`}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-4">
+          <div className="p-2 bg-slate-900/60 rounded-lg text-sky-300">
+            <TrendingUp className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-slate-400">Savings momentum</p>
+            <p className="text-2xl font-semibold text-white">{momentumCopy}</p>
+            <p className="text-xs text-slate-300">vs previous period in this view</p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3 bg-slate-800/60 rounded-lg px-4 py-4">
+          <div className="p-2 bg-slate-900/60 rounded-lg text-fuchsia-300">
+            <Sparkles className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-slate-400">Savings rate</p>
+            <p className="text-2xl font-semibold text-white">{formatPercentage(savingsRate)}</p>
+            <p className={`text-xs font-semibold ${isAheadOfSchedule ? 'text-emerald-300' : 'text-slate-300'}`}>
+              {isAheadOfSchedule ? 'Ahead of target' : 'Benchmark: 20% of income'}
             </p>
           </div>
         </div>
