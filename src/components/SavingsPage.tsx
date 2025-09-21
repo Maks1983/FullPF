@@ -1,64 +1,78 @@
 import React, { useState } from 'react';
-import { TrendingUp, Plus, Filter } from 'lucide-react';
+import { TrendingUp, Plus, Target, Zap, Calendar, DollarSign, Award, Sparkles } from 'lucide-react';
 import { useSavingsData } from '../hooks/useCentralizedData';
-import DoughnutChart from './charts/DoughnutChart';
-import LineChart from './charts/LineChart';
-import Table from './common/Table';
-import MetricCard from './common/MetricCard';
+import SavingsNarrativeHeader from './savings/SavingsNarrativeHeader';
+import UnifiedAccountGoalCard from './savings/UnifiedAccountGoalCard';
+import SmartProjectionChart from './savings/SmartProjectionChart';
+import ImpactMetrics from './savings/ImpactMetrics';
+import SavingsTransactionsTable from './savings/SavingsTransactionsTable';
 
 const SavingsPage = () => {
+  const [projectionMode, setProjectionMode] = useState<'conservative' | 'expected' | 'optimistic'>('expected');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const savingsData = useSavingsData();
   
-  const coveragePercentage = (savingsData.currentSavings / savingsData.savingsGoal) * 100;
-
-  // Calculate monthly change from savings history
-  const monthlyChangeData = savingsData.monthlyGrowth.slice(-3).map((item, index, arr) => ({
-    month: item.month,
-    value: index > 0 ? item.value - arr[index - 1].value : 0
-  })).filter(item => item.value > 0);
-
-  // Project next 3 months based on current trend
-  const avgMonthlyGrowth = monthlyChangeData.reduce((sum, item) => sum + item.value, 0) / monthlyChangeData.length;
-  const projectionData = [
-    { month: 'Jan', value: savingsData.currentSavings + avgMonthlyGrowth },
-    { month: 'Feb', value: savingsData.currentSavings + (avgMonthlyGrowth * 2) },
-    { month: 'Mar', value: savingsData.currentSavings + (avgMonthlyGrowth * 3) },
-  ];
-
-  const recentTransactions = [
-    { id: 1, date: '2024-01-12', description: 'Emergency Fund Deposit', amount: 5000.00, type: 'deposit', account: 'High Yield Savings' },
-    { id: 2, date: '2024-01-10', description: 'Monthly Auto Transfer', amount: 7500.00, type: 'deposit', account: 'Investment Savings' },
-    { id: 3, date: '2024-01-08', description: 'Car Repair Emergency', amount: -12000.00, type: 'withdrawal', account: 'Emergency Fund' },
-    { id: 4, date: '2024-01-05', description: 'Interest Payment', amount: 452.00, type: 'interest', account: 'High Yield Savings' },
-    { id: 5, date: '2024-01-01', description: 'New Year Bonus', amount: 20000.00, type: 'deposit', account: 'Investment Savings' },
-  ];
-
-  const savingsMetrics = [
+  // Calculate narrative insights
+  const monthsToEmergencyGoal = Math.ceil((180000 - savingsData.currentSavings) / 8000); // 8k monthly avg
+  const acceleratedMonths = Math.ceil((180000 - savingsData.currentSavings) / 8500); // with extra 500
+  const monthsSaved = acceleratedMonths > 0 ? monthsToEmergencyGoal - acceleratedMonths : 0;
+  
+  const monthsOfCoverage = savingsData.currentSavings / 30000; // Assuming 30k monthly expenses
+  const isAheadOfSchedule = savingsData.savingsRate > 20;
+  
+  // Enhanced account data with goal connections
+  const enhancedAccounts = [
     {
-      title: 'Monthly Change',
-      value: `+${avgMonthlyGrowth.toFixed(0)} NOK`,
-      change: '+6.65%',
-      trend: 'up',
-      icon: TrendingUp,
-      color: 'green'
+      id: 'emergency',
+      name: 'Emergency Fund',
+      balance: 82000,
+      interestRate: 3.8,
+      monthlyContribution: 5000,
+      goals: [
+        { name: 'Emergency Fund', progress: 46, isPrimary: true },
+        { name: 'Peace of Mind', progress: 68, isPrimary: false }
+      ],
+      runwayMonths: 2.7,
+      trend: 'up' as const,
+      recentGrowth: 6.2
     },
     {
-      title: '3-Month Projection',
-      value: `${projectionData[2].value.toLocaleString()} NOK`,
-      change: '+18.0%',
-      trend: 'up',
-      icon: TrendingUp,
-      color: 'blue'
+      id: 'highyield',
+      name: 'High Yield Savings',
+      balance: 47200,
+      interestRate: 4.2,
+      monthlyContribution: 3000,
+      goals: [
+        { name: 'Travel Fund', progress: 78, isPrimary: true },
+        { name: 'Emergency Buffer', progress: 12, isPrimary: false }
+      ],
+      runwayMonths: 1.6,
+      trend: 'up' as const,
+      recentGrowth: 4.8
     },
     {
-      title: 'Annual Growth Rate',
-      value: `${savingsData.savingsRate.toFixed(1)}%`,
-      change: '+6.65%',
-      trend: 'up',
-      icon: TrendingUp,
-      color: 'purple'
+      id: 'investment',
+      name: 'Investment Savings',
+      balance: 25000,
+      interestRate: 8.4,
+      monthlyContribution: 2000,
+      goals: [
+        { name: 'House Down Payment', progress: 25, isPrimary: true },
+        { name: 'Investment Growth', progress: 45, isPrimary: false }
+      ],
+      runwayMonths: 0.8,
+      trend: 'up' as const,
+      recentGrowth: 12.1
     }
+  ];
+
+  // Mock transactions with better categorization
+  const recentTransactions = [
+    { id: 1, date: '2024-01-12', description: 'Emergency Fund Auto-Transfer', amount: 5000.00, type: 'deposit', account: 'Emergency Fund', goalImpact: 'Emergency Fund +2.8%' },
+    { id: 2, date: '2024-01-10', description: 'High Yield Interest Payment', amount: 165.00, type: 'interest', account: 'High Yield Savings', goalImpact: 'Travel Fund +0.3%' },
+    { id: 3, date: '2024-01-08', description: 'Investment Contribution', amount: 2000.00, type: 'deposit', account: 'Investment Savings', goalImpact: 'House Fund +2.0%' },
+    { id: 4, date: '2024-01-05', description: 'Bonus Allocation', amount: 15000.00, type: 'deposit', account: 'High Yield Savings', goalImpact: 'Travel Fund +25%' },
+    { id: 5, date: '2024-01-03', description: 'Emergency Car Repair', amount: -8500.00, type: 'withdrawal', account: 'Emergency Fund', goalImpact: 'Emergency Fund -4.7%' },
   ];
 
   const transactionColumns = [
@@ -69,7 +83,7 @@ const SavingsPage = () => {
       key: 'type', 
       header: 'Type', 
       sortable: true,
-      render: (value) => (
+      render: (value: string) => (
         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
           value === 'deposit' ? 'bg-green-100 text-green-800' :
           value === 'withdrawal' ? 'bg-red-100 text-red-800' :
@@ -83,187 +97,80 @@ const SavingsPage = () => {
       key: 'amount', 
       header: 'Amount', 
       sortable: true, 
-      render: (value) => (
+      render: (value: number) => (
         <span className={value > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
           {value > 0 ? '+' : ''}{value.toLocaleString()} NOK
         </span>
       )
     },
+    {
+      key: 'goalImpact',
+      header: 'Goal Impact',
+      sortable: false,
+      render: (value: string) => (
+        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
+          {value}
+        </span>
+      )
+    }
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Savings Overview</h1>
-        <p className="text-gray-600">Track your savings progress and goals</p>
-      </div>
+    <div className="space-y-8 pb-8">
+      {/* Narrative Header */}
+      <SavingsNarrativeHeader
+        monthsToGoal={monthsToEmergencyGoal}
+        acceleratedMonths={acceleratedMonths}
+        monthsSaved={monthsSaved}
+        monthsOfCoverage={monthsOfCoverage}
+        isAheadOfSchedule={isAheadOfSchedule}
+        currentSavings={savingsData.currentSavings}
+        savingsRate={savingsData.savingsRate}
+      />
 
-      {/* Savings Progress */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Savings Goal Progress</h3>
-          <div className="flex items-center justify-center mb-4">
-            <DoughnutChart 
-              value={savingsData.currentSavings} 
-              total={savingsData.savingsGoal} 
-              color="#10b981"
-              size={120}
-              centerText={`${coveragePercentage.toFixed(0)}%`}
+      {/* Impact-Oriented Metrics */}
+      <ImpactMetrics
+        monthsOfCoverage={monthsOfCoverage}
+        growthMultiplier={2.1}
+        runwayAmount={15000}
+        totalSavings={savingsData.currentSavings}
+      />
+
+      {/* Unified Account + Goal Cards */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold text-gray-900">Your Savings Accounts & Goals</h3>
+          <button className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Account
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {enhancedAccounts.map((account) => (
+            <UnifiedAccountGoalCard
+              key={account.id}
+              account={account}
             />
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              {savingsData.currentSavings.toLocaleString()} of {savingsData.savingsGoal.toLocaleString()} NOK
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {(savingsData.savingsGoal - savingsData.currentSavings).toLocaleString()} NOK remaining
-            </p>
-          </div>
-        </div>
-
-        {savingsMetrics.map((metric, index) => (
-          <MetricCard key={index} {...metric} />
-        ))}
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Monthly Change */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Change (3 Months)</h3>
-          <LineChart 
-            data={monthlyChangeData} 
-            dataKey="value" 
-            color="#10b981"
-            height={200}
-            showGrid={true}
-          />
-        </div>
-
-        {/* 3-Month Projection */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">3-Month Projection</h3>
-          <LineChart 
-            data={projectionData} 
-            dataKey="value" 
-            color="#3b82f6"
-            height={200}
-            showGrid={true}
-          />
-        </div>
-
-        {/* Growth Rate */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Growth Rate (Annualized)</h3>
-          <div className="flex items-center justify-center h-32">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-purple-600 mb-2">8.4%</div>
-              <div className="text-sm text-gray-600">Annual Growth</div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Savings Growth Chart */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Savings Growth (12 Months)</h3>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Target:</span>
-            <span className="text-sm font-semibold text-green-600">{savingsData.savingsGoal.toLocaleString()} NOK</span>
-          </div>
-        </div>
-        <LineChart 
-          data={savingsData.monthlyGrowth} 
-          dataKey="value" 
-          color="#10b981"
-          height={300}
-          showGrid={true}
-          targetLine={savingsData.savingsGoal}
-        />
-      </div>
+      {/* Smart Projection Chart */}
+      <SmartProjectionChart
+        currentSavings={savingsData.currentSavings}
+        monthlyGrowth={savingsData.monthlyGrowth}
+        projectionMode={projectionMode}
+        onProjectionModeChange={setProjectionMode}
+      />
 
-      {/* Savings Accounts Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Emergency Fund</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Current Balance</span>
-              <span className="font-semibold">82,000 NOK</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Goal (6 months)</span>
-              <span className="font-semibold">120,000 NOK</span>
-            </div>
-            <div className="bg-gray-200 rounded-full h-3">
-              <div className="bg-green-500 h-3 rounded-full" style={{width: '68%'}}></div>
-            </div>
-            <p className="text-sm text-gray-600">68% complete</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">High Yield Savings</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Balance</span>
-              <span className="font-semibold">47,200 NOK</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Interest Rate</span>
-              <span className="font-semibold text-green-600">4.2% APY</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Monthly Interest</span>
-              <span className="font-semibold text-green-600">+165 NOK</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Investment Savings</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Balance</span>
-              <span className="font-semibold">25,000 NOK</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">YTD Return</span>
-              <span className="font-semibold text-green-600">+8.4%</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Auto Transfer</span>
-              <span className="font-semibold">7,500 NOK/month</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Transactions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
-            <div className="flex space-x-2">
-              <button className="flex items-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </button>
-              <button className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Deposit
-              </button>
-            </div>
-          </div>
-        </div>
-        <Table 
-          data={recentTransactions} 
-          columns={transactionColumns}
-          sortConfig={sortConfig}
-          onSort={setSortConfig}
-        />
-      </div>
+      {/* Recent Transactions with Goal Impact */}
+      <SavingsTransactionsTable
+        transactions={recentTransactions}
+        columns={transactionColumns}
+        sortConfig={sortConfig}
+        onSort={setSortConfig}
+      />
     </div>
   );
 };
