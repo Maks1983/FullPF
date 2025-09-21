@@ -8,7 +8,6 @@ import {
   BellRing
 } from 'lucide-react';
 import type { UpcomingPayment } from '../../types/current';
-import type { TimeframeType } from '../../types/financial';
 
 interface HealthStatus {
   status: string;
@@ -27,8 +26,6 @@ interface AtAGlanceBannerProps {
   overdueCount: number;
   todaySpending: number;
   healthStatus?: HealthStatus;
-  timeframe: TimeframeType;
-  onTimeframeChange: (timeframe: TimeframeType) => void;
   onViewDetails: () => void;
   onViewPayments: () => void;
   onViewNetCashflow: () => void;
@@ -47,8 +44,6 @@ const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
   overdueCount,
   todaySpending,
   healthStatus,
-  timeframe,
-  onTimeframeChange,
   onViewDetails,
   onViewPayments,
   onViewNetCashflow
@@ -84,21 +79,13 @@ const AtAGlanceBanner: React.FC<AtAGlanceBannerProps> = ({
           )}
         </div>
 
-        {/* Timeframe Filter */}
-        <div className="flex bg-slate-800/70 rounded-lg p-1">
-          {(['1M', '3M', '6M', '1Y'] as const).map((period) => (
-            <button
-              key={period}
-              onClick={() => onTimeframeChange(period)}
-              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
-                timeframe === period
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              {period}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2 text-xs text-slate-300">
+          <span className="rounded-full bg-slate-800/70 px-3 py-1">
+            Today&apos;s spend: NOK {formatCurrency(todaySpending)}
+          </span>
+          <span className={`rounded-full px-3 py-1 ${overdueCount > 0 ? 'bg-red-500/20 text-red-200' : 'bg-slate-800/70'}`}>
+            {overdueCount > 0 ? `${overdueCount} overdue bill${overdueCount === 1 ? '' : 's'}` : 'No overdue bills'}
+          </span>
         </div>
       </div>
 

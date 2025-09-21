@@ -1,14 +1,10 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useCurrentPageData } from './useCurrentPageData';
 import { useFinancialCalculations } from './useFinancialCalculations';
 import { useModalManager } from './useModalManager';
 import { getFinancialHealthStatus } from '../utils/financial';
-import type { TimeframeType } from '../types/financial';
 
-export const useCurrentPageLogic = (
-  timeframe: TimeframeType,
-  onTimeframeChange: (timeframe: TimeframeType) => void
-) => {
+export const useCurrentPageLogic = () => {
   const modalManager = useModalManager();
 
   const {
@@ -55,8 +51,6 @@ export const useCurrentPageLogic = (
       totalMonthlyIncome,
       totalMonthlyExpenses,
       healthStatus,
-      timeframe,
-      onTimeframeChange,
     };
   }, [
     accounts,
@@ -66,9 +60,7 @@ export const useCurrentPageLogic = (
     upcomingPayments,
     overdueCount,
     totalMonthlyIncome,
-    totalMonthlyExpenses,
-    timeframe,
-    onTimeframeChange
+    totalMonthlyExpenses
   ]);
 
   const alertsData = useMemo(() => ({

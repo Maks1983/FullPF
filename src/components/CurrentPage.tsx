@@ -1,11 +1,10 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense } from 'react';
 import { useCurrentPageLogic } from '../hooks/useCurrentPageLogic';
 import ErrorBoundary from './common/ErrorBoundary';
 import SkeletonLoader from './common/SkeletonLoader';
 import AtAGlanceBanner from './current/AtAGlanceBanner';
 import CriticalAlertsSection from './current/CriticalAlertsSection';
 import CurrentPageModals from './current/modals/CurrentPageModals';
-import type { TimeframeType } from '../types/financial';
 
 // Lazy load heavy components
 const MoneyFlowSection = React.lazy(() => import('./current/sections/MoneyFlowSection'));
@@ -13,8 +12,6 @@ const SuggestionsSection = React.lazy(() => import('./current/sections/Suggestio
 const AwarenessSection = React.lazy(() => import('./current/sections/AwarenessSection'));
 
 const CurrentPage = () => {
-  const [timeframe, setTimeframe] = useState<TimeframeType>('1M');
-
   const {
     modalManager,
     headerData,
@@ -35,7 +32,7 @@ const CurrentPage = () => {
     handleCloseModal,
     handleClosePaymentsModal,
     handleCloseNetCashflowModal
-  } = useCurrentPageLogic(timeframe, setTimeframe);
+  } = useCurrentPageLogic();
 
   const nextPayment = headerData.upcomingPayments
     .filter(payment => payment.status !== 'paid')
@@ -58,8 +55,6 @@ const CurrentPage = () => {
           overdueCount={headerData.overdueCount}
           todaySpending={todaySpending}
           healthStatus={headerData.healthStatus}
-          timeframe={timeframe}
-          onTimeframeChange={setTimeframe}
           onViewDetails={handleViewDetails}
           onViewPayments={handleViewPayments}
           onViewNetCashflow={handleViewNetCashflow}
