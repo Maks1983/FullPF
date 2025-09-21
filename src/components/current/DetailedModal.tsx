@@ -22,6 +22,16 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const titleId = React.useId();
+
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   const netAvailable = 19017.50; // This would come from props
   const upcomingPaymentsTotal = upcomingPayments
     .filter(p => p.status !== 'paid')
@@ -67,8 +77,18 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
   })).sort((a, b) => b.amount - a.amount);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Hero Section - Financial Flow */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <div className="flex items-start justify-between p-4">
@@ -80,7 +100,7 @@ const DetailedModal: React.FC<DetailedModalProps> = ({
                   <span className="text-2xl">
                     {getFinancialStatusEmoji(netAfterPayments, monthlyIncome)}
                   </span>
-                  <h2 className="text-lg font-bold text-gray-900">
+                  <h2 id={titleId} className="text-lg font-bold text-gray-900">
                     {getFinancialStatusText(netAfterPayments, monthlyIncome)}
                   </h2>
                 </div>
