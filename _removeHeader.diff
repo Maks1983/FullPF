@@ -1,0 +1,48 @@
+*** Begin Patch
+*** Update File: src/App.tsx
+@@
+-  return (
+-    <div className="min-h-screen bg-gray-50">
+-      {/* Header */}
+-      <header className="bg-white shadow-sm border-b border-gray-200">
+-        <div className="px-4 sm:px-6 lg:px-8">
+-          <div className="flex justify-between items-center py-4">
+-            <div className="flex items-center">
+-              <img src="/branding/favicons/favicon_128x128.png" alt="FinanceTracker logo" className="h-8 w-8 rounded-lg" />
+-              <h1 className="ml-3 text-xl font-semibold text-gray-900">FinanceTracker</h1>
+-            </div>
+-            <button
+-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+-              className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+-            >
+-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+-            </button>
+-          </div>
+-        </div>
+-      </header>
+-
+-      <div className="flex">
++  return (
++    <div className="min-h-screen bg-gray-50">
++      <div className="md:hidden p-4">
++        <button
++          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
++          className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-sm font-medium text-purple-700 shadow-sm hover:border-purple-300 hover:bg-purple-50"
++        >
++          {mobileMenuOpen ? (
++            <>
++              <X className="h-4 w-4" />
++              Close Menu
++            </>
++          ) : (
++            <>
++              <Menu className="h-4 w-4" />
++              Open Menu
++            </>
++          )}
++        </button>
++      </div>
++
++      <div className="flex">
+*** End Patch
+

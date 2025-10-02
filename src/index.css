@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prevent layout shift when opening modals by reserving scrollbar space */
+html {
+  /* Modern browsers: keep gutter stable so content doesn't reflow */
+  scrollbar-gutter: stable; /* or 'stable both-edges' if you prefer */
+}
+
+/* Fallback for environments without scrollbar-gutter support */
+body {
+  overflow-y: scroll;
+}

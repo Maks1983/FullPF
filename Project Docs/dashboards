@@ -1,0 +1,505 @@
+Purpose: Provide a comprehensive overview of user finances, with quick insights, projections, transaction tracking, and printable financial statements.
+
+
+
+1. Dashboard Page (Landing / Summary)
+
+Purpose: High-level snapshot of user finances.
+
+Metrics Overview
+
+
+
+
+
+
+
+Metric
+
+
+
+Value Example
+
+
+
+Trend
+
+
+
+Notes
+
+
+
+
+
+Current
+
+
+
+425.70 NOK
+
+
+
+0.00% Since last month
+
+
+
+Total saldo
+
+
+
+
+
+Savings
+
+
+
+144,611.96
+
+
+
+6.65% Since last week
+
+
+
+Total across savings accounts
+
+
+
+
+
+Investments
+
+
+
+−18,994.62
+
+
+
+6.65% Since last week
+
+
+
+Net gain/loss trend
+
+
+
+
+
+Assets
+
+
+
+21,300
+
+
+
+6.65% Since last week
+
+
+
+Aggregate assets
+
+
+
+
+
+Liabilities
+
+
+
+21,300
+
+
+
+6.65% Since last week
+
+
+
+Aggregate liabilities
+
+
+
+
+
+Net Worth
+
+
+
+21,300
+
+
+
+6.65% Since last week
+
+
+
+Assets − Liabilities
+
+Charts
+
+
+
+
+
+Monthly Overview: bar chart (Income, Expenses, Cashflow overlay) showing the current year by month on the x axis and the amount on the Y axis
+
+
+
+Current Position: Line chart (monthly cashflow trend)
+
+
+
+2. Current Page (Overview / Left Until Payday)
+
+Purpose: Quick snapshot of finances until next payday.
+
+2.1 Leftover Until Next Payday
+
+
+
+
+
+Current Saldo: 425.70 NOK
+
+
+
+Remaining Payments: 5 payments totaling −24,359.75 NOK
+
+
+
+Net Leftover: −23,934.05 NOK
+
+
+
+Doughnut chart: inner circle = days until next payment, outer ring empties daily
+
+2.2 Upcoming Transactions (sortable table)
+2.3 Overdue Payments (table with overdue indicator)
+2.4 Category Charts (horizontal bar: income & expenses)
+2.5 Monthly Overview (vertical bar chart: income/expenses, cashflow line)
+2.6 Latest Transactions (filterable table + quick-add buttons)
+
+
+
+3. Savings Page
+
+Purpose: Track savings performance, projections, growth.
+
+
+
+
+
+Savings Accounts Overview: doughnut chart, % coverage
+
+
+
+Monthly Change: line chart (3 months)
+
+
+
+3-Month Projection: projection line chart
+
+
+
+Growth Rate: annualized, 3m chart
+
+
+
+Savings Growth (12m): line chart
+
+
+
+Recent Transactions: sortable/filterable table + quick-add
+
+
+
+4. Debts Page
+
+Purpose: Clear overview of debts, repayment schedules, loan composition.
+
+
+
+
+
+Debt Overview: summary cards (Total Debt, Monthly Payment, Avg Rate, Payoff Date)
+
+
+
+Debt Composition: pie/donut by loan type
+
+
+
+Loan Overview: sortable table
+
+
+
+Debt Progress Over Time: line chart (balance & interest)
+
+
+
+Strategy Comparison (license-gated): debt payoff strategies
+
+
+
+5. Investments Page
+
+Purpose: Complete portfolio management and allocation.
+
+
+
+
+
+Investment Summary: Total Investment, Gains/Losses, Allocation
+
+
+
+Investment Allocation: pie/donut by type (stocks, bonds, crypto, etc.)
+
+
+
+Recent Transactions: sortable/filterable + quick-add
+
+(Future extensions: portfolio analytics, performance benchmarks, rebalancing alerts — monetizable)
+
+
+
+6. Assets Page (Improved)
+
+Purpose: Wealth management across all assets (cash, real estate, metals, collectibles, etc.)
+
+6.1 Asset Summary
+
+
+
+
+
+Card with total value, small trend line
+
+6.2 Asset Breakdown
+
+
+
+
+
+Table/stacked bar: type, name, value, currency
+
+
+
+Mobile-friendly stacked layout
+
+6.3 Asset Growth Over Time
+
+
+
+
+
+12m line chart of asset values
+
+6.4 Asset Classification & Tags (NEW)
+
+
+
+
+
+Categories: Cash, Real Estate, Vehicles, Metals, Collectibles, Other
+
+
+
+User-defined tags
+
+
+
+Expandable tree view (Category → Subcategory → Asset)
+
+6.5 Asset Valuation (Premium)
+
+
+
+
+
+Purchase price vs current value
+
+
+
+Unrealized gain/loss
+
+
+
+Optional auto-update from APIs (real estate, gold, cars)
+
+6.6 Liquidity & Risk (Premium)
+
+
+
+
+
+Classification: Liquid, Semi-Liquid, Illiquid
+
+
+
+Risk indicator: stable vs volatile
+
+6.7 Asset Performance (Premium)
+
+
+
+
+
+Line chart: value vs inflation index
+
+
+
+Benchmark overlays: Gold, S&P 500, Real Estate Index
+
+6.8 Asset Allocation (NEW)
+
+
+
+
+
+Pie chart: % allocation by type
+
+
+
+Drill-down into categories
+
+6.9 Asset Projections (Premium)
+
+
+
+
+
+Forecast future value based on appreciation or manual rates
+
+
+
+Scenario testing: “What if property grows 3% yearly?”
+
+6.10 Asset Report PDF (Premium)
+
+
+
+
+
+Bank-ready professional report
+
+
+
+Includes valuations, allocation, growth, liquidity/risk
+
+
+
+Branding + disclaimer
+
+
+
+7. Liabilities Page
+
+
+
+
+
+Liability Summary: total card + trend line
+
+
+
+Liability Details: sortable table
+
+
+
+Liability Trends: line chart (12m)
+
+
+
+Optional: stacked bar for interest accrual
+
+
+
+8. Net Worth Page
+
+Purpose: Snapshot of net worth with reporting features.
+
+
+
+
+
+Net Worth Calculation: card (Assets − Liabilities)
+
+
+
+Net Worth Trend: line chart (assets, liabilities, net worth, projections)
+
+
+
+Breakdown Table: sortable, stacked mobile view
+
+
+
+Financial Statement PDF / Print:
+
+
+
+
+
+Header (user, date)
+
+
+
+Summary (Assets, Liabilities, Net Worth)
+
+
+
+Breakdown table
+
+
+
+Optional charts (license-gated)
+
+
+
+Footer disclaimer
+
+
+
+Generated via Puppeteer/jsPDF, multi-currency, branding
+
+
+
+Developer Notes (All Pages)
+
+
+
+
+
+Charts responsive (desktop + PWA mobile)
+
+
+
+Tables sortable/filterable/paged
+
+
+
+Quick-add buttons across relevant sections
+
+
+
+License gating for premium features (valuations, projections, reports)
+
+
+
+Multi-currency support everywhere
+
+
+
+Consistent color palette/icons
+
+
+
+Mobile PWA: stacked layout for small screens
+
+
+
+Market Positioning Note
+
+This app is not a trading platform. Stock/market data updates after market close (7h/day). Most common stocks updated first; full refresh by next day. Goal is awareness, not speculation: helping users understand holdings clearly to make informed decisions without noise.

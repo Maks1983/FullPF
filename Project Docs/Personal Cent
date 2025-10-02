@@ -1,0 +1,494 @@
+Part 1: Personal Cent – Personal Finances
+
+Overview
+
+Personal Cent is a self-hosted, production-ready personal finance platform with:
+
+
+
+
+
+Hybrid Licensing: Local license table per instance with remote validation; offline fallback is temporary, requiring eventual re-validation.
+
+
+
+Per-Instance Database: Each deployment fully isolated.
+
+
+
+Mobile-First PWA: Offline expense entry.
+
+
+
+Admin Panel: Full system management, license control, instance deletion.
+
+
+
+Fully Licensed Mode: No free edition.
+
+
+
+Core Features
+
+1. Database & Schema
+
+
+
+
+
+Per-Instance MariaDB per deployment.
+
+
+
+Core Tables: Users, Accounts, Transactions, Categories, Currencies, Payments, Rulesets, FeatureFlags, Licenses.
+
+
+
+Auto-Creation: Schema and defaults on first run.
+
+
+
+Initial Data: Default currencies (USD, EUR, GBP), date formats, checking/savings accounts.
+
+2. Licensing & Feature Gating (Hybrid)
+
+
+
+
+
+Local License Enforcement: Each instance validates against its local license table.
+
+
+
+Remote Validation: Can revoke licenses or collect analytics.
+
+
+
+Offline Fallback: Temporary offline mode with limited duration before re-validation required.
+
+
+
+Feature Flags: Enable bank API integration, advanced dashboards, plugins/add-ons.
+
+
+
+Expiry: Expired licenses disable features until renewed.
+
+3. Admin Panel (/admin)
+
+
+
+
+
+System Config: DB, SMTP/email, license management, security policies.
+
+
+
+User Management: Add/edit/remove users, assign roles (admin/manager/user/readonly).
+
+
+
+Backup & Restore: Includes local license table.
+
+
+
+Logs & Monitoring
+
+
+
+Full Instance Deletion: Stop service, drop DB, remove license, delete backups/logs, confirmation step, audit log.
+
+4. Frontend & API
+
+
+
+
+
+User Setup Wizard: Collect instance defaults (currency, date format, initial user account).
+
+
+
+Backend API: RESTful, JWT-secured, RBAC enforced, rate-limited.
+
+
+
+Security: Input validation, strict CORS, encrypted credentials.
+
+5. Ruleset System
+
+
+
+
+
+Shared Bank Rules: Rules apply across all accounts linked to the same bank.
+
+
+
+Manual or Auto-Suggested: From transaction history.
+
+
+
+Keywords, Regex, Categories, Tags, Priorities.
+
+6. Mobile Expense App (PWA)
+
+
+
+
+
+Offline-first with IndexedDB/localStorage.
+
+
+
+Auto-sync to main instance.
+
+
+
+Only for accounts without active API integration. Avoids duplicates
+
+
+
+Local encryption, HTTPS/TLS, PIN/biometric login.
+
+
+
+Offline entries cleared after sync.
+
+7. Bank Integration
+
+
+
+
+
+Per-Account API integration (user credentials).
+
+
+
+CSV Import/Export: Available for all accounts, API optional.
+
+
+
+Rulesets Linked to user-bank combination.
+
+
+
+Feature Gated via license table.
+
+8. Security & Data Protection
+
+
+
+
+
+Passwords: Argon2/bcrypt with strong policies.
+
+
+
+2FA: Optional (TOTP/WebAuthn).
+
+
+
+Encryption: AES-256 at rest, HTTPS/TLS in transit.
+
+
+
+Input validation prevents SQLi/XSS/CSRF.
+
+
+
+Logging with rotation.
+
+9. Maintenance
+
+
+
+
+
+Backup & restore per instance.
+
+
+
+License-aware restore.
+
+
+
+Full instance deletion in admin panel.
+
+
+
+Documentation included.
+
+10. General Settings
+
+
+
+
+
+Supported currencies, default currency, date format, interest precision.
+
+
+
+Account types: checking, savings, credit card, investment, custom.
+
+
+
+Categories, payments, transactions, currency exchange, scheduler, notifications.
+
+
+
+Admin configs: DB, SMTP/email, license, security policies.
+
+
+
+RBAC user management.
+
+
+
+Plugins/add-ons enabled via license.
+
+11. Reporting & Dashboards
+
+
+
+
+
+Overview: Balance, monthly spent, payments until payday, upcoming/overdue transactions.
+
+
+
+Category Charts: Horizontal bar (income/expenses).
+
+
+
+Monthly Overview: Vertical bars for income, expenses, cashflow.
+
+
+
+Quick-add transactions: income, expense, transfer.
+
+
+
+Savings: Balances, coverage months, doughnut chart %, projections, monthly change, growth rate.
+
+
+
+Debts: Total debt, monthly payments, avg interest, payoff date, composition, progress over time.
+
+
+
+Investments & Net Worth: Assets, liabilities, net worth.
+
+
+
+Advanced dashboards gated by license.
+
+
+
+Design Principles
+
+
+
+
+
+Licensed Mode Only: No free edition.
+
+
+
+Per-Instance Database: Full isolation.
+
+
+
+Hybrid Licensing: Local + remote validation with offline fallback.
+
+
+
+RBAC Everywhere: Admin, manager, user, readonly.
+
+
+
+Feature Gating: Per-license.
+
+
+
+Mobile-First: Offline-capable PWA.
+
+
+
+Secure by Default: Strong passwords, optional 2FA, encryption.
+
+
+
+Modular & Extensible: Plugins/add-ons licensed separately.
+
+
+
+Full Instance Deletion: GDPR-compliant, license invalidated on deletion.
+
+
+
+Target Users
+
+
+
+
+
+Individuals and families needing secure finance management.
+
+
+
+Small teams for personal finance tracking.
+
+
+
+Deployment & Resources
+
+
+
+
+
+Self-hosted or cloud.
+
+
+
+Small: 2–4GB RAM, 1 CPU.
+
+
+
+Medium/Heavy: 8GB+ RAM, 2+ CPUs.
+
+
+
+License Required: Instance cannot function without valid license key.
+
+
+
+Scaling: Additional instances with separate DB + license.
+
+
+
+Network: Required for remote license validation (configurable interval).
+
+
+
+
+
+
+
+💡 Suggestions & Considerations:
+
+1. Development Phases
+
+Phase 1: Core Dashboard (current) ✅
+Phase 2: Authentication + RBAC
+Phase 3: Database integration + API
+Phase 4: Licensing system
+Phase 5: Mobile PWA
+Phase 6: Bank integrations
+Phase 7: Admin panel
+
+
+2. Technical Additions Needed
+
+
+
+
+
+Authentication system (JWT + 2FA)
+
+
+
+License validation middleware
+
+
+
+Feature flag system
+
+
+
+API rate limiting
+
+
+
+Backup automation
+
+
+
+Admin panel UI
+
+3. Business Model Validation
+
+
+
+
+
+Pricing tiers based on features (basic/pro/enterprise)
+
+
+
+License key generation system
+
+
+
+Customer portal for license management
+
+
+
+Usage analytics for pricing optimization
+
+🎯 Next Steps Recommendation:
+
+Since the frontend foundation is solid, I'd suggest:
+
+
+
+
+
+Complete the dashboard (fix remaining UI issues)
+
+
+
+Add authentication layer (login/register/2FA)
+
+
+
+Build the API backend with MariaDB
+
+
+
+Implement licensing middleware
+
+
+
+Create admin panel
+
+🔥 This Has Real Commercial Potential
+
+The combination of:
+
+
+
+
+
+Self-hosted privacy
+
+
+
+Enterprise security
+
+
+
+No free tier (sustainable)
+
+
+
+Per-instance licensing
+
+
+
+GDPR compliance
+
+...makes this very attractive to privacy-conscious individuals and businesses who want financial control without cloud dependency.
+
+Would you like to continue building out the dashboard, or should we start working on the authentication/API layer next?
+
+This project has excellent potential - the architecture is sound and the market positioning is smart! 🚀
