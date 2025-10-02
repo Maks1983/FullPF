@@ -44,7 +44,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) =>
 
 // Get budget by ID
 router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const budget = await budgetService.findById(req.params.id, req.user!.id);
+  const budget = await budgetService.findById(req.params.id!, req.user!.id);
   
   if (!budget) {
     throw new Error('Budget not found');
@@ -78,7 +78,7 @@ router.put('/:id',
   validate(updateBudgetSchema),
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
-    const budget = await budgetService.update(req.params.id, req.user!.id, updates);
+    const budget = await budgetService.update(req.params.id!, req.user!.id, updates);
 
     const response: ApiResponse = {
       success: true,
@@ -92,7 +92,7 @@ router.put('/:id',
 
 // Delete budget
 router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  await budgetService.delete(req.params.id, req.user!.id);
+  await budgetService.delete(req.params.id!, req.user!.id);
 
   const response: ApiResponse = {
     success: true,

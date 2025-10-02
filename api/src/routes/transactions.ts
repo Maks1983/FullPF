@@ -68,7 +68,7 @@ router.get('/', validateQuery(transactionFiltersSchema), asyncHandler(async (req
 
 // Get transaction by ID
 router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const transaction = await transactionService.findById(req.params.id, req.user!.id);
+  const transaction = await transactionService.findById(req.params.id!, req.user!.id);
   
   if (!transaction) {
     throw new Error('Transaction not found');
@@ -102,7 +102,7 @@ router.put('/:id',
   validate(updateTransactionSchema),
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
-    const transaction = await transactionService.update(req.params.id, req.user!.id, updates);
+    const transaction = await transactionService.update(req.params.id!, req.user!.id, updates);
 
     const response: ApiResponse = {
       success: true,
@@ -116,7 +116,7 @@ router.put('/:id',
 
 // Delete transaction
 router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  await transactionService.delete(req.params.id, req.user!.id);
+  await transactionService.delete(req.params.id!, req.user!.id);
 
   const response: ApiResponse = {
     success: true,
@@ -128,7 +128,7 @@ router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandl
 
 // Get monthly totals
 router.get('/analytics/monthly/:year', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const year = parseInt(req.params.year);
+  const year = parseInt(req.params.year!, 10);
   const monthlyTotals = await transactionService.getMonthlyTotals(req.user!.id, year);
 
   const response: ApiResponse = {

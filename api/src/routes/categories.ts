@@ -39,7 +39,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) =>
 
 // Get category by ID
 router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const category = await categoryService.findById(req.params.id, req.user!.id);
+  const category = await categoryService.findById(req.params.id!, req.user!.id);
   
   if (!category) {
     throw new Error('Category not found');
@@ -73,7 +73,7 @@ router.put('/:id',
   validate(updateCategorySchema),
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
-    const category = await categoryService.update(req.params.id, req.user!.id, updates);
+    const category = await categoryService.update(req.params.id!, req.user!.id, updates);
 
     const response: ApiResponse = {
       success: true,
@@ -87,7 +87,7 @@ router.put('/:id',
 
 // Delete category
 router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  await categoryService.delete(req.params.id, req.user!.id);
+  await categoryService.delete(req.params.id!, req.user!.id);
 
   const response: ApiResponse = {
     success: true,

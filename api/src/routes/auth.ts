@@ -36,14 +36,14 @@ const refreshTokens = new Set<string>();
 const generateTokens = (userId: string): AuthTokens => {
   const accessToken = jwt.sign(
     { userId },
-    config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
+    config.jwt.secret as string,
+    { expiresIn: config.jwt.expiresIn as string }
   );
 
   const refreshToken = jwt.sign(
     { userId, type: 'refresh' },
-    config.jwt.secret,
-    { expiresIn: config.jwt.refreshExpiresIn }
+    config.jwt.secret as string,
+    { expiresIn: config.jwt.refreshExpiresIn as string }
   );
 
   refreshTokens.add(refreshToken);
@@ -129,7 +129,7 @@ router.post('/refresh', validate(refreshSchema), asyncHandler(async (req: Reques
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, config.jwt.secret) as any;
+    const decoded = jwt.verify(refreshToken, config.jwt.secret as string) as any;
     
     if (decoded.type !== 'refresh') {
       throw new AppError('Invalid token type', 401);
@@ -143,8 +143,8 @@ router.post('/refresh', validate(refreshSchema), asyncHandler(async (req: Reques
     // Generate new access token
     const accessToken = jwt.sign(
       { userId: user.id },
-      config.jwt.secret,
-      { expiresIn: config.jwt.expiresIn }
+      config.jwt.secret as string,
+      { expiresIn: config.jwt.expiresIn as string }
     );
 
     const response: ApiResponse<{ accessToken: string }> = {

@@ -50,7 +50,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) =>
 
 // Get goal by ID
 router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const goal = await goalService.findById(req.params.id, req.user!.id);
+  const goal = await goalService.findById(req.params.id!, req.user!.id);
   
   if (!goal) {
     throw new Error('Goal not found');
@@ -84,7 +84,7 @@ router.put('/:id',
   validate(updateGoalSchema),
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
-    const goal = await goalService.update(req.params.id, req.user!.id, updates);
+    const goal = await goalService.update(req.params.id!, req.user!.id, updates);
 
     const response: ApiResponse = {
       success: true,
@@ -98,7 +98,7 @@ router.put('/:id',
 
 // Delete goal
 router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  await goalService.delete(req.params.id, req.user!.id);
+  await goalService.delete(req.params.id!, req.user!.id);
 
   const response: ApiResponse = {
     success: true,
@@ -114,7 +114,7 @@ router.post('/:id/progress',
   validate(updateProgressSchema),
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { amount } = req.body;
-    const goal = await goalService.updateProgress(req.params.id, req.user!.id, amount);
+    const goal = await goalService.updateProgress(req.params.id!, req.user!.id, amount);
 
     const response: ApiResponse = {
       success: true,

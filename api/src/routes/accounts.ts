@@ -48,7 +48,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) =>
 
 // Get account by ID
 router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const account = await accountService.findById(req.params.id, req.user!.id);
+  const account = await accountService.findById(req.params.id!, req.user!.id);
   
   if (!account) {
     throw new Error('Account not found');
@@ -82,7 +82,7 @@ router.put('/:id',
   validate(updateAccountSchema),
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
-    const account = await accountService.update(req.params.id, req.user!.id, updates);
+    const account = await accountService.update(req.params.id!, req.user!.id, updates);
 
     const response: ApiResponse = {
       success: true,
@@ -96,7 +96,7 @@ router.put('/:id',
 
 // Delete account
 router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  await accountService.delete(req.params.id, req.user!.id);
+  await accountService.delete(req.params.id!, req.user!.id);
 
   const response: ApiResponse = {
     success: true,
