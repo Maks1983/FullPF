@@ -73,7 +73,6 @@ export const budgetService = {
       createdAt: new Date(),
       updatedAt: new Date(),
     } as Budget;
-    };
 
     budgets.push(budget);
     return budget;
@@ -107,7 +106,6 @@ export const budgetService = {
       isActive: false,
       updatedAt: new Date(),
     } as Budget;
-    };
   },
 
   async getBudgetAnalysis(userId: string, year: number, month: number): Promise<{
