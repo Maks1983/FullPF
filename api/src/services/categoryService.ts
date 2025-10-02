@@ -107,7 +107,7 @@ export const categoryService = {
       }
     }
 
-    const updatedCategory = {
+    const updatedCategory: Category = {
       ...categories[categoryIndex],
       ...updates,
       updatedAt: new Date(),
@@ -128,7 +128,7 @@ export const categoryService = {
       ...categories[categoryIndex],
       isActive: false,
       updatedAt: new Date(),
-    };
+    } as Category;
   },
 
   async getSpendingByCategory(userId: string, startDate: Date, endDate: Date): Promise<{

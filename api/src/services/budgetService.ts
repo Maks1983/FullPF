@@ -72,6 +72,7 @@ export const budgetService = {
       isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+    } as Budget;
     };
 
     budgets.push(budget);
@@ -84,7 +85,7 @@ export const budgetService = {
       throw new AppError('Budget not found', 404);
     }
 
-    const updatedBudget = {
+    const updatedBudget: Budget = {
       ...budgets[budgetIndex],
       ...updates,
       updatedAt: new Date(),
@@ -105,6 +106,7 @@ export const budgetService = {
       ...budgets[budgetIndex],
       isActive: false,
       updatedAt: new Date(),
+    } as Budget;
     };
   },
 

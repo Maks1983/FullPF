@@ -103,7 +103,7 @@ export const accountService = {
       throw new AppError('Account not found', 404);
     }
 
-    const updatedAccount = {
+    const updatedAccount: Account = {
       ...accounts[accountIndex],
       ...updates,
       updatedAt: new Date(),
@@ -124,7 +124,7 @@ export const accountService = {
       ...accounts[accountIndex],
       isActive: false,
       updatedAt: new Date(),
-    };
+    } as Account;
   },
 
   async updateBalance(id: string, userId: string, newBalance: number): Promise<Account> {

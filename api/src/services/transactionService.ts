@@ -180,19 +180,19 @@ export const transactionService = {
     }
 
     const originalTransaction = transactions[transactionIndex];
-    const updatedTransaction = {
+    const updatedTransaction: Transaction = {
       ...originalTransaction,
       ...updates,
       updatedAt: new Date(),
     };
 
     // If amount changed, update account balance
-    if (updates.amount !== undefined && updates.amount !== originalTransaction.amount) {
-      const account = await accountService.findById(originalTransaction.accountId, userId);
+    if (updates.amount !== undefined && updates.amount !== originalTransaction!.amount) {
+      const account = await accountService.findById(originalTransaction!.accountId, userId);
       if (account) {
-        const balanceDifference = updates.amount - originalTransaction.amount;
+        const balanceDifference = updates.amount - originalTransaction!.amount;
         const newBalance = account.balance + balanceDifference;
-        await accountService.updateBalance(originalTransaction.accountId, userId, newBalance);
+        await accountService.updateBalance(originalTransaction!.accountId, userId, newBalance);
       }
     }
 
@@ -207,12 +207,12 @@ export const transactionService = {
     }
 
     const transaction = transactions[transactionIndex];
-    
+
     // Reverse the transaction's effect on account balance
-    const account = await accountService.findById(transaction.accountId, userId);
+    const account = await accountService.findById(transaction!.accountId, userId);
     if (account) {
-      const newBalance = account.balance - transaction.amount;
-      await accountService.updateBalance(transaction.accountId, userId, newBalance);
+      const newBalance = account.balance - transaction!.amount;
+      await accountService.updateBalance(transaction!.accountId, userId, newBalance);
     }
 
     transactions.splice(transactionIndex, 1);

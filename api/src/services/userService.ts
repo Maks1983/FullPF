@@ -89,7 +89,7 @@ export const userService = {
       throw new AppError('User not found', 404);
     }
 
-    const updatedUser = {
+    const updatedUser: User = {
       ...users[userIndex],
       ...updates,
       updatedAt: new Date(),

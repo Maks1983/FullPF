@@ -75,7 +75,7 @@ export const goalService = {
       throw new AppError('Goal not found', 404);
     }
 
-    const updatedGoal = {
+    const updatedGoal: Goal = {
       ...goals[goalIndex],
       ...updates,
       updatedAt: new Date(),
@@ -96,7 +96,7 @@ export const goalService = {
       ...goals[goalIndex],
       isActive: false,
       updatedAt: new Date(),
-    };
+    } as Goal;
   },
 
   async updateProgress(id: string, userId: string, amount: number): Promise<Goal> {

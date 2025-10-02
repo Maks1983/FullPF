@@ -30,7 +30,7 @@ export const authMiddleware = async (
       throw new AppError('Access token required', 401);
     }
 
-    const decoded = jwt.verify(token, config.jwt.secret as string) as any;
+    const decoded = jwt.verify(token, config.jwt.secret) as any;
     
     if (!decoded.userId) {
       throw new AppError('Invalid token payload', 401);
@@ -71,7 +71,7 @@ export const optionalAuth = async (
     
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      const decoded = jwt.verify(token, config.jwt.secret as string) as any;
+      const decoded = jwt.verify(token, config.jwt.secret) as any;
       
       if (decoded.userId) {
         const user = await userService.findById(decoded.userId);

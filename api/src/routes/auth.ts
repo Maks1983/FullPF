@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Joi from 'joi';
 import { config } from '../config/environment';
@@ -34,16 +34,19 @@ const refreshSchema = Joi.object({
 const refreshTokens = new Set<string>();
 
 const generateTokens = (userId: string): AuthTokens => {
+  const accessTokenOptions: SignOptions = { expiresIn: config.jwt.expiresIn };
+  const refreshTokenOptions: SignOptions = { expiresIn: config.jwt.refreshExpiresIn };
+
   const accessToken = jwt.sign(
     { userId },
-    config.jwt.secret as string,
-    { expiresIn: config.jwt.expiresIn as string }
+    config.jwt.secret,
+    accessTokenOptions
   );
 
   const refreshToken = jwt.sign(
     { userId, type: 'refresh' },
-    config.jwt.secret as string,
-    { expiresIn: config.jwt.refreshExpiresIn as string }
+    config.jwt.secret,
+    refreshTokenOptions
   );
 
   refreshTokens.add(refreshToken);
@@ -129,7 +132,7 @@ router.post('/refresh', validate(refreshSchema), asyncHandler(async (req: Reques
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, config.jwt.secret as string) as any;
+    const decoded = jwt.verify(refreshToken, config.jwt.secret) as any;
     
     if (decoded.type !== 'refresh') {
       throw new AppError('Invalid token type', 401);
@@ -141,10 +144,11 @@ router.post('/refresh', validate(refreshSchema), asyncHandler(async (req: Reques
     }
 
     // Generate new access token
+    const accessTokenOptions: SignOptions = { expiresIn: config.jwt.expiresIn };
     const accessToken = jwt.sign(
       { userId: user.id },
-      config.jwt.secret as string,
-      { expiresIn: config.jwt.expiresIn as string }
+      config.jwt.secret,
+      accessTokenOptions
     );
 
     const response: ApiResponse<{ accessToken: string }> = {
