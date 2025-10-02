@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { accountService } from '../services/accountService';
 import { transactionService } from '../services/transactionService';
 import { goalService } from '../services/goalService';
@@ -10,7 +10,7 @@ import { AuthenticatedRequest } from '../middleware/authMiddleware';
 const router = Router();
 
 // Get complete dashboard data
-router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.id;
   
   // Get account summary
@@ -78,7 +78,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
 }));
 
 // Get quick stats
-router.get('/stats', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/stats', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.id;
   const accountSummary = await accountService.getAccountSummary(userId);
   const goals = await goalService.findByUserId(userId);

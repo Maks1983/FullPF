@@ -49,7 +49,7 @@ export const errorHandler = (
   const response: ApiResponse = {
     success: false,
     message,
-    errors: errors.length > 0 ? errors : undefined,
+    ...(errors.length > 0 && { errors }),
   };
 
   res.status(statusCode).json(response);

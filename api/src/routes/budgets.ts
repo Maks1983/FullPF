@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import Joi from 'joi';
 import { budgetService } from '../services/budgetService';
 import { validate, validateParams, validateQuery, schemas } from '../middleware/validation';
@@ -31,7 +31,7 @@ const budgetAnalysisSchema = Joi.object({
 });
 
 // Get all budgets for user
-router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const budgets = await budgetService.findByUserId(req.user!.id);
 
   const response: ApiResponse = {
@@ -43,7 +43,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
 }));
 
 // Get budget by ID
-router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const budget = await budgetService.findById(req.params.id, req.user!.id);
   
   if (!budget) {
@@ -59,7 +59,7 @@ router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(
 }));
 
 // Create new budget
-router.post('/', validate(createBudgetSchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.post('/', validate(createBudgetSchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const budgetData = req.body;
   const budget = await budgetService.create(req.user!.id, budgetData);
 
@@ -76,7 +76,7 @@ router.post('/', validate(createBudgetSchema), asyncHandler(async (req: Authenti
 router.put('/:id',
   validateParams(Joi.object({ id: schemas.id })),
   validate(updateBudgetSchema),
-  asyncHandler(async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
     const budget = await budgetService.update(req.params.id, req.user!.id, updates);
 
@@ -91,7 +91,7 @@ router.put('/:id',
 );
 
 // Delete budget
-router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   await budgetService.delete(req.params.id, req.user!.id);
 
   const response: ApiResponse = {
@@ -103,7 +103,7 @@ router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandl
 }));
 
 // Get budget analysis
-router.get('/analytics/analysis', validateQuery(budgetAnalysisSchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/analytics/analysis', validateQuery(budgetAnalysisSchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { year, month } = req.query as any;
   const analysis = await budgetService.getBudgetAnalysis(req.user!.id, parseInt(year), parseInt(month));
 

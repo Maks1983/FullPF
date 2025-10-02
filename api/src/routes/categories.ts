@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import Joi from 'joi';
 import { categoryService } from '../services/categoryService';
 import { validate, validateParams, schemas } from '../middleware/validation';
@@ -26,7 +26,7 @@ const updateCategorySchema = Joi.object({
 });
 
 // Get all categories for user
-router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const categories = await categoryService.findByUserId(req.user!.id);
 
   const response: ApiResponse = {
@@ -38,7 +38,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
 }));
 
 // Get category by ID
-router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const category = await categoryService.findById(req.params.id, req.user!.id);
   
   if (!category) {
@@ -54,7 +54,7 @@ router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(
 }));
 
 // Create new category
-router.post('/', validate(createCategorySchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.post('/', validate(createCategorySchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const categoryData = req.body;
   const category = await categoryService.create(req.user!.id, categoryData);
 
@@ -71,7 +71,7 @@ router.post('/', validate(createCategorySchema), asyncHandler(async (req: Authen
 router.put('/:id',
   validateParams(Joi.object({ id: schemas.id })),
   validate(updateCategorySchema),
-  asyncHandler(async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
     const category = await categoryService.update(req.params.id, req.user!.id, updates);
 
@@ -86,7 +86,7 @@ router.put('/:id',
 );
 
 // Delete category
-router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   await categoryService.delete(req.params.id, req.user!.id);
 
   const response: ApiResponse = {
@@ -98,7 +98,7 @@ router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandl
 }));
 
 // Get spending by category
-router.get('/analytics/spending', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/analytics/spending', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { startDate, endDate } = req.query;
   
   const start = startDate ? new Date(startDate as string) : new Date(new Date().getFullYear(), new Date().getMonth(), 1);

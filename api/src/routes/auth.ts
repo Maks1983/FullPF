@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Joi from 'joi';
@@ -52,7 +52,7 @@ const generateTokens = (userId: string): AuthTokens => {
 };
 
 // Register new user
-router.post('/register', validate(registerSchema), asyncHandler(async (req, res) => {
+router.post('/register', validate(registerSchema), asyncHandler(async (req: Request, res: Response) => {
   const userData = req.body;
   
   const user = await userService.create(userData);
@@ -79,7 +79,7 @@ router.post('/register', validate(registerSchema), asyncHandler(async (req, res)
 }));
 
 // Login user
-router.post('/login', validate(loginSchema), asyncHandler(async (req, res) => {
+router.post('/login', validate(loginSchema), asyncHandler(async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   // Find user by username or email
@@ -121,7 +121,7 @@ router.post('/login', validate(loginSchema), asyncHandler(async (req, res) => {
 }));
 
 // Refresh access token
-router.post('/refresh', validate(refreshSchema), asyncHandler(async (req, res) => {
+router.post('/refresh', validate(refreshSchema), asyncHandler(async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
 
   if (!refreshTokens.has(refreshToken)) {
@@ -161,7 +161,7 @@ router.post('/refresh', validate(refreshSchema), asyncHandler(async (req, res) =
 }));
 
 // Logout user
-router.post('/logout', asyncHandler(async (req, res) => {
+router.post('/logout', asyncHandler(async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
   
   if (refreshToken) {

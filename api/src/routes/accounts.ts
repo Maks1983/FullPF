@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import Joi from 'joi';
 import { accountService } from '../services/accountService';
 import { validate, validateParams, schemas } from '../middleware/validation';
@@ -35,7 +35,7 @@ const updateAccountSchema = Joi.object({
 });
 
 // Get all accounts for user
-router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const accounts = await accountService.findByUserId(req.user!.id);
 
   const response: ApiResponse = {
@@ -47,7 +47,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
 }));
 
 // Get account by ID
-router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const account = await accountService.findById(req.params.id, req.user!.id);
   
   if (!account) {
@@ -63,7 +63,7 @@ router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(
 }));
 
 // Create new account
-router.post('/', validate(createAccountSchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.post('/', validate(createAccountSchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const accountData = req.body;
   const account = await accountService.create(req.user!.id, accountData);
 
@@ -80,7 +80,7 @@ router.post('/', validate(createAccountSchema), asyncHandler(async (req: Authent
 router.put('/:id', 
   validateParams(Joi.object({ id: schemas.id })),
   validate(updateAccountSchema),
-  asyncHandler(async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
     const account = await accountService.update(req.params.id, req.user!.id, updates);
 
@@ -95,7 +95,7 @@ router.put('/:id',
 );
 
 // Delete account
-router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   await accountService.delete(req.params.id, req.user!.id);
 
   const response: ApiResponse = {
@@ -107,7 +107,7 @@ router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandl
 }));
 
 // Get account summary
-router.get('/summary/overview', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/summary/overview', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const summary = await accountService.getAccountSummary(req.user!.id);
 
   const response: ApiResponse = {

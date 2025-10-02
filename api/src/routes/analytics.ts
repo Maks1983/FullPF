@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { analyticsService } from '../services/analyticsService';
 import { asyncHandler } from '../middleware/errorHandler';
 import { ApiResponse } from '../types';
@@ -7,7 +7,7 @@ import { AuthenticatedRequest } from '../middleware/authMiddleware';
 const router = Router();
 
 // Get comprehensive analytics data
-router.get('/dashboard', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/dashboard', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const analyticsData = await analyticsService.getDashboardData(req.user!.id);
 
   const response: ApiResponse = {
@@ -19,7 +19,7 @@ router.get('/dashboard', asyncHandler(async (req: AuthenticatedRequest, res) => 
 }));
 
 // Get financial health score
-router.get('/health', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/health', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const healthData = await analyticsService.getFinancialHealth(req.user!.id);
 
   const response: ApiResponse = {

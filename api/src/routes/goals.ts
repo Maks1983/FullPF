@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import Joi from 'joi';
 import { goalService } from '../services/goalService';
 import { validate, validateParams, schemas } from '../middleware/validation';
@@ -37,7 +37,7 @@ const updateProgressSchema = Joi.object({
 });
 
 // Get all goals for user
-router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const goals = await goalService.findByUserId(req.user!.id);
 
   const response: ApiResponse = {
@@ -49,7 +49,7 @@ router.get('/', asyncHandler(async (req: AuthenticatedRequest, res) => {
 }));
 
 // Get goal by ID
-router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const goal = await goalService.findById(req.params.id, req.user!.id);
   
   if (!goal) {
@@ -65,7 +65,7 @@ router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(
 }));
 
 // Create new goal
-router.post('/', validate(createGoalSchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.post('/', validate(createGoalSchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const goalData = req.body;
   const goal = await goalService.create(req.user!.id, goalData);
 
@@ -82,7 +82,7 @@ router.post('/', validate(createGoalSchema), asyncHandler(async (req: Authentica
 router.put('/:id',
   validateParams(Joi.object({ id: schemas.id })),
   validate(updateGoalSchema),
-  asyncHandler(async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
     const goal = await goalService.update(req.params.id, req.user!.id, updates);
 
@@ -97,7 +97,7 @@ router.put('/:id',
 );
 
 // Delete goal
-router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   await goalService.delete(req.params.id, req.user!.id);
 
   const response: ApiResponse = {
@@ -112,7 +112,7 @@ router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandl
 router.post('/:id/progress',
   validateParams(Joi.object({ id: schemas.id })),
   validate(updateProgressSchema),
-  asyncHandler(async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { amount } = req.body;
     const goal = await goalService.updateProgress(req.params.id, req.user!.id, amount);
 
@@ -127,7 +127,7 @@ router.post('/:id/progress',
 );
 
 // Get goal progress analytics
-router.get('/analytics/progress', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/analytics/progress', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const progressData = await goalService.getGoalProgress(req.user!.id);
 
   const response: ApiResponse = {

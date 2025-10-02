@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import Joi from 'joi';
 import { transactionService } from '../services/transactionService';
 import { validate, validateParams, validateQuery, schemas } from '../middleware/validation';
@@ -48,7 +48,7 @@ const transactionFiltersSchema = Joi.object({
 });
 
 // Get transactions with filters and pagination
-router.get('/', validateQuery(transactionFiltersSchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/', validateQuery(transactionFiltersSchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const filters = req.query as any;
   const result = await transactionService.findByUserId(req.user!.id, filters);
 
@@ -67,7 +67,7 @@ router.get('/', validateQuery(transactionFiltersSchema), asyncHandler(async (req
 }));
 
 // Get transaction by ID
-router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const transaction = await transactionService.findById(req.params.id, req.user!.id);
   
   if (!transaction) {
@@ -83,7 +83,7 @@ router.get('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(
 }));
 
 // Create new transaction
-router.post('/', validate(createTransactionSchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.post('/', validate(createTransactionSchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const transactionData = req.body;
   const transaction = await transactionService.create(req.user!.id, transactionData);
 
@@ -100,7 +100,7 @@ router.post('/', validate(createTransactionSchema), asyncHandler(async (req: Aut
 router.put('/:id',
   validateParams(Joi.object({ id: schemas.id })),
   validate(updateTransactionSchema),
-  asyncHandler(async (req: AuthenticatedRequest, res) => {
+  asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const updates = req.body;
     const transaction = await transactionService.update(req.params.id, req.user!.id, updates);
 
@@ -115,7 +115,7 @@ router.put('/:id',
 );
 
 // Delete transaction
-router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   await transactionService.delete(req.params.id, req.user!.id);
 
   const response: ApiResponse = {
@@ -127,7 +127,7 @@ router.delete('/:id', validateParams(Joi.object({ id: schemas.id })), asyncHandl
 }));
 
 // Get monthly totals
-router.get('/analytics/monthly/:year', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/analytics/monthly/:year', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const year = parseInt(req.params.year);
   const monthlyTotals = await transactionService.getMonthlyTotals(req.user!.id, year);
 

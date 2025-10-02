@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import Joi from 'joi';
 import { userService } from '../services/userService';
 import { validate } from '../middleware/validation';
@@ -22,7 +22,7 @@ const changePasswordSchema = Joi.object({
 });
 
 // Get current user profile
-router.get('/profile', asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.get('/profile', asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const user = await userService.findById(req.user!.id);
   
   if (!user) {
@@ -48,7 +48,7 @@ router.get('/profile', asyncHandler(async (req: AuthenticatedRequest, res) => {
 }));
 
 // Update user profile
-router.put('/profile', validate(updateUserSchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.put('/profile', validate(updateUserSchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const updates = req.body;
   const updatedUser = await userService.update(req.user!.id, updates);
 
@@ -71,7 +71,7 @@ router.put('/profile', validate(updateUserSchema), asyncHandler(async (req: Auth
 }));
 
 // Change password
-router.post('/change-password', validate(changePasswordSchema), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.post('/change-password', validate(changePasswordSchema), asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { currentPassword, newPassword } = req.body;
   const userId = req.user!.id;
 
