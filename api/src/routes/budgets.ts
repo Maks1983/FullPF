@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import Joi from 'joi';
 import { budgetService } from '../services/budgetService';
-import { validate, validateParams, schemas } from '../middleware/validation';
+import { validate, validateParams, validateQuery, schemas } from '../middleware/validation';
 import { asyncHandler } from '../middleware/errorHandler';
 import { ApiResponse } from '../types';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
