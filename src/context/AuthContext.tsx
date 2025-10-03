@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authService } from '../services/authService';
-import type { AuthUser } from '../services/authService';
+import { authApi, initializeTokensFromStorage } from '../lib/apiClient';
 import type { FeatureFlagKey } from './AdminFoundation';
 
 export interface SessionInfo {
@@ -34,16 +33,6 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const mapAuthUserToSession = (user: AuthUser): SessionInfo => ({
-  id: user.id,
-  username: user.username,
-  displayName: user.displayName,
-  email: user.email,
-  role: user.role,
-  tier: user.tier,
-  isPremium: user.isPremium,
-});
-
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [impersonation, setImpersonation] = useState<any | null>(null);
@@ -52,9 +41,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const user = await authService.getCurrentUser();
-        if (user) {
-          setSession(mapAuthUserToSession(user));
+        // Initialize tokens from storage
+        initializeTokensFromStorage();
+
+        // Try to load session from API
+        const data = await authApi.loadSession();
+        if (data && data.user) {
+          setSession({
+            id: data.user.id,
+            username: data.user.username || data.user.email,
+            displayName: data.user.displayName || data.user.email,
+            email: data.user.email,
+            role: data.user.role,
+            tier: data.user.tier,
+            isPremium: data.user.isPremium || data.user.tier !== 'free',
+          });
+          if (data.impersonation) {
+            setImpersonation(data.impersonation);
+          }
         }
       } catch (error) {
         console.log('No valid session found');
@@ -64,25 +68,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
-
-    const { data: { subscription } } = authService.onAuthStateChange((user) => {
-      if (user) {
-        setSession(mapAuthUserToSession(user));
-      } else {
-        setSession(null);
-        setImpersonation(null);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   const login = async (email: string, password: string): Promise<LoginOutcome> => {
     try {
-      const user = await authService.signIn({ email: email.trim(), password });
-      const sessionInfo = mapAuthUserToSession(user);
+      const result = await authApi.login(email.trim(), password);
+
+      // Handle two-factor authentication
+      if ('requiresTwoFactor' in result) {
+        return {
+          status: 'error',
+          error: 'Two-factor authentication not yet implemented'
+        };
+      }
+
+      // Fetch user profile
+      const userData = await authApi.loadSession();
+      if (!userData || !userData.user) {
+        throw new Error('Failed to load user session');
+      }
+
+      const sessionInfo: SessionInfo = {
+        id: userData.user.id,
+        username: userData.user.username || userData.user.email,
+        displayName: userData.user.displayName || userData.user.email,
+        email: userData.user.email,
+        role: userData.user.role,
+        tier: userData.user.tier,
+        isPremium: userData.user.isPremium || userData.user.tier !== 'free',
+      };
+
       setSession(sessionInfo);
 
       return { status: 'success', session: sessionInfo };
@@ -96,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await authService.signOut();
+      await authApi.logout();
     } finally {
       setSession(null);
       setImpersonation(null);

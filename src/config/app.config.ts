@@ -4,10 +4,6 @@ export interface AppConfig {
     version: string;
     environment: 'development' | 'staging' | 'production';
   };
-  supabase: {
-    url: string;
-    anonKey: string;
-  };
   api: {
     baseUrl: string;
     version: string;
@@ -52,12 +48,8 @@ export const appConfig: AppConfig = {
     version: '1.0.0',
     environment: (getEnvVar('VITE_APP_ENV', 'development') as AppConfig['app']['environment']),
   },
-  supabase: {
-    url: getEnvVar('VITE_SUPABASE_URL', 'https://0ec90b57d6e95fcbda19832f.supabase.co'),
-    anonKey: getEnvVar('VITE_SUPABASE_ANON_KEY', ''),
-  },
   api: {
-    baseUrl: getEnvVar('VITE_API_BASE_URL', 'http://localhost:4000'),
+    baseUrl: getEnvVar('VITE_API_URL', 'http://localhost:4000/api/v1'),
     version: 'v1',
   },
   tenant: {

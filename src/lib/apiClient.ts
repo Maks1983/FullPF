@@ -10,8 +10,8 @@ import type {
   SessionInfo,
 } from '../context/AdminFoundation';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000';
-const API_VERSION = 'api'; // Use versioned API endpoints
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api/v1';
+const API_VERSION = ''; // No version in path since it's in base URL
 const REFRESH_STORAGE_KEY = 'owncent.refreshToken';
 const TENANT_ID = (import.meta.env.VITE_TENANT_ID ?? 'demo-instance').toLowerCase();
 
@@ -68,8 +68,8 @@ const withApiBase = (path: string): string => {
   if (path.startsWith('http')) {
     return path;
   }
-  // Use versioned API endpoints with tenant header
-  return `${API_BASE_URL}/${API_VERSION}${path}`;
+  // API_BASE_URL already includes /api/v1
+  return `${API_BASE_URL}${path}`;
 };
 
 export const getStoredRefreshToken = (): string | null =>
@@ -98,11 +98,10 @@ const refreshAccessToken = async (): Promise<string | null> => {
   }
   refreshInFlight = (async () => {
     try {
-      const response = await fetch(withApiBase('/api/auth/refresh'), {
+      const response = await fetch(withApiBase('/auth/refresh'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': TENANT_ID,
         },
         body: JSON.stringify({ refreshToken }),
       });
@@ -130,7 +129,6 @@ const request = async <TResponse>(path: string, options: RequestOptions = {}): P
   const { method = 'GET', body, signal } = options;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-Tenant-ID': TENANT_ID,
   };
   if (accessToken) {
     headers.Authorization = `Bearer ${accessToken}`;
@@ -168,14 +166,13 @@ const request = async <TResponse>(path: string, options: RequestOptions = {}): P
 };
 
 export const authApi = {
-  async login(username: string, password: string): Promise<LoginResponse> {
-    const response = await fetch(withApiBase('/api/auth/login'), {
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const response = await fetch(withApiBase('/auth/login'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Tenant-ID': TENANT_ID,
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
@@ -210,7 +207,7 @@ export const authApi = {
   async logout(): Promise<void> {
     try {
       const refreshToken = getStoredRefreshToken();
-      await request<void>('/api/auth/logout', {
+      await request<void>('/auth/logout', {
         method: 'POST',
         body: refreshToken ? { refreshToken } : undefined,
       });
@@ -222,7 +219,7 @@ export const authApi = {
   },
 
   async loadSession(): Promise<{ user: SessionInfo; impersonation: ImpersonationState | null }> {
-    return request('/api/auth/session');
+    return request('/user');
   },
 
   async stepUp(action: string, code: string): Promise<{ success: boolean }> {
