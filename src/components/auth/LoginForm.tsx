@@ -8,19 +8,16 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onForgotPassword }) => {
-  const { login, completeTwoFactor } = useAuthContext();
+  const { login } = useAuthContext();
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [twoFactorChallenge, setTwoFactorChallenge] = useState<string | null>(null);
-  const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [twoFactorError, setTwoFactorError] = useState('');
 
-  const handleInputChange = (field: 'username' | 'password') => (
+  const handleInputChange = (field: 'email' | 'password') => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setFormData(prev => ({
@@ -28,23 +25,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onForgotPassword }) =>
       [field]: event.target.value
     }));
     setError('');
-    setTwoFactorError('');
   };
 
   const handleLoginSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setError('');
-    setTwoFactorError('');
 
     try {
-      const result = await login(formData.username, formData.password);
-      
-      if (result.status === 'challenge') {
-        setTwoFactorChallenge(result.challengeId);
-        setTwoFactorCode('');
-      } else if (result.status === 'success') {
-        setFormData({ username: '', password: '' });
+      const result = await login(formData.email, formData.password);
+
+      if (result.status === 'success') {
+        setFormData({ email: '', password: '' });
         onSuccess?.();
       } else {
         setError(result.error);
@@ -56,110 +48,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onForgotPassword }) =>
     }
   };
 
-  const handleTwoFactorSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!twoFactorChallenge) return;
-
-    setLoading(true);
-    setTwoFactorError('');
-
-    try {
-      const result = await completeTwoFactor(twoFactorChallenge, twoFactorCode);
-      
-      if (result.status === 'success') {
-        setTwoFactorChallenge(null);
-        setTwoFactorCode('');
-        setFormData({ username: '', password: '' });
-        onSuccess?.();
-      } else {
-        setTwoFactorError(result.error);
-      }
-    } catch (err) {
-      setTwoFactorError(err instanceof Error ? err.message : 'Verification failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (twoFactorChallenge) {
-    return (
-      <div className="space-y-6">
-        <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-sm">
-            <Lock className="h-5 w-5" />
-          </div>
-          <h2 className="mt-4 text-2xl font-semibold text-gray-900">
-            Two-Factor Authentication
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Enter the 6-digit code from your authenticator app
-          </p>
-          <div className="mt-2 p-2 bg-blue-50 rounded-lg">
-            <p className="text-xs text-blue-800">
-              <strong>Demo Code:</strong> 246810
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={handleTwoFactorSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="twoFactorCode" className="block text-sm font-medium text-gray-700 mb-2">
-              Authentication Code
-            </label>
-            <input
-              id="twoFactorCode"
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              value={twoFactorCode}
-              onChange={(e) => setTwoFactorCode(e.target.value)}
-              placeholder="000000"
-              maxLength={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-center text-lg font-mono"
-              required
-            />
-          </div>
-
-          {twoFactorError && (
-            <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg">
-              <AlertTriangle className="h-4 w-4" />
-              <span className="text-sm">{twoFactorError}</span>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading || twoFactorCode.length !== 6}
-            className="w-full flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Lock className="h-4 w-4 mr-2" />
-            )}
-            {loading ? 'Verifying...' : 'Verify & Continue'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setTwoFactorChallenge(null);
-              setTwoFactorCode('');
-              setTwoFactorError('');
-            }}
-            className="w-full text-sm text-gray-600 hover:text-gray-800"
-          >
-            Back to Login
-          </button>
-        </form>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-sm">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-sm">
           <LogIn className="h-5 w-5" />
         </div>
         <h2 className="mt-4 text-2xl font-semibold text-gray-900">
@@ -172,17 +64,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onForgotPassword }) =>
 
       <form onSubmit={handleLoginSubmit} className="space-y-4">
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-            Username
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            Email
           </label>
           <input
-            id="username"
-            type="text"
-            value={formData.username}
-            onChange={handleInputChange('username')}
-            autoComplete="username"
-            placeholder="Enter your username"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={handleInputChange('email')}
+            autoComplete="email"
+            placeholder="Enter your email"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             required
           />
         </div>
@@ -199,7 +91,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onForgotPassword }) =>
               onChange={handleInputChange('password')}
               autoComplete="current-password"
               placeholder="Enter your password"
-              className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
             <button
@@ -222,7 +114,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onForgotPassword }) =>
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />

@@ -1,6 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authApi, setTokens, clearTokens, initializeTokensFromStorage } from '../lib/apiClient';
-import type { SessionInfo, FeatureFlagKey } from './AdminFoundation';
+import { authService } from '../services/authService';
+import type { AuthUser } from '../services/authService';
+import type { FeatureFlagKey } from './AdminFoundation';
+
+export interface SessionInfo {
+  id: string;
+  username: string;
+  displayName: string;
+  email: string;
+  role: 'owner' | 'manager' | 'user' | 'family' | 'readonly';
+  tier: 'free' | 'advanced' | 'premium' | 'family';
+  isPremium: boolean;
+}
 
 export interface AuthContextType {
   session: SessionInfo | null;
@@ -8,18 +19,12 @@ export interface AuthContextType {
   impersonation: any | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<LoginOutcome>;
-  completeTwoFactor: (challengeId: string, code: string) => Promise<TwoFactorOutcome>;
+  login: (email: string, password: string) => Promise<LoginOutcome>;
   logout: () => Promise<void>;
   featureAvailability: (featureKey: FeatureFlagKey) => boolean;
 }
 
 export type LoginOutcome =
-  | { status: 'success'; session: SessionInfo }
-  | { status: 'challenge'; challengeId: string }
-  | { status: 'error'; error: string };
-
-export type TwoFactorOutcome =
   | { status: 'success'; session: SessionInfo }
   | { status: 'error'; error: string };
 
@@ -29,44 +34,58 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const mapAuthUserToSession = (user: AuthUser): SessionInfo => ({
+  id: user.id,
+  username: user.username,
+  displayName: user.displayName,
+  email: user.email,
+  role: user.role,
+  tier: user.tier,
+  isPremium: user.isPremium,
+});
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [impersonation, setImpersonation] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize session on app load
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        initializeTokensFromStorage();
-        const { user, impersonation: impersonationInfo } = await authApi.loadSession();
-        setSession(user);
-        setImpersonation(impersonationInfo);
+        const user = await authService.getCurrentUser();
+        if (user) {
+          setSession(mapAuthUserToSession(user));
+        }
       } catch (error) {
         console.log('No valid session found');
-        clearTokens();
       } finally {
         setIsLoading(false);
       }
     };
 
     initializeAuth();
+
+    const { data: { subscription } } = authService.onAuthStateChange((user) => {
+      if (user) {
+        setSession(mapAuthUserToSession(user));
+      } else {
+        setSession(null);
+        setImpersonation(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = async (username: string, password: string): Promise<LoginOutcome> => {
+  const login = async (email: string, password: string): Promise<LoginOutcome> => {
     try {
-      const response = await authApi.login(username.trim(), password);
-      
-      if ('requiresTwoFactor' in response) {
-        return { status: 'challenge', challengeId: response.challengeId };
-      }
-      
-      // Load session after successful login
-      const { user, impersonation: impersonationInfo } = await authApi.loadSession();
-      setSession(user);
-      setImpersonation(impersonationInfo);
-      
-      return { status: 'success', session: user };
+      const user = await authService.signIn({ email: email.trim(), password });
+      const sessionInfo = mapAuthUserToSession(user);
+      setSession(sessionInfo);
+
+      return { status: 'success', session: sessionInfo };
     } catch (error) {
       return {
         status: 'error',
@@ -75,39 +94,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const completeTwoFactor = async (challengeId: string, code: string): Promise<TwoFactorOutcome> => {
-    try {
-      await authApi.verifyTwoFactor(challengeId, code.trim());
-      
-      // Load session after successful 2FA
-      const { user, impersonation: impersonationInfo } = await authApi.loadSession();
-      setSession(user);
-      setImpersonation(impersonationInfo);
-      
-      return { status: 'success', session: user };
-    } catch (error) {
-      return {
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Two-factor verification failed'
-      };
-    }
-  };
-
   const logout = async () => {
     try {
-      await authApi.logout();
+      await authService.signOut();
     } finally {
       setSession(null);
       setImpersonation(null);
-      clearTokens();
     }
   };
 
-  // Basic feature availability based on user tier
   const featureAvailability = (featureKey: FeatureFlagKey): boolean => {
     if (!session) return false;
-    
-    // Basic tier-based feature gating
+
     const tierFeatures: Record<string, FeatureFlagKey[]> = {
       free: [],
       advanced: ['family_features_enabled', 'reports_enabled'],
@@ -129,7 +127,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated,
     isLoading,
     login,
-    completeTwoFactor,
     logout,
     featureAvailability
   };
