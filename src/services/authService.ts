@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import type { Database } from '../lib/supabase';
+import { database } from '../lib/database';
+import type { Database } from '../lib/database';
 
 type UserRow = Database['public']['Tables']['users']['Row'];
 
@@ -27,7 +27,7 @@ export interface SignInData {
 
 export const authService = {
   async signUp(data: SignUpData): Promise<AuthUser> {
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await database.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
@@ -35,7 +35,7 @@ export const authService = {
     if (authError) throw authError;
     if (!authData.user) throw new Error('Failed to create user');
 
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await database
       .from('users')
       .insert({
         id: authData.user.id,
@@ -64,7 +64,7 @@ export const authService = {
   },
 
   async signIn(data: SignInData): Promise<AuthUser> {
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    const { data: authData, error: authError } = await database.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
@@ -72,7 +72,7 @@ export const authService = {
     if (authError) throw authError;
     if (!authData.user) throw new Error('Failed to sign in');
 
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await database
       .from('users')
       .select('*')
       .eq('id', authData.user.id)
@@ -93,16 +93,16 @@ export const authService = {
   },
 
   async signOut(): Promise<void> {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await database.auth.signOut();
     if (error) throw error;
   },
 
   async getCurrentUser(): Promise<AuthUser | null> {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await database.auth.getUser();
 
     if (!user) return null;
 
-    const { data: userData, error } = await supabase
+    const { data: userData, error } = await database
       .from('users')
       .select('*')
       .eq('id', user.id)
@@ -123,17 +123,17 @@ export const authService = {
   },
 
   async updatePassword(currentPassword: string, newPassword: string): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await database.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error: signInError } = await database.auth.signInWithPassword({
       email: user.email!,
       password: currentPassword,
     });
 
     if (signInError) throw new Error('Current password is incorrect');
 
-    const { error: updateError } = await supabase.auth.updateUser({
+    const { error: updateError } = await database.auth.updateUser({
       password: newPassword,
     });
 
@@ -141,7 +141,7 @@ export const authService = {
   },
 
   async resetPassword(email: string): Promise<void> {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await database.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
 
@@ -149,7 +149,7 @@ export const authService = {
   },
 
   onAuthStateChange(callback: (user: AuthUser | null) => void) {
-    return supabase.auth.onAuthStateChange(async (event, session) => {
+    return database.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         const user = await this.getCurrentUser();
         callback(user);

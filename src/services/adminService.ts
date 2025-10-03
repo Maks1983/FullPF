@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import type { Database } from '../lib/supabase';
+import { database } from '../lib/database';
+import type { Database } from '../lib/database';
 
 type UserRow = Database['public']['Tables']['users']['Row'];
 type FeatureFlagRow = Database['public']['Tables']['feature_flags']['Row'];
@@ -12,7 +12,7 @@ export interface AdminUser extends UserRow {
 
 export const adminService = {
   async getAllUsers(): Promise<AdminUser[]> {
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('users')
       .select('*')
       .order('created_at', { ascending: false });
@@ -22,7 +22,7 @@ export const adminService = {
   },
 
   async getFeatureFlags(): Promise<FeatureFlagRow[]> {
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('feature_flags')
       .select('*')
       .order('key', { ascending: true });
@@ -37,7 +37,7 @@ export const adminService = {
     userId: string,
     notes?: string
   ): Promise<FeatureFlagRow> {
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('feature_flags')
       .update({
         value,
@@ -54,7 +54,7 @@ export const adminService = {
   },
 
   async getConfigItems(): Promise<ConfigItemRow[]> {
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('config_items')
       .select('*')
       .order('key', { ascending: true });
@@ -68,7 +68,7 @@ export const adminService = {
     value: string,
     userId: string
   ): Promise<ConfigItemRow> {
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('config_items')
       .update({
         value,
@@ -84,7 +84,7 @@ export const adminService = {
   },
 
   async getAuditLogs(limit = 100): Promise<AuditLogRow[]> {
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('audit_logs')
       .select('*')
       .order('timestamp', { ascending: false })
@@ -103,7 +103,7 @@ export const adminService = {
     immutable?: boolean;
     impersonated_user_id?: string | null;
   }): Promise<AuditLogRow> {
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('audit_logs')
       .insert({
         actor_user_id: log.actor_user_id,
@@ -126,7 +126,7 @@ export const adminService = {
     role: UserRow['role'],
     actorId: string
   ): Promise<UserRow> {
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('users')
       .update({ role, updated_at: new Date().toISOString() })
       .eq('id', userId)
@@ -153,7 +153,7 @@ export const adminService = {
   ): Promise<UserRow> {
     const isPremium = tier === 'premium' || tier === 'family';
 
-    const { data, error } = await supabase
+    const { data, error } = await database
       .from('users')
       .update({
         tier,
@@ -181,11 +181,11 @@ export const adminService = {
     const now = new Date().toISOString();
     const uptimeStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const { count: userCount } = await supabase
+    const { count: userCount } = await database
       .from('users')
       .select('*', { count: 'exact', head: true });
 
-    const { count: transactionCount } = await supabase
+    const { count: transactionCount } = await database
       .from('transactions')
       .select('*', { count: 'exact', head: true })
       .gte('created_at', uptimeStart);

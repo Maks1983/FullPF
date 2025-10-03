@@ -59,7 +59,6 @@ export interface BankToken {
   metadata?: Record<string, unknown>;
 }
 
-
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
 type JsonValue = Record<string, unknown> | undefined;
@@ -187,7 +186,7 @@ export const authApi = {
   },
 
   async verifyTwoFactor(challengeId: string, code: string): Promise<LoginSuccess> {
-    const response = await fetch(withApiBase('/api/auth/2fa/verify'), {
+    const response = await fetch(withApiBase('/auth/2fa/verify'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -223,14 +222,14 @@ export const authApi = {
   },
 
   async stepUp(action: string, code: string): Promise<{ success: boolean }> {
-    return request('/api/auth/step-up', {
+    return request('/auth/step-up', {
       method: 'POST',
       body: { action, code },
     });
   },
 
   async impersonate(targetUserId: string, reason?: string): Promise<string> {
-    const data = await request<{ accessToken: string }>('/api/auth/impersonate', {
+    const data = await request<{ accessToken: string }>('/auth/impersonate', {
       method: 'POST',
       body: { targetUserId, reason },
     });
@@ -239,7 +238,7 @@ export const authApi = {
   },
 
   async stopImpersonation(): Promise<string> {
-    const data = await request<{ accessToken: string }>('/api/auth/impersonate/stop', {
+    const data = await request<{ accessToken: string }>('/auth/impersonate/stop', {
       method: 'POST',
     });
     setTokens({ accessToken: data.accessToken });
@@ -247,7 +246,7 @@ export const authApi = {
   },
 
   async requestPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(withApiBase('/api/auth/password-reset/request'), {
+    const response = await fetch(withApiBase('/auth/password-reset/request'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -265,7 +264,7 @@ export const authApi = {
   },
 
   async confirmPasswordReset(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(withApiBase('/api/auth/password-reset/confirm'), {
+    const response = await fetch(withApiBase('/auth/password-reset/confirm'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -283,13 +282,13 @@ export const authApi = {
   },
 
   async requestEmailVerification(): Promise<{ success: boolean; message: string }> {
-    return request('/api/auth/email-verification/request', {
+    return request('/auth/email-verification/request', {
       method: 'POST',
     });
   },
 
   async confirmEmailVerification(token: string): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(withApiBase('/api/auth/email-verification/confirm'), {
+    const response = await fetch(withApiBase('/auth/email-verification/confirm'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -307,7 +306,7 @@ export const authApi = {
   },
 
   async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
-    return request('/api/auth/change-password', {
+    return request('/auth/change-password', {
       method: 'POST',
       body: { currentPassword, newPassword },
     });
@@ -326,14 +325,14 @@ export interface AdminBootstrapResponse {
 
 export const adminApi = {
   async bootstrap(): Promise<AdminBootstrapResponse> {
-    return request('/api/admin/bootstrap');
+    return request('/admin/bootstrap');
   },
 
   async updateFeatureFlag(
     key: FeatureFlagKey,
     payload: { value: boolean; notes?: string },
   ): Promise<FeatureFlagRecord> {
-    return request(`/api/admin/feature-flags/${key}`, {
+    return request(`/admin/feature-flags/${key}`, {
       method: 'PATCH',
       body: payload,
     });
@@ -346,50 +345,50 @@ export const adminApi = {
     metadata?: Record<string, unknown>;
     immutable?: boolean;
   }): Promise<AuditLogEntry> {
-    return request('/api/admin/audit', {
+    return request('/admin/audit', {
       method: 'POST',
       body: entry,
     });
   },
 
   async updateConfig(key: string, payload: { value: string; masked?: boolean }): Promise<ConfigItem> {
-    return request(`/api/admin/config/${key}`, {
+    return request(`/admin/config/${key}`, {
       method: 'PATCH',
       body: payload,
     });
   },
 
   async refreshMonitoring(): Promise<MonitoringSnapshot> {
-    return request('/api/admin/monitoring/refresh', { method: 'POST' });
+    return request('/admin/monitoring/refresh', { method: 'POST' });
   },
 
   async triggerBackup(mode: 'manual' | 'scheduled'): Promise<InfrastructureStatus> {
-    return request('/api/admin/infrastructure/backup', {
+    return request('/admin/infrastructure/backup', {
       method: 'POST',
       body: { mode },
     });
   },
 
   async triggerRestore(options: { dryRun?: boolean }): Promise<InfrastructureStatus> {
-    return request('/api/admin/infrastructure/restore', {
+    return request('/admin/infrastructure/restore', {
       method: 'POST',
       body: options,
     });
   },
 
   async scheduleDeletion(payload: { confirmationToken: string; scheduledFor: string }): Promise<InfrastructureStatus> {
-    return request('/api/admin/infrastructure/deletion/schedule', {
+    return request('/admin/infrastructure/deletion/schedule', {
       method: 'POST',
       body: payload,
     });
   },
 
   async cancelDeletion(): Promise<InfrastructureStatus> {
-    return request('/api/admin/infrastructure/deletion/cancel', { method: 'POST' });
+    return request('/admin/infrastructure/deletion/cancel', { method: 'POST' });
   },
 
   async updateLicenseOverride(payload: { overrideActive: boolean; overrideTier?: LicenseState['tier'] }): Promise<LicenseState> {
-    return request('/api/admin/license/override', {
+    return request('/admin/license/override', {
       method: 'POST',
       body: payload,
     });
@@ -401,9 +400,9 @@ export const bankApi = {
     BankConnection[] | { connections: BankConnection[]; tokens: BankToken[] }
   > {
     if (includeTokens) {
-      return request('/api/bank/connections?includeTokens=true');
+      return request('/bank/connections?includeTokens=true');
     }
-    return request('/api/bank/connections');
+    return request('/bank/connections');
   },
 
   async createConnection(payload: {
@@ -412,7 +411,7 @@ export const bankApi = {
     institutionName: string;
     connectionLabel?: string;
   }): Promise<BankConnection> {
-    return request('/api/bank/connections', {
+    return request('/bank/connections', {
       method: 'POST',
       body: payload,
     });
@@ -422,7 +421,7 @@ export const bankApi = {
     connectionId: string,
     payload: { scope: string[]; expiresInDays?: number },
   ): Promise<BankToken> {
-    return request(`/api/bank/connections/${connectionId}/token`, {
+    return request(`/bank/connections/${connectionId}/token`, {
       method: 'POST',
       body: payload,
     });
@@ -432,7 +431,7 @@ export const bankApi = {
     connectionId: string,
     payload: { status?: 'pending' | 'active' | 'error'; failureReason?: string },
   ): Promise<BankConnection> {
-    return request(`/api/bank/connections/${connectionId}/sync`, {
+    return request(`/bank/connections/${connectionId}/sync`, {
       method: 'POST',
       body: payload,
     });
@@ -442,18 +441,18 @@ export const bankApi = {
     connectionId: string,
     payload?: { reason?: string },
   ): Promise<{ connection: BankConnection; revokedTokens: BankToken[] }> {
-    return request(`/api/bank/connections/${connectionId}/revoke`, {
+    return request(`/bank/connections/${connectionId}/revoke`, {
       method: 'POST',
       body: payload,
     });
   },
 
   async listTokens(connectionId: string): Promise<BankToken[]> {
-    return request(`/api/bank/connections/${connectionId}/tokens`);
+    return request(`/bank/connections/${connectionId}/tokens`);
   },
 
   async revokeToken(tokenId: string, payload?: { reason?: string }): Promise<BankToken> {
-    return request(`/api/bank/tokens/${tokenId}/revoke`, {
+    return request(`/bank/tokens/${tokenId}/revoke`, {
       method: 'POST',
       body: payload,
     });
