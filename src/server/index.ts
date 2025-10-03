@@ -71,9 +71,9 @@ app.use('/api/v1/sync', syncRoutes);
 const distPath = path.join(__dirname, '../../dist');
 app.use(express.static(distPath));
 
-// Serve index.html for all non-API routes (SPA fallback)
-app.get('*', (req: Request, res: Response) => {
-  // Skip API routes
+// Catch-all handler for SPA and API 404s
+app.use((req: Request, res: Response) => {
+  // Return 404 JSON for API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({
       error: 'Not Found',
@@ -82,6 +82,7 @@ app.get('*', (req: Request, res: Response) => {
     });
   }
 
+  // Serve index.html for all other routes (SPA fallback)
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
