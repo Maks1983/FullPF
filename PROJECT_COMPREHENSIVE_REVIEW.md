@@ -311,6 +311,47 @@ server/
 
 ---
 
+## NAMING CONVENTION VIOLATIONS
+
+### Files with Supabase References:
+
+1. **`src/lib/supabase.ts`** - Entire file dedicated to Supabase
+2. **`src/services/authService.ts`** - Uses `supabase` client
+3. **`src/services/adminService.ts`** - Uses `supabase` client
+4. **`src/services/financialService.ts`** - Uses `supabase` client
+5. **`supabase/` directory** - Entire directory structure
+6. **Multiple component files** - Comments referencing Supabase
+
+### Required Naming Changes:
+
+#### File Renames:
+```
+src/lib/supabase.ts → src/lib/database.ts
+supabase/ → middleware/
+```
+
+#### Code References:
+```typescript
+// CURRENT (Violations)
+import { supabase } from '../lib/supabase';
+const { data } = await supabase.from('users').select('*');
+
+// SHOULD BE (Compliant)
+import { database } from '../lib/database';
+const { data } = await database.from('users').select('*');
+```
+
+#### Comment Updates:
+```typescript
+// CURRENT (Violation)
+// Use Supabase for databases by default
+
+// SHOULD BE (Compliant)  
+// Use middleware for databases by default
+```
+
+---
+
 ## SECURITY IMPLEMENTATION
 
 ### Authentication & Authorization
@@ -630,47 +671,6 @@ export default {
 
 ---
 
-## NAMING CONVENTION VIOLATIONS
-
-### Files with Supabase References:
-
-1. **`src/lib/supabase.ts`** - Entire file dedicated to Supabase
-2. **`src/services/authService.ts`** - Uses `supabase` client
-3. **`src/services/adminService.ts`** - Uses `supabase` client
-4. **`src/services/financialService.ts`** - Uses `supabase` client
-5. **`supabase/` directory** - Entire directory structure
-6. **Multiple component files** - Comments referencing Supabase
-
-### Required Naming Changes:
-
-#### File Renames:
-```
-src/lib/supabase.ts → src/lib/database.ts
-supabase/ → middleware/
-```
-
-#### Code References:
-```typescript
-// CURRENT (Violations)
-import { supabase } from '../lib/supabase';
-const { data } = await supabase.from('users').select('*');
-
-// SHOULD BE (Compliant)
-import { database } from '../lib/database';
-const { data } = await database.from('users').select('*');
-```
-
-#### Comment Updates:
-```typescript
-// CURRENT (Violation)
-// Use Supabase for databases by default
-
-// SHOULD BE (Compliant)  
-// Use middleware for databases by default
-```
-
----
-
 ## MIGRATION REQUIREMENTS
 
 ### To Achieve Full Self-Hosting:
@@ -926,6 +926,666 @@ Database → MariaDB Server
 - [ ] Update documentation
 - [ ] Train team on new architecture
 - [ ] Monitor production
+
+---
+
+## DETAILED FILE INVENTORY
+
+### Frontend Components (120+ files)
+
+#### Authentication Components:
+- `src/components/auth/LoginForm.tsx` - User login interface
+- `src/components/auth/PasswordResetForm.tsx` - Password reset flow
+- `src/components/auth/RateLimitWarning.tsx` - Rate limiting feedback
+- `src/components/auth/PasswordStrengthIndicator.tsx` - Password validation
+
+#### Dashboard Components:
+- `src/components/dashboard/DashboardHeader.tsx` - Navigation and controls
+- `src/components/dashboard/MetricsGrid.tsx` - KPI display grid
+- `src/components/dashboard/ChartsSection.tsx` - Financial charts
+- `src/components/dashboard/SmartInsights.tsx` - AI-powered insights
+- `src/components/dashboard/GoalsSection.tsx` - Goal tracking
+- `src/components/dashboard/QuickActions.tsx` - Quick action buttons
+- `src/components/dashboard/FinancialHealthScore.tsx` - Health scoring
+- `src/components/dashboard/BankConnectionStatus.tsx` - Connection status
+
+#### Current Page Components:
+- `src/components/current/AtAGlanceBanner.tsx` - Summary banner
+- `src/components/current/CriticalAlertsSection.tsx` - Alert system
+- `src/components/current/NetCashflowCard.tsx` - Cashflow summary
+- `src/components/current/UpcomingPaymentsCard.tsx` - Payment timeline
+- `src/components/current/AvailableMoneyCard.tsx` - Balance display
+- `src/components/current/CashflowProjectionChart.tsx` - Projection charts
+- `src/components/current/SpendingCategoriesCard.tsx` - Category analysis
+- `src/components/current/RecentTransactionsCard.tsx` - Transaction list
+- `src/components/current/SmartSuggestions.tsx` - AI suggestions
+- `src/components/current/MoneyFlowInsights.tsx` - Flow analysis
+
+#### Modal Components:
+- `src/components/current/DetailedModal.tsx` - Detailed financial view
+- `src/components/current/UpcomingPaymentsModal.tsx` - Payment management
+- `src/components/current/NetCashflowModal.tsx` - Cashflow analysis
+- `src/components/current/AccountBalanceModal.tsx` - Account details
+
+#### Settings Components:
+- `src/components/settings/ProfileSettings.tsx` - User profile management
+- `src/components/settings/AccountsSettings.tsx` - Account configuration
+- `src/components/settings/SecuritySettings.tsx` - Security preferences
+- `src/components/settings/NotificationsSettings.tsx` - Notification config
+- `src/components/settings/BankIntegrationSettings.tsx` - Bank connections
+- `src/components/settings/CategoriesSettings.tsx` - Category management
+- `src/components/settings/GoalsSettings.tsx` - Goal configuration
+- `src/components/settings/PreferencesSettings.tsx` - UI preferences
+- `src/components/settings/DataSettings.tsx` - Data export/import
+
+#### Chart Components:
+- `src/components/charts/BarChart.tsx` - Bar chart implementation
+- `src/components/charts/LineChart.tsx` - Line chart implementation
+- `src/components/charts/PieChart.tsx` - Pie chart implementation
+- `src/components/charts/DoughnutChart.tsx` - Doughnut chart implementation
+- `src/components/charts/HorizontalBarChart.tsx` - Horizontal bar charts
+
+#### Common Components:
+- `src/components/common/MetricCard.tsx` - KPI display cards
+- `src/components/common/EnhancedMetricCard.tsx` - Enhanced KPI cards
+- `src/components/common/Table.tsx` - Data table component
+- `src/components/common/ErrorBoundary.tsx` - Error handling
+- `src/components/common/LoadingSpinner.tsx` - Loading states
+- `src/components/common/SkeletonLoader.tsx` - Skeleton loading
+- `src/components/common/LicenseGate.tsx` - Premium feature gating
+- `src/components/common/SmartInsightCard.tsx` - Insight display
+- `src/components/common/RecentActivityItem.tsx` - Activity items
+- `src/components/common/GoalCard.tsx` - Goal display cards
+- `src/components/common/CollapsibleSection.tsx` - Collapsible sections
+
+#### UI Components:
+- `src/components/ui/Button.tsx` - Button component
+- `src/components/ui/Input.tsx` - Input component
+- `src/components/ui/Select.tsx` - Select component
+- `src/components/ui/Card.tsx` - Card component
+- `src/components/ui/Modal.tsx` - Modal component
+
+### Backend Files
+
+#### Current Implementation (Supabase Edge Functions):
+```
+supabase/functions/
+├── api-login/index.ts        # Authentication endpoint
+├── api-accounts/index.ts     # Account data endpoint
+├── api-transactions/index.ts # Transaction processing
+├── api-user/index.ts         # User profile endpoint
+└── api-sync-status/index.ts  # Sync status endpoint
+```
+
+#### Prepared Implementation (Express.js Server):
+```
+server/
+├── index.ts                  # Main server entry point
+├── config.ts                 # Configuration management
+├── db.ts                     # MariaDB connection pool
+├── package.json              # Server dependencies
+├── tsconfig.json             # TypeScript configuration
+├── middleware/
+│   ├── auth.ts              # JWT authentication
+│   ├── errorHandler.ts      # Global error handling
+│   ├── logger.ts            # Request logging
+│   └── rateLimit.ts         # Tier-based rate limiting
+└── routes/
+    ├── auth.ts              # Authentication endpoints
+    ├── accounts.ts          # Account management
+    ├── transactions.ts      # Transaction processing
+    ├── user.ts              # User profile
+    └── sync.ts              # Sync status
+```
+
+### Database Files
+
+#### Current Implementation (Supabase Migrations):
+```
+supabase/migrations/
+├── 20251003072311_create_users_and_auth_tables.sql
+├── 20251003072342_create_financial_data_tables.sql
+└── 20251003072418_create_admin_and_config_tables.sql
+```
+
+#### Prepared Implementation (MariaDB Schema):
+```
+database/
+├── schema/
+│   ├── 01_create_users_and_auth.sql      # Users, sessions, audit logs
+│   ├── 02_create_financial_tables.sql    # Accounts, transactions, goals
+│   └── 03_create_admin_tables.sql        # Feature flags, config, licenses
+├── mock_data/
+│   ├── 01_insert_users_and_auth.sql      # Demo users and sessions
+│   ├── 02_insert_financial_data.sql      # Sample financial data
+│   └── 03_insert_admin_data.sql          # Admin configuration
+└── README.md                              # Database documentation
+```
+
+---
+
+## FEATURE IMPLEMENTATION DETAILS
+
+### Core Financial Features
+
+#### Account Management:
+- **Account Types**: Checking, savings, credit, investment, loan, asset, liability
+- **Balance Tracking**: Real-time balance updates with transaction reconciliation
+- **Multi-Currency**: Support for multiple currencies with conversion
+- **Institution Integration**: Bank connection management with sync status
+
+#### Transaction Processing:
+- **Transaction Types**: Income, expense, transfer with automatic categorization
+- **Batch Processing**: Bulk transaction import/export capabilities
+- **Categorization**: Automatic and manual transaction categorization
+- **Search & Filter**: Advanced transaction search and filtering
+
+#### Budget Management:
+- **Budget Categories**: Customizable spending categories
+- **Period Tracking**: Monthly and yearly budget periods
+- **Alert System**: Budget threshold alerts and notifications
+- **Variance Analysis**: Budget vs actual spending analysis
+
+#### Goal Tracking:
+- **Goal Types**: Emergency fund, savings, investment, debt payoff goals
+- **Progress Tracking**: Visual progress indicators with milestone celebrations
+- **Timeline Management**: Deadline tracking with projection updates
+- **Auto-Contribution**: Automated goal contribution scheduling
+
+### Premium Features Implementation
+
+#### Debt Optimization Engine:
+```
+src/features/debtOptimizer/
+├── DebtOptimizer.tsx         # Main optimization interface
+├── StrategySimulator.tsx     # Strategy simulation tools
+├── debtOptimizer.ts          # Core optimization algorithms
+└── StrategyComparisonChart.tsx # Visual strategy comparison
+```
+
+**Algorithms Implemented**:
+- **Avalanche Method**: Highest interest rate first
+- **Snowball Method**: Smallest balance first
+- **Hybrid Strategies**: Combination approaches
+- **Scrapes Feature**: Automatic payment acceleration
+
+#### Loan Management System:
+```
+src/features/loans/
+├── components/
+│   ├── LoanForm.tsx          # Loan creation/editing
+│   ├── LoanList.tsx          # Loan management interface
+│   └── LoanDetails.tsx       # Detailed loan view
+├── charts/
+│   ├── DebtOverviewChart.tsx # Debt composition visualization
+│   ├── DebtProgressChart.tsx # Progress tracking charts
+│   └── PaymentBreakdownChart.tsx # Payment analysis
+├── types.ts                  # Loan type definitions
+├── calculations.ts           # Amortization calculations
+├── useLoans.ts              # Loan data management hook
+├── loanDatabase.ts          # Local storage (Dexie)
+└── SettingsProvider.tsx     # Loan settings context
+```
+
+**Capabilities**:
+- **Amortization Calculations**: Full payment schedule generation
+- **Strategy Comparison**: Multiple payoff strategy analysis
+- **Payment Scheduling**: Automated payment planning
+- **Interest Optimization**: Minimum interest payment strategies
+
+#### Investment Tracking:
+- **Portfolio Management**: Multi-asset portfolio tracking
+- **Performance Analysis**: Return calculations and benchmarking
+- **Asset Allocation**: Diversification analysis and recommendations
+- **Risk Assessment**: Portfolio risk evaluation
+
+### Administrative Features
+
+#### User Management System:
+- **Role Assignment**: Granular role-based permissions
+- **User Impersonation**: Support user impersonation with audit trail
+- **Session Management**: Active session monitoring and control
+- **Access Control**: Fine-grained permission management
+
+#### System Configuration:
+- **Feature Flags**: Dynamic feature enabling/disabling
+- **Configuration Management**: Encrypted configuration storage
+- **License Management**: Tier-based feature enforcement
+- **Audit Logging**: Immutable audit trail with full context
+
+#### Infrastructure Controls:
+- **Backup Management**: Automated and manual backup systems
+- **Restore Capabilities**: Point-in-time restore with dry-run
+- **Deletion Safeguards**: Multi-step deletion confirmation
+- **Monitoring Dashboard**: System health and performance monitoring
+
+---
+
+## DATA FLOW ARCHITECTURE
+
+### Authentication Flow:
+```
+User Login Request
+    ↓
+Frontend (LoginForm.tsx)
+    ↓
+AuthContext.tsx
+    ↓
+authService.ts (CURRENT: Supabase Auth)
+    ↓
+Database (CURRENT: Supabase PostgreSQL)
+    ↓
+JWT Token Response
+    ↓
+Session Establishment
+```
+
+### Data Access Flow:
+```
+Component Data Request
+    ↓
+Custom Hook (e.g., useCentralizedData.ts)
+    ↓
+Service Layer (e.g., financialService.ts)
+    ↓
+Database Client (CURRENT: Supabase client)
+    ↓
+Database (CURRENT: Supabase PostgreSQL)
+    ↓
+Data Response
+    ↓
+Component Update
+```
+
+### Admin Operations Flow:
+```
+Admin Action
+    ↓
+AdminPanel.tsx
+    ↓
+AdminFoundation.tsx (Context)
+    ↓
+adminService.ts
+    ↓
+Audit Log Creation
+    ↓
+Database Update
+    ↓
+Real-time UI Update
+```
+
+---
+
+## BUSINESS LOGIC ANALYSIS
+
+### Financial Calculations
+
+#### Core Calculations (`src/utils/financial.ts`):
+- **Currency Formatting**: Multi-currency display formatting
+- **Financial Health Assessment**: Algorithmic health scoring
+- **Emergency Fund Analysis**: Coverage calculation and recommendations
+- **Cashflow Projections**: Future balance predictions
+- **Savings Rate Calculations**: Income vs savings analysis
+
+#### Debt Optimization (`src/features/debtOptimizer/debtOptimizer.ts`):
+- **Amortization Schedules**: Payment schedule generation
+- **Strategy Comparison**: Multiple payoff strategy analysis
+- **Interest Calculations**: Total interest and savings calculations
+- **Timeline Optimization**: Payoff date acceleration algorithms
+
+#### Investment Analysis:
+- **Portfolio Allocation**: Asset distribution analysis
+- **Performance Tracking**: Return calculations and benchmarking
+- **Risk Assessment**: Portfolio risk evaluation
+- **Rebalancing Recommendations**: Allocation optimization suggestions
+
+### Data Management
+
+#### Centralized Data System (`src/data/centralizedData.ts`):
+- **Master Data Source**: Single source of truth for financial data
+- **Calculated Totals**: Derived metrics and aggregations
+- **Historical Data**: Time-series data for charts and analysis
+- **Consistency Enforcement**: Data integrity across components
+
+#### Mock Data Implementation:
+- **Realistic Data**: Production-like test data
+- **Comprehensive Coverage**: All features have test data
+- **Relationship Integrity**: Proper foreign key relationships
+- **Performance Testing**: Large data sets for performance validation
+
+---
+
+## INTEGRATION POINTS
+
+### External Service Integration
+
+#### Bank API Integration (Premium Feature):
+- **Connection Management**: Secure bank API connections
+- **Data Synchronization**: Automatic transaction import
+- **Error Handling**: Connection failure recovery
+- **Rate Limiting**: API usage optimization
+
+#### Email Service Integration:
+- **Notification System**: Email alerts and reports
+- **Template Management**: Customizable email templates
+- **Delivery Tracking**: Email delivery status monitoring
+- **Unsubscribe Management**: Preference management
+
+### Internal Service Integration
+
+#### Authentication Integration:
+- **Session Management**: Cross-component session state
+- **Permission Enforcement**: Role-based access control
+- **Token Refresh**: Automatic token renewal
+- **Logout Handling**: Clean session termination
+
+#### Data Synchronization:
+- **Real-time Updates**: Live data synchronization
+- **Conflict Resolution**: Data conflict handling
+- **Offline Support**: Offline data management
+- **Sync Status**: Synchronization status tracking
+
+---
+
+## TESTING STRATEGY
+
+### Current Testing Implementation:
+
+#### Unit Testing:
+- **Coverage**: Limited unit test coverage
+- **Framework**: No testing framework currently configured
+- **Test Files**: No test files found in project
+
+#### Integration Testing:
+- **API Testing**: No automated API tests
+- **Database Testing**: No database integration tests
+- **End-to-End Testing**: No E2E tests configured
+
+### Recommended Testing Strategy:
+
+#### Unit Testing:
+```
+src/
+├── __tests__/               # Unit test files
+├── components/__tests__/    # Component tests
+├── hooks/__tests__/         # Hook tests
+├── utils/__tests__/         # Utility tests
+└── services/__tests__/      # Service tests
+```
+
+#### Integration Testing:
+```
+tests/
+├── integration/             # Integration tests
+├── api/                     # API endpoint tests
+├── database/                # Database tests
+└── e2e/                     # End-to-end tests
+```
+
+#### Testing Tools:
+- **Unit Testing**: Jest + React Testing Library
+- **Integration Testing**: Supertest for API testing
+- **E2E Testing**: Playwright or Cypress
+- **Database Testing**: Test database with fixtures
+
+---
+
+## MONITORING & OBSERVABILITY
+
+### Current Monitoring:
+
+#### Application Monitoring:
+- **Error Boundaries**: React error boundaries implemented
+- **Console Logging**: Development logging in place
+- **Performance Monitoring**: No performance monitoring configured
+
+#### Infrastructure Monitoring:
+- **Database Monitoring**: No database monitoring
+- **API Monitoring**: No API performance monitoring
+- **Security Monitoring**: Basic audit logging
+
+### Recommended Monitoring:
+
+#### Application Level:
+- **Error Tracking**: Implement error tracking service
+- **Performance Monitoring**: Add performance metrics
+- **User Analytics**: Track user behavior and feature usage
+- **Real-time Alerts**: Critical error notifications
+
+#### Infrastructure Level:
+- **Database Monitoring**: Query performance and connection monitoring
+- **API Monitoring**: Response time and error rate tracking
+- **Security Monitoring**: Failed login attempts and suspicious activity
+- **Resource Monitoring**: CPU, memory, and disk usage tracking
+
+---
+
+## SCALABILITY CONSIDERATIONS
+
+### Current Architecture Limitations:
+
+#### Frontend Scalability:
+- **Bundle Size**: Large bundle size may impact load times
+- **Memory Usage**: Large data sets in memory for charts
+- **Re-rendering**: Some unnecessary re-renders
+
+#### Backend Scalability:
+- **Database Connections**: Limited connection pooling
+- **Caching**: No caching layer implemented
+- **Load Balancing**: No load balancing configured
+
+### Scalability Recommendations:
+
+#### Frontend Optimizations:
+- **Code Splitting**: Implement route-based code splitting
+- **Virtual Scrolling**: For large data tables
+- **Memoization**: Optimize component re-rendering
+- **Service Worker**: Implement offline support
+
+#### Backend Optimizations:
+- **Connection Pooling**: Optimize database connections
+- **Caching Layer**: Implement Redis caching
+- **Load Balancing**: Add load balancer for multiple instances
+- **Database Optimization**: Query optimization and indexing
+
+---
+
+## SECURITY DEEP DIVE
+
+### Authentication Security
+
+#### Current Implementation:
+- **JWT Tokens**: Access and refresh token system
+- **Password Hashing**: bcrypt with configurable rounds
+- **Session Management**: Secure session handling
+- **Multi-Factor Authentication**: Prepared but not implemented
+
+#### Security Vulnerabilities:
+- **Token Storage**: localStorage vulnerable to XSS
+- **CSRF Protection**: No CSRF protection implemented
+- **Rate Limiting**: Basic rate limiting only
+- **Input Validation**: Limited server-side validation
+
+#### Security Recommendations:
+1. **Implement httpOnly Cookies**: Store tokens securely
+2. **Add CSRF Protection**: Prevent cross-site request forgery
+3. **Enhanced Rate Limiting**: Implement sophisticated rate limiting
+4. **Input Sanitization**: Comprehensive input validation
+5. **Security Headers**: Implement security headers
+
+### Data Security
+
+#### Current Implementation:
+- **Encryption**: Config items support encryption
+- **Access Control**: Role-based access control
+- **Audit Logging**: Complete audit trail
+- **Data Masking**: Sensitive data masking
+
+#### Data Protection Measures:
+- **Encryption at Rest**: Database encryption
+- **Encryption in Transit**: HTTPS/TLS encryption
+- **Access Logging**: All data access logged
+- **Data Retention**: Configurable data retention policies
+
+---
+
+## COMPLIANCE ANALYSIS
+
+### Data Privacy Compliance:
+
+#### GDPR Compliance:
+- **Data Portability**: Export functionality implemented
+- **Right to Deletion**: Data deletion capabilities
+- **Consent Management**: User consent tracking
+- **Data Minimization**: Only necessary data collected
+
+#### Security Standards:
+- **Authentication**: Multi-factor authentication support
+- **Authorization**: Role-based access control
+- **Audit Trail**: Complete action logging
+- **Data Encryption**: Sensitive data encryption
+
+### Industry Standards:
+
+#### Financial Data Standards:
+- **PCI DSS**: Credit card data handling (if applicable)
+- **SOX Compliance**: Financial reporting standards
+- **Banking Standards**: Open banking API compliance
+- **Data Security**: Financial data protection standards
+
+---
+
+## DEPLOYMENT ARCHITECTURE
+
+### Current Deployment (Supabase):
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Supabase      │    │   Database      │
+│   (React/Vite)  │───▶│  Edge Functions │───▶│  PostgreSQL     │
+│   Static Hosting│    │   (Deno)        │    │   (Managed)     │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### Prepared Deployment (Self-hosted):
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   API Server    │    │   Database      │
+│   (React/Vite)  │───▶│  Express.js     │───▶│   MariaDB       │
+│   Static/CDN    │    │   (Node.js)     │    │  (Self-hosted)  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### Infrastructure Components:
+
+#### Production Infrastructure:
+```
+┌─────────────────┐
+│   Load Balancer │
+│   (Nginx/HAProxy)│
+└─────────┬───────┘
+          │
+┌─────────▼───────┐    ┌─────────────────┐
+│   Web Server    │    │   Database      │
+│   (Express.js)  │───▶│   MariaDB       │
+│   (Multiple)    │    │   (Primary)     │
+└─────────────────┘    └─────────┬───────┘
+                                 │
+                       ┌─────────▼───────┐
+                       │   Database      │
+                       │   MariaDB       │
+                       │   (Replica)     │
+                       └─────────────────┘
+```
+
+---
+
+## MIGRATION EXECUTION PLAN
+
+### Phase 1: Infrastructure Preparation
+
+#### Week 1: Database Setup
+- [ ] Install MariaDB 10.5+
+- [ ] Create database and user accounts
+- [ ] Deploy schema files
+- [ ] Load test data
+- [ ] Verify database connectivity
+
+#### Week 2: API Server Setup
+- [ ] Install Node.js and dependencies
+- [ ] Configure Express.js server
+- [ ] Implement authentication middleware
+- [ ] Test API endpoints
+- [ ] Configure rate limiting
+
+### Phase 2: Backend Migration
+
+#### Week 3: Service Layer Updates
+- [ ] Replace Supabase client with MariaDB client
+- [ ] Update authentication service
+- [ ] Update admin service
+- [ ] Update financial service
+- [ ] Test all service functions
+
+#### Week 4: API Integration
+- [ ] Update frontend to use new API endpoints
+- [ ] Remove Supabase configuration
+- [ ] Update environment variables
+- [ ] Test frontend-backend integration
+
+### Phase 3: Testing & Validation
+
+#### Week 5: Comprehensive Testing
+- [ ] Unit testing implementation
+- [ ] Integration testing
+- [ ] Performance testing
+- [ ] Security testing
+- [ ] User acceptance testing
+
+### Phase 4: Production Deployment
+
+#### Week 6: Production Setup
+- [ ] Production server configuration
+- [ ] SSL certificate installation
+- [ ] Monitoring setup
+- [ ] Backup configuration
+- [ ] Go-live preparation
+
+---
+
+## RISK ASSESSMENT
+
+### High Risk Items:
+
+1. **Data Migration**: Risk of data loss during migration
+2. **Authentication Changes**: Risk of user lockout
+3. **API Compatibility**: Risk of frontend-backend incompatibility
+4. **Performance Impact**: Risk of performance degradation
+
+### Mitigation Strategies:
+
+1. **Data Migration**:
+   - Complete backup before migration
+   - Test migration on copy of production data
+   - Implement rollback procedures
+   - Validate data integrity post-migration
+
+2. **Authentication Changes**:
+   - Maintain parallel authentication during transition
+   - Test with all user roles
+   - Implement emergency access procedures
+   - Document recovery procedures
+
+3. **API Compatibility**:
+   - Implement API versioning
+   - Maintain backward compatibility
+   - Test all endpoints thoroughly
+   - Monitor API performance
+
+4. **Performance Impact**:
+   - Baseline current performance
+   - Load test new infrastructure
+   - Implement performance monitoring
+   - Optimize database queries
 
 ---
 
