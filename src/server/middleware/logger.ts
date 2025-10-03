@@ -3,9 +3,10 @@
  * Logs incoming requests for monitoring and debugging
  */
 
-const { config } = require('../config');
+import { Request, Response, NextFunction } from 'express';
+import { config } from '../config.js';
 
-function requestLogger(req, res, next) {
+export function requestLogger(req: Request, res: Response, next: NextFunction) {
   const start = Date.now();
 
   // Log request
@@ -28,7 +29,3 @@ function requestLogger(req, res, next) {
 
   next();
 }
-
-module.exports = {
-  requestLogger,
-};

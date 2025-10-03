@@ -3,21 +3,24 @@
  * Serves both the React frontend and API endpoints
  */
 
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const path = require('path');
-const { config } = require('./config');
-const { errorHandler } = require('./middleware/errorHandler');
-const { requestLogger } = require('./middleware/logger');
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { config } from './config.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { requestLogger } from './middleware/logger.js';
+import authRoutes from './routes/auth.js';
+import accountRoutes from './routes/accounts.js';
+import transactionRoutes from './routes/transactions.js';
+import userRoutes from './routes/user.js';
+import syncRoutes from './routes/sync.js';
 
-// Import routes
-const authRoutes = require('./routes/auth');
-const accountRoutes = require('./routes/accounts');
-const transactionRoutes = require('./routes/transactions');
-const userRoutes = require('./routes/user');
-const syncRoutes = require('./routes/sync');
+// ES Module dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -48,7 +51,7 @@ const globalLimiter = rateLimit({
 app.use(globalLimiter);
 
 // Health check endpoint
-app.get('/health', (_req, res) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -69,7 +72,7 @@ const distPath = path.join(__dirname, '../../dist');
 app.use(express.static(distPath));
 
 // Serve index.html for all non-API routes (SPA fallback)
-app.get('*', (req, res) => {
+app.get('*', (req: Request, res: Response) => {
   // Skip API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({

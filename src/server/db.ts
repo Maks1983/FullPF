@@ -3,8 +3,8 @@
  * MariaDB connection using mysql2 with promise support
  */
 
-const mysql = require('mysql2/promise');
-const { config } = require('./config');
+import mysql from 'mysql2/promise';
+import { config } from './config.js';
 
 // Create connection pool
 const pool = mysql.createPool({
@@ -23,13 +23,13 @@ const pool = mysql.createPool({
 
 // Test connection on startup
 pool.getConnection()
-  .then(connection => {
+  .then((connection) => {
     console.log('✅ Database connected successfully');
     connection.release();
   })
-  .catch(err => {
+  .catch((err: Error) => {
     console.error('❌ Database connection failed:', err.message);
     process.exit(1);
   });
 
-module.exports = pool;
+export default pool;

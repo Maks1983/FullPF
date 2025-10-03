@@ -3,30 +3,31 @@
  * Tier-based rate limiting for API endpoints
  */
 
-const rateLimit = require('express-rate-limit');
-const { config } = require('../config');
+import rateLimit from 'express-rate-limit';
+import { config } from '../config.js';
+import { AuthRequest } from './auth.js';
 
 /**
  * Dynamic rate limiter based on user's subscription tier
  */
-const tierBasedRateLimit = rateLimit({
+export const tierBasedRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: async (req) => {
-    const authReq = req;
+    const authReq = req as AuthRequest;
 
     // If user is authenticated, use tier-based limit
     if (authReq.user && authReq.user.tier) {
       const tier = authReq.user.tier;
-      return config.rateLimit[tier] || config.rateLimit.free;
+      return config.rateLimit[tier as keyof typeof config.rateLimit] || config.rateLimit.free;
     }
 
     // Unauthenticated requests get free tier limit
     return config.rateLimit.free;
   },
-  message: async (req) => {
-    const authReq = req;
+  message: async (req: any) => {
+    const authReq = req as AuthRequest;
     const tier = authReq.user?.tier || 'free';
-    const limit = config.rateLimit[tier] || config.rateLimit.free;
+    const limit = config.rateLimit[tier as keyof typeof config.rateLimit] || config.rateLimit.free;
 
     return {
       error: 'Rate Limit Exceeded',
@@ -47,7 +48,7 @@ const tierBasedRateLimit = rateLimit({
 /**
  * Strict rate limiter for sensitive operations (auth, password reset)
  */
-const strictRateLimit = rateLimit({
+export const strictRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 attempts per 15 minutes
   message: {
@@ -58,8 +59,3 @@ const strictRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-
-module.exports = {
-  tierBasedRateLimit,
-  strictRateLimit,
-};

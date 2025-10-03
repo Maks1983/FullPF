@@ -5,28 +5,28 @@
  * POST /api/v1/auth/logout - User logout
  */
 
-const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
-const { config } = require('../config');
-const db = require('../db');
-const { authenticate } = require('../middleware/auth');
-const { strictRateLimit } = require('../middleware/rateLimit');
-const { createError } = require('../middleware/errorHandler');
+import { Router, Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import { config } from '../config.js';
+import db from '../db.js';
+import { authenticate, AuthRequest } from '../middleware/auth.js';
+import { strictRateLimit } from '../middleware/rateLimit.js';
+import { createError } from '../middleware/errorHandler.js';
 
-const router = express.Router();
+const router = Router();
 
 /**
  * POST /api/v1/auth/login
  * Authenticate user and return tokens
  */
-router.post('/login', strictRateLimit, async (req, res) => {
+router.post('/login', strictRateLimit, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      throw createError('Email and password are required', 400);
+      throw createError('Email and password are required', 400, 'MISSING_CREDENTIALS');
     }
 
     // Fetch user with license info
@@ -39,7 +39,7 @@ router.post('/login', strictRateLimit, async (req, res) => {
     );
 
     if (!Array.isArray(userRows) || userRows.length === 0) {
-      throw createError('Invalid email or password', 401);
+      throw createError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
     }
 
     const user = userRows[0] as any;
@@ -54,12 +54,12 @@ router.post('/login', strictRateLimit, async (req, res) => {
         [uuidv4(), user.id, user.id, JSON.stringify({ reason: 'invalid_password' }), req.ip]
       );
 
-      throw createError('Invalid email or password', 401);
+      throw createError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
     }
 
     // Check if email is verified (optional, based on your requirements)
     if (!user.email_verified) {
-      throw createError('Please verify your email before logging in', 403);
+      throw createError('Please verify your email before logging in', 403, 'EMAIL_NOT_VERIFIED');
     }
 
     // Generate tokens
@@ -70,7 +70,7 @@ router.post('/login', strictRateLimit, async (req, res) => {
         role: user.role,
         type: 'access',
       },
-      config.jwt.accessSecret,
+      config.jwt.accessSecret as string,
       { expiresIn: config.jwt.accessExpiresIn } as jwt.SignOptions
     );
 
@@ -80,7 +80,7 @@ router.post('/login', strictRateLimit, async (req, res) => {
         email: user.email,
         type: 'refresh',
       },
-      config.jwt.refreshSecret,
+      config.jwt.refreshSecret as string,
       { expiresIn: config.jwt.refreshExpiresIn } as jwt.SignOptions
     );
 
@@ -136,12 +136,12 @@ router.post('/login', strictRateLimit, async (req, res) => {
  * POST /api/v1/auth/refresh
  * Refresh access token using refresh token
  */
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      throw createError('Refresh token is required', 400);
+      throw createError('Refresh token is required', 400, 'MISSING_TOKEN');
     }
 
     // Verify refresh token
@@ -152,7 +152,7 @@ router.post('/refresh', async (req, res) => {
     };
 
     if (decoded.type !== 'refresh') {
-      throw createError('Invalid token type', 401);
+      throw createError('Invalid token type', 401, 'INVALID_TOKEN_TYPE');
     }
 
     // Verify refresh token exists in database and is not expired
@@ -163,7 +163,7 @@ router.post('/refresh', async (req, res) => {
     );
 
     if (!Array.isArray(sessionRows) || sessionRows.length === 0) {
-      throw createError('Invalid or expired refresh token', 401);
+      throw createError('Invalid or expired refresh token', 401, 'INVALID_REFRESH_TOKEN');
     }
 
     // Fetch user with license info
@@ -176,7 +176,7 @@ router.post('/refresh', async (req, res) => {
     );
 
     if (!Array.isArray(userRows) || userRows.length === 0) {
-      throw createError('User not found', 401);
+      throw createError('User not found', 401, 'USER_NOT_FOUND');
     }
 
     const user = userRows[0] as any;
@@ -189,7 +189,7 @@ router.post('/refresh', async (req, res) => {
         role: user.role,
         type: 'access',
       },
-      config.jwt.accessSecret,
+      config.jwt.accessSecret as string,
       { expiresIn: config.jwt.accessExpiresIn } as jwt.SignOptions
     );
 
@@ -219,7 +219,7 @@ router.post('/refresh', async (req, res) => {
  * POST /api/v1/auth/logout
  * Invalidate refresh token
  */
-router.post('/logout', authenticate, async (req, res) => {
+router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { refreshToken } = req.body;
 
@@ -248,4 +248,4 @@ router.post('/logout', authenticate, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

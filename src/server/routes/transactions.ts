@@ -4,14 +4,14 @@
  * POST /api/v1/transactions/batch - Batch create/update transactions (offline sync)
  */
 
-const express = require('express');
-const { v4: uuidv4 } = require('uuid');
-const { authenticate } = require('../middleware/auth');
-const { tierBasedRateLimit } = require('../middleware/rateLimit');
-const { createError } = require('../middleware/errorHandler');
-const db = require('../db');
+import { Router, Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { authenticate, AuthRequest } from '../middleware/auth.js';
+import { tierBasedRateLimit } from '../middleware/rateLimit.js';
+import { createError } from '../middleware/errorHandler.js';
+import db from '../db.js';
 
-const router = express.Router();
+const router = Router();
 
 // All routes require authentication
 router.use(authenticate);
@@ -21,7 +21,7 @@ router.use(tierBasedRateLimit);
  * GET /api/v1/transactions
  * Get transactions for authenticated user with optional filters
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
     const {
@@ -139,17 +139,17 @@ router.get('/', async (req, res) => {
  * POST /api/v1/transactions/batch
  * Batch create or update transactions (for offline sync)
  */
-router.post('/batch', async (req, res) => {
+router.post('/batch', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
     const { transactions } = req.body;
 
     if (!Array.isArray(transactions) || transactions.length === 0) {
-      throw createError('Transactions array is required', 400);
+      throw createError('Transactions array is required', 400, 'MISSING_TRANSACTIONS');
     }
 
     if (transactions.length > 100) {
-      throw createError('Maximum 100 transactions per batch', 400);
+      throw createError('Maximum 100 transactions per batch', 400, 'BATCH_TOO_LARGE');
     }
 
     const results = {
@@ -293,4 +293,4 @@ router.post('/batch', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

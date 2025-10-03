@@ -3,14 +3,15 @@
  * Centralized error handling middleware
  */
 
-const { config } = require('../config');
+import { Request, Response, NextFunction } from 'express';
+import { config } from '../config.js';
 
 interface ApiError extends Error {
   statusCode?: number;
   code?: string;
 }
 
-function errorHandler(err, req, res, _next) {
+export function errorHandler(err: ApiError, req: Request, res: Response, _next: NextFunction) {
   // Log error
   console.error('Error:', {
     message: err.message,
@@ -37,14 +38,9 @@ function errorHandler(err, req, res, _next) {
 /**
  * Create an API error with status code
  */
-function createError(message, statusCode = 500, code) {
+export function createError(message: string, statusCode = 500, code?: string) {
   const error = new Error(message) as ApiError;
   error.statusCode = statusCode;
   error.code = code;
   return error;
 }
-
-module.exports = {
-  errorHandler,
-  createError,
-};

@@ -3,12 +3,12 @@
  * GET /api/v1/accounts - Get user accounts
  */
 
-const express = require('express');
-const { authenticate } = require('../middleware/auth');
-const { tierBasedRateLimit } = require('../middleware/rateLimit');
-const db = require('../db');
+import { Router, Response } from 'express';
+import { authenticate, AuthRequest } from '../middleware/auth.js';
+import { tierBasedRateLimit } from '../middleware/rateLimit.js';
+import db from '../db.js';
 
-const router = express.Router();
+const router = Router();
 
 // All routes require authentication
 router.use(authenticate);
@@ -18,7 +18,7 @@ router.use(tierBasedRateLimit);
  * GET /api/v1/accounts
  * Get all accounts for authenticated user with balances
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
 
@@ -64,7 +64,7 @@ router.get('/', async (req, res) => {
  * GET /api/v1/accounts/:id
  * Get single account details
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
     const accountId = req.params.id;
@@ -108,4 +108,4 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
