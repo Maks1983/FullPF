@@ -107,7 +107,7 @@ export class ExpenseAPIClient {
    * Login and obtain access tokens
    */
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await this.request<LoginResponse>('/api-login', {
+    const response = await this.request<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
@@ -124,7 +124,7 @@ export class ExpenseAPIClient {
    * Get user information and rate limits
    */
   async getUserInfo(): Promise<UserInfoResponse> {
-    return this.request<UserInfoResponse>('/api-user');
+    return this.request<UserInfoResponse>('/user/info');
   }
 
   /**
@@ -142,7 +142,7 @@ export class ExpenseAPIClient {
     }
 
     const query = queryParams.toString();
-    const endpoint = `/api-accounts${query ? `?${query}` : ''}`;
+    const endpoint = `/accounts${query ? `?${query}` : ''}`;
 
     return this.request<AccountsResponse>(endpoint);
   }
@@ -153,7 +153,7 @@ export class ExpenseAPIClient {
   async batchTransactions(
     payload: BatchTransactionsRequest
   ): Promise<BatchTransactionsResponse> {
-    return this.request<BatchTransactionsResponse>('/api-transactions', {
+    return this.request<BatchTransactionsResponse>('/transactions/batch', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -170,7 +170,7 @@ export class ExpenseAPIClient {
     }
 
     const query = queryParams.toString();
-    const endpoint = `/api-sync-status${query ? `?${query}` : ''}`;
+    const endpoint = `/sync/status${query ? `?${query}` : ''}`;
 
     return this.request<SyncStatusResponse>(endpoint);
   }
@@ -192,10 +192,8 @@ let clientInstance: ExpenseAPIClient | null = null;
 
 export function getAPIClient(config?: Partial<ClientConfig>): ExpenseAPIClient {
   if (!clientInstance) {
-    const baseUrl =
-      config?.baseUrl ||
-      import.meta.env.VITE_SUPABASE_URL + '/functions/v1' ||
-      'http://localhost:54321/functions/v1';
+    // Use relative path to API since frontend and API are served from the same domain
+    const baseUrl = config?.baseUrl || '/api/v1';
 
     clientInstance = new ExpenseAPIClient({
       baseUrl,

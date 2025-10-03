@@ -1,12 +1,14 @@
 /**
- * OwnCent API Server
- * Self-hosted Express server replacing Supabase Edge Functions
+ * OwnCent Unified Server
+ * Serves both the React frontend and API endpoints
  */
 
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/logger';
@@ -18,10 +20,15 @@ import transactionRoutes from './routes/transactions';
 import userRoutes from './routes/user';
 import syncRoutes from './routes/sync';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware with CSP for serving frontend
+app.use(helmet({
+  contentSecurityPolicy: false, // Allow inline scripts for Vite
+}));
 app.use(cors({
   origin: config.corsOrigins,
   credentials: true,
@@ -61,13 +68,22 @@ app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/sync', syncRoutes);
 
-// 404 handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `Route ${req.method} ${req.path} not found`,
-    timestamp: new Date().toISOString(),
-  });
+// Serve static files from the React frontend build
+const distPath = path.join(__dirname, '../../dist');
+app.use(express.static(distPath));
+
+// Serve index.html for all non-API routes (SPA fallback)
+app.get('*', (req: Request, res: Response) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      error: 'Not Found',
+      message: `Route ${req.method} ${req.path} not found`,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 // Error handling middleware (must be last)
@@ -76,8 +92,10 @@ app.use(errorHandler);
 // Start server
 const PORT = config.port;
 app.listen(PORT, () => {
-  console.log(`🚀 OwnCent API Server running on port ${PORT}`);
+  console.log(`🚀 OwnCent Server running on port ${PORT}`);
   console.log(`📝 Environment: ${config.nodeEnv}`);
+  console.log(`🌐 Frontend: http://localhost:${PORT}`);
+  console.log(`🔌 API: http://localhost:${PORT}/api/v1`);
   console.log(`🔒 CORS origins: ${config.corsOrigins.join(', ')}`);
   console.log(`📊 Database: ${config.db.host}:${config.db.port}/${config.db.database}`);
 });
