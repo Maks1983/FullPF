@@ -71,7 +71,7 @@ router.post('/login', strictRateLimit, async (req: AuthRequest, res: Response) =
         type: 'access',
       },
       config.jwt.accessSecret,
-      { expiresIn: config.jwt.accessExpiresIn }
+      { expiresIn: config.jwt.accessExpiresIn } as jwt.SignOptions
     );
 
     const refreshToken = jwt.sign(
@@ -81,7 +81,7 @@ router.post('/login', strictRateLimit, async (req: AuthRequest, res: Response) =
         type: 'refresh',
       },
       config.jwt.refreshSecret,
-      { expiresIn: config.jwt.refreshExpiresIn }
+      { expiresIn: config.jwt.refreshExpiresIn } as jwt.SignOptions
     );
 
     // Calculate refresh token expiry
@@ -190,7 +190,7 @@ router.post('/refresh', async (req: AuthRequest, res: Response) => {
         type: 'access',
       },
       config.jwt.accessSecret,
-      { expiresIn: config.jwt.accessExpiresIn }
+      { expiresIn: config.jwt.accessExpiresIn } as jwt.SignOptions
     );
 
     res.json({
