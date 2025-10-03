@@ -3,32 +3,30 @@
  * Tier-based rate limiting for API endpoints
  */
 
-import rateLimit from 'express-rate-limit';
-import { Request } from 'express';
-import { config } from '../config';
-import { AuthRequest } from './auth';
+const rateLimit = require('express-rate-limit');
+const { config } = require('../config');
 
 /**
  * Dynamic rate limiter based on user's subscription tier
  */
-export const tierBasedRateLimit = rateLimit({
+const tierBasedRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: async (req: Request) => {
-    const authReq = req as AuthRequest;
+  max: async (req) => {
+    const authReq = req;
 
     // If user is authenticated, use tier-based limit
     if (authReq.user && authReq.user.tier) {
-      const tier = authReq.user.tier as keyof typeof config.rateLimit;
+      const tier = authReq.user.tier;
       return config.rateLimit[tier] || config.rateLimit.free;
     }
 
     // Unauthenticated requests get free tier limit
     return config.rateLimit.free;
   },
-  message: async (req: Request) => {
-    const authReq = req as AuthRequest;
+  message: async (req) => {
+    const authReq = req;
     const tier = authReq.user?.tier || 'free';
-    const limit = config.rateLimit[tier as keyof typeof config.rateLimit] || config.rateLimit.free;
+    const limit = config.rateLimit[tier] || config.rateLimit.free;
 
     return {
       error: 'Rate Limit Exceeded',
@@ -40,7 +38,7 @@ export const tierBasedRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req: Request) => {
+  skip: (req) => {
     // Skip rate limiting for health checks
     return req.path === '/health';
   },
@@ -49,7 +47,7 @@ export const tierBasedRateLimit = rateLimit({
 /**
  * Strict rate limiter for sensitive operations (auth, password reset)
  */
-export const strictRateLimit = rateLimit({
+const strictRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 attempts per 15 minutes
   message: {
@@ -60,3 +58,8 @@ export const strictRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+module.exports = {
+  tierBasedRateLimit,
+  strictRateLimit,
+};

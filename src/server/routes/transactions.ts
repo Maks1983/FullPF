@@ -4,12 +4,12 @@
  * POST /api/v1/transactions/batch - Batch create/update transactions (offline sync)
  */
 
-import express, { Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import { authenticate, AuthRequest } from '../middleware/auth';
-import { tierBasedRateLimit } from '../middleware/rateLimit';
-import { createError } from '../middleware/errorHandler';
-import db from '../db';
+const express = require('express');
+const { v4: uuidv4 } = require('uuid');
+const { authenticate } = require('../middleware/auth');
+const { tierBasedRateLimit } = require('../middleware/rateLimit');
+const { createError } = require('../middleware/errorHandler');
+const db = require('../db');
 
 const router = express.Router();
 
@@ -21,7 +21,7 @@ router.use(tierBasedRateLimit);
  * GET /api/v1/transactions
  * Get transactions for authenticated user with optional filters
  */
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req, res) => {
   try {
     const userId = req.user!.id;
     const {
@@ -139,7 +139,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
  * POST /api/v1/transactions/batch
  * Batch create or update transactions (for offline sync)
  */
-router.post('/batch', async (req: AuthRequest, res: Response) => {
+router.post('/batch', async (req, res) => {
   try {
     const userId = req.user!.id;
     const { transactions } = req.body;
@@ -293,4 +293,4 @@ router.post('/batch', async (req: AuthRequest, res: Response) => {
   }
 });
 
-export default router;
+module.exports = router;

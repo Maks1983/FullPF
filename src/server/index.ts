@@ -3,25 +3,21 @@
  * Serves both the React frontend and API endpoints
  */
 
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { config } from './config';
-import { errorHandler } from './middleware/errorHandler';
-import { requestLogger } from './middleware/logger';
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
+const { config } = require('./config');
+const { errorHandler } = require('./middleware/errorHandler');
+const { requestLogger } = require('./middleware/logger');
 
 // Import routes
-import authRoutes from './routes/auth';
-import accountRoutes from './routes/accounts';
-import transactionRoutes from './routes/transactions';
-import userRoutes from './routes/user';
-import syncRoutes from './routes/sync';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const authRoutes = require('./routes/auth');
+const accountRoutes = require('./routes/accounts');
+const transactionRoutes = require('./routes/transactions');
+const userRoutes = require('./routes/user');
+const syncRoutes = require('./routes/sync');
 
 const app = express();
 
@@ -52,7 +48,7 @@ const globalLimiter = rateLimit({
 app.use(globalLimiter);
 
 // Health check endpoint
-app.get('/health', (_req: Request, res: Response) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -73,7 +69,7 @@ const distPath = path.join(__dirname, '../../dist');
 app.use(express.static(distPath));
 
 // Serve index.html for all non-API routes (SPA fallback)
-app.get('*', (req: Request, res: Response) => {
+app.get('*', (req, res) => {
   // Skip API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({

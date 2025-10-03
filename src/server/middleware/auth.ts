@@ -3,12 +3,11 @@
  * JWT verification and user authentication
  */
 
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { config } from '../config';
-import db from '../db';
+const jwt = require('jsonwebtoken');
+const { config } = require('../config');
+const db = require('../db');
 
-export interface AuthRequest extends Request {
+interface AuthRequest extends Request {
   user?: {
     id: string;
     email: string;
@@ -20,11 +19,7 @@ export interface AuthRequest extends Request {
 /**
  * Verify JWT access token and attach user to request
  */
-export async function authenticate(
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+async function authenticate(req, res, next) {
   try {
     const authHeader = req.headers.authorization;
 
@@ -110,8 +105,8 @@ export async function authenticate(
 /**
  * Require specific role(s)
  */
-export function requireRole(...allowedRoles: string[]) {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+function requireRole(...allowedRoles) {
+  return (req, res, next) => {
     if (!req.user) {
       res.status(401).json({
         error: 'Unauthorized',
@@ -135,8 +130,8 @@ export function requireRole(...allowedRoles: string[]) {
 /**
  * Require specific license tier(s)
  */
-export function requireTier(...allowedTiers: string[]) {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+function requireTier(...allowedTiers) {
+  return (req, res, next) => {
     if (!req.user) {
       res.status(401).json({
         error: 'Unauthorized',
@@ -158,3 +153,9 @@ export function requireTier(...allowedTiers: string[]) {
     next();
   };
 }
+
+module.exports = {
+  authenticate,
+  requireRole,
+  requireTier,
+};

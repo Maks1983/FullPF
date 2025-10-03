@@ -3,10 +3,10 @@
  * GET /api/v1/user - Get user profile
  */
 
-import express, { Response } from 'express';
-import { authenticate, AuthRequest } from '../middleware/auth';
-import { tierBasedRateLimit } from '../middleware/rateLimit';
-import db from '../db';
+const express = require('express');
+const { authenticate } = require('../middleware/auth');
+const { tierBasedRateLimit } = require('../middleware/rateLimit');
+const db = require('../db');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.use(tierBasedRateLimit);
  * GET /api/v1/user
  * Get authenticated user's profile
  */
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req, res) => {
   try {
     const userId = req.user!.id;
 
@@ -89,4 +89,4 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-export default router;
+module.exports = router;

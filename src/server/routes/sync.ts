@@ -3,10 +3,10 @@
  * GET /api/v1/sync/status - Get sync status for user's accounts
  */
 
-import express, { Response } from 'express';
-import { authenticate, AuthRequest } from '../middleware/auth';
-import { tierBasedRateLimit } from '../middleware/rateLimit';
-import db from '../db';
+const express = require('express');
+const { authenticate } = require('../middleware/auth');
+const { tierBasedRateLimit } = require('../middleware/rateLimit');
+const db = require('../db');
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.use(tierBasedRateLimit);
  * GET /api/v1/sync/status
  * Get sync status for all user's bank connections
  */
-router.get('/status', async (req: AuthRequest, res: Response) => {
+router.get('/status', async (req, res) => {
   try {
     const userId = req.user!.id;
 
@@ -110,4 +110,4 @@ function getLatestSyncTime(connections: any[]): Date | null {
   return new Date(Math.max(...syncTimes.map((t) => t.getTime())));
 }
 
-export default router;
+module.exports = router;

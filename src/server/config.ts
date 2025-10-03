@@ -3,11 +3,11 @@
  * Centralized configuration loaded from environment variables
  */
 
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 
 dotenv.config();
 
-export const config = {
+const config = {
   // Server
   nodeEnv: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '4000', 10),
@@ -60,3 +60,5 @@ if (config.nodeEnv === 'production') {
     throw new Error('DB_PASSWORD must be set in production');
   }
 }
+
+module.exports = { config };

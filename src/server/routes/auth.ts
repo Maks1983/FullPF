@@ -5,15 +5,15 @@
  * POST /api/v1/auth/logout - User logout
  */
 
-import express, { Response } from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
-import { config } from '../config';
-import db from '../db';
-import { authenticate, AuthRequest } from '../middleware/auth';
-import { strictRateLimit } from '../middleware/rateLimit';
-import { createError } from '../middleware/errorHandler';
+const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
+const { config } = require('../config');
+const db = require('../db');
+const { authenticate } = require('../middleware/auth');
+const { strictRateLimit } = require('../middleware/rateLimit');
+const { createError } = require('../middleware/errorHandler');
 
 const router = express.Router();
 
@@ -21,7 +21,7 @@ const router = express.Router();
  * POST /api/v1/auth/login
  * Authenticate user and return tokens
  */
-router.post('/login', strictRateLimit, async (req: AuthRequest, res: Response) => {
+router.post('/login', strictRateLimit, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -136,7 +136,7 @@ router.post('/login', strictRateLimit, async (req: AuthRequest, res: Response) =
  * POST /api/v1/auth/refresh
  * Refresh access token using refresh token
  */
-router.post('/refresh', async (req: AuthRequest, res: Response) => {
+router.post('/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
@@ -219,7 +219,7 @@ router.post('/refresh', async (req: AuthRequest, res: Response) => {
  * POST /api/v1/auth/logout
  * Invalidate refresh token
  */
-router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/logout', authenticate, async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
@@ -248,4 +248,4 @@ router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => 
   }
 });
 
-export default router;
+module.exports = router;
