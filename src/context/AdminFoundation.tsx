@@ -8,12 +8,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  adminApi,
-  authApi,
-  initializeTokensFromStorage,
-} from "../lib/apiClient";
-import type { AdminBootstrapResponse } from "../lib/apiClient";
 
 export type UserRole = "owner" | "manager" | "user" | "family" | "readonly";
 export type LicenseTier = "free" | "advanced" | "premium" | "family";
@@ -64,7 +58,7 @@ export interface FeatureFlagRecord {
 }
 
 export interface AuditLogEntry {
-  id: number | string;
+  id: number;
   actorUserId: string;
   actorUsername: string;
   actorDisplayName: string;
@@ -130,22 +124,14 @@ interface AuditLogInput {
   severity?: "info" | "warning" | "critical";
   immutable?: boolean;
   actorOverride?: Pick<SessionInfo, "id" | "username" | "displayName">;
-  impersonatedOverride?: Pick<
-    SessionInfo,
-    "id" | "username" | "displayName"
-  > | null;
+  impersonatedOverride?: Pick<SessionInfo, "id" | "username" | "displayName"> | null;
 }
 
+type LoginResult =
+  | { success: true; session: SessionInfo }
+  | { success: false; error: string };
+
 export type OperationResult = { success: boolean; message: string };
-
-export type LoginOutcome =
-  | { status: "success"; session: SessionInfo }
-  | { status: "challenge"; challengeId: string }
-  | { status: "error"; error: string };
-
-export type TwoFactorOutcome =
-  | { status: "success"; session: SessionInfo }
-  | { status: "error"; error: string };
 
 interface AdminFoundationContextValue {
   session: SessionInfo | null;
@@ -153,50 +139,40 @@ interface AdminFoundationContextValue {
   impersonation: ImpersonationState | null;
   users: DirectoryUser[];
   hasPremiumAccess: boolean;
-  login: (username: string, password: string) => Promise<LoginOutcome>;
-  completeTwoFactor: (
-    challengeId: string,
-    code: string,
-  ) => Promise<TwoFactorOutcome>;
-  logout: () => Promise<void>;
-  startImpersonation: (
-    userId: string,
-    reason?: string,
-  ) => Promise<OperationResult>;
-  stopImpersonation: () => Promise<void>;
+  login: (username: string, password: string) => Promise<LoginResult>;
+  logout: () => void;
+  startImpersonation: (userId: string, reason?: string) => OperationResult;
+  stopImpersonation: () => void;
   stepUpState: StepUpState;
-  verifyStepUp: (action: StepUpAction, code: string) => Promise<boolean>;
+  verifyStepUp: (code: string) => boolean;
   isStepUpValid: () => boolean;
   featureFlags: Record<FeatureFlagKey, FeatureFlagRecord>;
   updateFeatureFlag: (
     key: FeatureFlagKey,
     value: boolean,
-    options?: { reason?: string },
-  ) => Promise<OperationResult>;
+    options?: { reason?: string }
+  ) => OperationResult;
   auditLogs: AuditLogEntry[];
-  appendAuditLog: (entry: AuditLogInput) => Promise<void>;
+  appendAuditLog: (entry: AuditLogInput) => void;
   configItems: ConfigItem[];
   updateConfigItem: (
     key: string,
     value: string,
-    options?: { note?: string },
-  ) => Promise<OperationResult>;
+    options?: { note?: string }
+  ) => OperationResult;
   monitoring: MonitoringSnapshot;
-  refreshMonitoring: () => Promise<OperationResult>;
+  refreshMonitoring: () => void;
   infrastructure: InfrastructureStatus;
-  triggerBackup: (mode: "manual" | "scheduled") => Promise<OperationResult>;
-  triggerRestore: (options: {
-    dryRun: boolean;
-    backupId: string;
-    note?: string;
-  }) => Promise<OperationResult>;
-  scheduleDeletion: (options: {
-    confirmationText: string;
-    requestedAt: string;
-  }) => Promise<OperationResult>;
-  cancelDeletion: () => Promise<OperationResult>;
+  triggerBackup: (mode: "manual" | "scheduled") => OperationResult;
+  triggerRestore: (
+    options: { dryRun: boolean; backupId: string; note?: string }
+  ) => OperationResult;
+  scheduleDeletion: (
+    options: { confirmationText: string; requestedAt: string }
+  ) => OperationResult;
+  cancelDeletion: () => void;
   license: LicenseState;
-  overrideLicenseTier: (tier: LicenseTier | null) => Promise<OperationResult>;
+  overrideLicenseTier: (tier: LicenseTier | null) => OperationResult;
   tierFeatures: Record<LicenseTier, string[]>;
   featureAvailability: (featureKey: FeatureFlagKey) => boolean;
   canAccessAdmin: boolean;
@@ -206,85 +182,268 @@ interface AdminFoundationContextValue {
   instanceName: string;
   instanceConfirmationToken: string;
   STEP_UP_CODE: string;
-}
-
+}const AUTH_STORAGE_KEY = "owncent-auth-session";
 const STEP_UP_CODE = "246810";
 const STEP_UP_VALID_WINDOW_MS = 5 * 60 * 1000;
 const INSTANCE_NAME = "OwnCent Demo Instance";
 const INSTANCE_CONFIRMATION_TOKEN = "owncent-demo";
 
-const DEFAULT_FEATURE_FLAGS: Record<FeatureFlagKey, FeatureFlagRecord> = {
+interface DemoUser extends DirectoryUser {
+  password: string;
+}
+
+const stripToSession = (user: DirectoryUser | DemoUser): SessionInfo => ({
+  id: user.id,
+  username: user.username,
+  displayName: user.displayName,
+  email: user.email,
+  role: user.role,
+  tier: user.tier,
+  isPremium: user.isPremium,
+});
+
+const toDirectoryUser = (user: DemoUser): DirectoryUser => ({
+  ...stripToSession(user),
+  phone: user.phone,
+});
+
+const tierFromPremiumFlag = (tier: LicenseTier): boolean =>
+  tier === "premium" || tier === "family";
+
+const FEATURE_LICENSE_MAP: Record<FeatureFlagKey, keyof LicenseState["features"] | null> = {
+  debt_optimizer_enabled: "debt_optimizer",
+  strategy_simulator_enabled: "strategy_simulator",
+  bank_api_enabled: "bank_api",
+  family_features_enabled: "family_accounts",
+  reports_enabled: "detailed_reports",
+};
+
+const DEMO_USERS: DemoUser[] = [
+  {
+    id: "user-owner",
+    username: "admin",
+    password: "admin",
+    displayName: "Avery Li",
+    email: "avery.li@owncent.demo",
+    role: "owner",
+    tier: "premium",
+    isPremium: true,
+    phone: "+1-555-0100",
+  },
+  {
+    id: "user-manager",
+    username: "manager",
+    password: "manager",
+    displayName: "Jordan Smith",
+    email: "jordan.smith@owncent.demo",
+    role: "manager",
+    tier: "advanced",
+    isPremium: false,
+    phone: "+1-555-0101",
+  },
+  {
+    id: "user-demo",
+    username: "demo",
+    password: "demo",
+    displayName: "Demo User",
+    email: "demo.user@owncent.demo",
+    role: "user",
+    tier: "advanced",
+    isPremium: false,
+    phone: "+1-555-0102",
+  },
+  {
+    id: "user-premium",
+    username: "premium",
+    password: "premium",
+    displayName: "Priya Malhotra",
+    email: "priya.malhotra@owncent.demo",
+    role: "user",
+    tier: "premium",
+    isPremium: true,
+    phone: "+1-555-0103",
+  },
+  {
+    id: "user-family",
+    username: "family",
+    password: "family",
+    displayName: "The Oakwoods",
+    email: "family.team@owncent.demo",
+    role: "family",
+    tier: "family",
+    isPremium: true,
+    phone: "+1-555-0104",
+  },
+  {
+    id: "user-readonly",
+    username: "readonly",
+    password: "readonly",
+    displayName: "View Only",
+    email: "readonly.viewer@owncent.demo",
+    role: "readonly",
+    tier: "free",
+    isPremium: false,
+    phone: "+1-555-0105",
+  },
+];
+
+const DIRECTORY_USERS: DirectoryUser[] = DEMO_USERS.map(toDirectoryUser);
+
+const INITIAL_FEATURE_FLAGS: Record<FeatureFlagKey, FeatureFlagRecord> = {
   debt_optimizer_enabled: {
     key: "debt_optimizer_enabled",
     description: "Enable the premium debt optimization module.",
     value: false,
     overridableBy: ["owner"],
-    lastChangedAt: new Date(0).toISOString(),
+    lastChangedAt: "2025-09-01T10:00:00.000Z",
+    notes: "Awaiting production-ready optimization dataset.",
   },
   strategy_simulator_enabled: {
     key: "strategy_simulator_enabled",
     description: "Enable what-if strategy simulator.",
     value: false,
     overridableBy: ["owner"],
-    lastChangedAt: new Date(0).toISOString(),
+    lastChangedAt: "2025-09-01T10:15:00.000Z",
+    notes: "Hidden until premium rollout.",
   },
   bank_api_enabled: {
     key: "bank_api_enabled",
-    description: "Allow direct bank data aggregation.",
+    description: "Allow direct bank data aggregation via partner API.",
     value: false,
     overridableBy: ["owner"],
-    lastChangedAt: new Date(0).toISOString(),
+    lastChangedAt: "2025-09-05T08:20:00.000Z",
   },
   family_features_enabled: {
     key: "family_features_enabled",
     description: "Unlock multi-user household planning features.",
-    value: false,
+    value: true,
     overridableBy: ["owner"],
-    lastChangedAt: new Date(0).toISOString(),
+    lastChangedAt: "2025-09-10T13:40:00.000Z",
   },
   reports_enabled: {
     key: "reports_enabled",
-    description: "Enable premium reporting engine.",
-    value: false,
-    overridableBy: ["owner"],
-    lastChangedAt: new Date(0).toISOString(),
+    description: "Enable advanced reporting dashboards.",
+    value: true,
+    overridableBy: ["owner", "manager"],
+    lastChangedAt: "2025-09-12T18:00:00.000Z",
   },
 };
 
-const DEFAULT_LICENSE: LicenseState = {
-  licenseId: "",
-  tier: "free",
-  status: "expired",
-  expiresAt: new Date(0).toISOString(),
-  lastValidatedAt: new Date(0).toISOString(),
+const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
+  {
+    id: 1,
+    actorUserId: "user-owner",
+    actorUsername: "admin",
+    actorDisplayName: "Avery Li",
+    impersonatedUserId: null,
+    impersonatedUsername: null,
+    impersonatedDisplayName: null,
+    action: "system.bootstrap",
+    targetEntity: "instance",
+    metadata: { message: "Demo environment initialized" },
+    immutable: true,
+    severity: "info",
+    timestamp: "2025-09-01T08:00:00.000Z",
+  },
+  {
+    id: 2,
+    actorUserId: "user-owner",
+    actorUsername: "admin",
+    actorDisplayName: "Avery Li",
+    impersonatedUserId: null,
+    impersonatedUsername: null,
+    impersonatedDisplayName: null,
+    action: "license.validated",
+    targetEntity: "license",
+    metadata: { tier: "premium", status: "valid" },
+    immutable: false,
+    severity: "info",
+    timestamp: "2025-09-12T09:32:00.000Z",
+  },
+  {
+    id: 3,
+    actorUserId: "user-manager",
+    actorUsername: "manager",
+    actorDisplayName: "Jordan Smith",
+    impersonatedUserId: null,
+    impersonatedUsername: null,
+    impersonatedDisplayName: null,
+    action: "user.invite",
+    targetEntity: "user-premium",
+    metadata: { role: "user", tier: "premium" },
+    immutable: false,
+    severity: "info",
+    timestamp: "2025-09-15T14:10:00.000Z",
+  },
+];
+
+const INITIAL_CONFIG: ConfigItem[] = [
+  {
+    key: "db.connection_string",
+    value: "mariadb://demo:demo@localhost:3306/owncent",
+    encrypted: true,
+    masked: true,
+    description: "Primary MariaDB connection string",
+    lastUpdatedAt: null,
+    lastUpdatedByUserId: null,
+    requiresStepUp: true,
+  },
+  {
+    key: "smtp.api_key",
+    value: "sk-demo-000000000000",
+    encrypted: true,
+    masked: true,
+    description: "SMTP provider API key",
+    lastUpdatedAt: "2025-09-10T11:24:00.000Z",
+    lastUpdatedByUserId: "user-owner",
+    requiresStepUp: true,
+  },
+  {
+    key: "license.webhook_url",
+    value: "https://api.owncent.demo/license/webhook",
+    encrypted: false,
+    masked: false,
+    description: "Callback endpoint for remote license validation",
+    lastUpdatedAt: null,
+    lastUpdatedByUserId: null,
+    requiresStepUp: false,
+  },
+];
+
+const INITIAL_MONITORING: MonitoringSnapshot = {
+  lastUpdatedAt: "2025-09-27T09:00:00.000Z",
+  dbConnection: "healthy",
+  smtpStatus: "warning",
+  uptimeSeconds: 86400 * 12,
+  cpuUtilization: 34,
+  memoryUtilization: 62,
+  queueBacklog: 1,
+};
+
+const INITIAL_INFRASTRUCTURE: InfrastructureStatus = {
+  lastBackupAt: "2025-09-25T02:15:00.000Z",
+  lastBackupMode: "scheduled",
+  lastRestoreAt: null,
+  lastRestoreDryRunAt: "2025-09-26T18:45:00.000Z",
+  deletionScheduledFor: null,
+};
+
+const INITIAL_LICENSE: LicenseState = {
+  licenseId: "LIC-OWN-DEMO-001",
+  tier: "premium",
+  status: "valid",
+  expiresAt: "2026-02-01T00:00:00.000Z",
+  lastValidatedAt: "2025-09-27T08:30:00.000Z",
   overrideActive: false,
   overrideTier: undefined,
   features: {
-    debt_optimizer: false,
-    strategy_simulator: false,
-    scenario_planning: false,
-    detailed_reports: false,
+    debt_optimizer: true,
+    strategy_simulator: true,
+    scenario_planning: true,
+    detailed_reports: true,
     bank_api: false,
-    family_accounts: false,
+    family_accounts: true,
   },
-};
-
-const DEFAULT_MONITORING: MonitoringSnapshot = {
-  lastUpdatedAt: new Date(0).toISOString(),
-  dbConnection: "healthy",
-  smtpStatus: "ok",
-  uptimeSeconds: 0,
-  cpuUtilization: 25,
-  memoryUtilization: 30,
-  queueBacklog: 0,
-};
-
-const DEFAULT_INFRASTRUCTURE: InfrastructureStatus = {
-  lastBackupAt: null,
-  lastBackupMode: null,
-  lastRestoreAt: null,
-  lastRestoreDryRunAt: null,
-  deletionScheduledFor: null,
 };
 
 const TIER_FEATURES: Record<LicenseTier, string[]> = {
@@ -327,12 +486,14 @@ const TIER_FEATURES: Record<LicenseTier, string[]> = {
   ],
 };
 
-const AdminFoundationContext = createContext<
-  AdminFoundationContextValue | undefined
->(undefined);
-
-const tierFromPremiumFlag = (tier: LicenseTier): boolean =>
-  tier === "premium" || tier === "family";
+const SYSTEM_ACTOR: Pick<SessionInfo, "id" | "username" | "displayName"> = {
+  id: "system",
+  username: "system",
+  displayName: "System",
+};
+const AdminFoundationContext = createContext<AdminFoundationContextValue | undefined>(
+  undefined,
+);
 
 const isStepUpTimestampValid = (timestamp: string | null): boolean => {
   if (!timestamp) {
@@ -345,214 +506,163 @@ const isStepUpTimestampValid = (timestamp: string | null): boolean => {
   return Date.now() - verified <= STEP_UP_VALID_WINDOW_MS;
 };
 
-const sortAuditLogs = (entries: AuditLogEntry[]): AuditLogEntry[] =>
-  [...entries].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-  );
-
-const applyBootstrapState = (
-  data: AdminBootstrapResponse,
-  setters: {
-    setUsers: (users: DirectoryUser[]) => void;
-    setFeatureFlags: (flags: Record<FeatureFlagKey, FeatureFlagRecord>) => void;
-    setLicense: (license: LicenseState) => void;
-    setConfigItems: (items: ConfigItem[]) => void;
-    setMonitoring: (snapshot: MonitoringSnapshot) => void;
-    setInfrastructure: (status: InfrastructureStatus) => void;
-    setAuditLogs: (logs: AuditLogEntry[]) => void;
-  },
-) => {
-  setters.setUsers(data.users.map((user) => ({ ...user })));
-  setters.setFeatureFlags(data.featureFlags);
-  setters.setLicense(data.license);
-  setters.setConfigItems(data.configItems);
-  setters.setMonitoring(data.monitoring);
-  setters.setInfrastructure(data.infrastructure);
-  setters.setAuditLogs(sortAuditLogs(data.auditLogs));
-};
-
-const resetAdministrativeState = (setters: {
-  setUsers: (users: DirectoryUser[]) => void;
-  setFeatureFlags: (flags: Record<FeatureFlagKey, FeatureFlagRecord>) => void;
-  setLicense: (license: LicenseState) => void;
-  setConfigItems: (items: ConfigItem[]) => void;
-  setMonitoring: (snapshot: MonitoringSnapshot) => void;
-  setInfrastructure: (status: InfrastructureStatus) => void;
-  setAuditLogs: (logs: AuditLogEntry[]) => void;
-  setStepUpState: (state: StepUpState) => void;
-}) => {
-  setters.setUsers([]);
-  setters.setFeatureFlags(DEFAULT_FEATURE_FLAGS);
-  setters.setLicense(DEFAULT_LICENSE);
-  setters.setConfigItems([]);
-  setters.setMonitoring(DEFAULT_MONITORING);
-  setters.setInfrastructure(DEFAULT_INFRASTRUCTURE);
-  setters.setAuditLogs([]);
-  setters.setStepUpState({ lastVerifiedAt: null });
-};
-
 export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [session, setSession] = useState<SessionInfo | null>(null);
-  const sessionRef = useRef<SessionInfo | null>(null);
   const [impersonation, setImpersonation] = useState<ImpersonationState | null>(
     null,
   );
-  const [users, setUsers] = useState<DirectoryUser[]>([]);
-  const [featureFlags, setFeatureFlags] = useState<
-    Record<FeatureFlagKey, FeatureFlagRecord>
-  >(DEFAULT_FEATURE_FLAGS);
-  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
-  const [configItems, setConfigItems] = useState<ConfigItem[]>([]);
+  const [featureFlags, setFeatureFlags] =
+    useState<Record<FeatureFlagKey, FeatureFlagRecord>>(INITIAL_FEATURE_FLAGS);
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(INITIAL_AUDIT_LOGS);
+  const [configItems, setConfigItems] = useState<ConfigItem[]>(INITIAL_CONFIG);
   const [monitoring, setMonitoring] =
-    useState<MonitoringSnapshot>(DEFAULT_MONITORING);
+    useState<MonitoringSnapshot>(INITIAL_MONITORING);
   const [infrastructure, setInfrastructure] = useState<InfrastructureStatus>(
-    DEFAULT_INFRASTRUCTURE,
+    INITIAL_INFRASTRUCTURE,
   );
-  const [license, setLicense] = useState<LicenseState>(DEFAULT_LICENSE);
+  const [license, setLicense] = useState<LicenseState>(INITIAL_LICENSE);
   const [stepUpState, setStepUpState] = useState<StepUpState>({
     lastVerifiedAt: null,
   });
-
-  const loadSessionAndBootstrap =
-    useCallback(async (): Promise<SessionInfo | null> => {
-      try {
-        const { user, impersonation: impersonationInfo } =
-          await authApi.loadSession();
-        setSession(user);
-        sessionRef.current = user;
-        setImpersonation(impersonationInfo);
-        const bootstrap = await adminApi.bootstrap();
-        applyBootstrapState(bootstrap, {
-          setUsers,
-          setFeatureFlags,
-          setLicense,
-          setConfigItems,
-          setMonitoring,
-          setInfrastructure,
-          setAuditLogs,
-        });
-        setStepUpState({ lastVerifiedAt: null });
-        return user;
-      } catch (error) {
-        setSession(null);
-        sessionRef.current = null;
-        setImpersonation(null);
-        resetAdministrativeState({
-          setUsers,
-          setFeatureFlags,
-          setLicense,
-          setConfigItems,
-          setMonitoring,
-          setInfrastructure,
-          setAuditLogs,
-          setStepUpState,
-        });
-        return null;
-      }
-    }, []);
+  const auditIdRef = useRef<number>(INITIAL_AUDIT_LOGS.length + 1);
 
   useEffect(() => {
-    initializeTokensFromStorage();
-    void loadSessionAndBootstrap();
-  }, [loadSessionAndBootstrap]);
-
-  useEffect(() => {
-    sessionRef.current = session;
-  }, [session]);
-
-  const login = useCallback(
-    async (username: string, password: string): Promise<LoginOutcome> => {
-      try {
-        const response = await authApi.login(username.trim(), password);
-        if ("requiresTwoFactor" in response) {
-          return { status: "challenge", challengeId: response.challengeId };
-        }
-        const user = await loadSessionAndBootstrap();
-        if (user) {
-          return { status: "success", session: user };
-        }
-        return { status: "error", error: "Unable to establish session." };
-      } catch (error) {
-        return {
-          status: "error",
-          error: error instanceof Error ? error.message : "Login failed",
-        };
-      }
-    },
-    [loadSessionAndBootstrap],
-  );
-
-  const completeTwoFactor = useCallback(
-    async (challengeId: string, code: string): Promise<TwoFactorOutcome> => {
-      try {
-        await authApi.verifyTwoFactor(challengeId, code.trim());
-        const user = await loadSessionAndBootstrap();
-        if (user) {
-          return { status: "success", session: user };
-        }
-        return {
-          status: "error",
-          error: "Two-factor succeeded, but session could not be loaded.",
-        };
-      } catch (error) {
-        return {
-          status: "error",
-          error:
-            error instanceof Error
-              ? error.message
-              : "Two-factor verification failed",
-        };
-      }
-    },
-    [loadSessionAndBootstrap],
-  );
-
-  const logout = useCallback(async () => {
+    if (typeof window === "undefined") {
+      return;
+    }
     try {
-      await authApi.logout();
-    } finally {
-      setSession(null);
-      sessionRef.current = null;
-      setImpersonation(null);
-      resetAdministrativeState({
-        setUsers,
-        setFeatureFlags,
-        setLicense,
-        setConfigItems,
-        setMonitoring,
-        setInfrastructure,
-        setAuditLogs,
-        setStepUpState,
-      });
+      const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+      if (!raw) {
+        return;
+      }
+      const parsed = JSON.parse(raw) as Partial<SessionInfo> | null;
+      if (!parsed || !parsed.id) {
+        window.localStorage.removeItem(AUTH_STORAGE_KEY);
+        return;
+      }
+      const found = DEMO_USERS.find((user) => user.id === parsed.id);
+      if (!found) {
+        window.localStorage.removeItem(AUTH_STORAGE_KEY);
+        return;
+      }
+      setSession(stripToSession(found));
+    } catch (error) {
+      console.error("Failed to restore session", error);
+      window.localStorage.removeItem(AUTH_STORAGE_KEY);
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    if (session) {
+      window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+    } else {
+      window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+  }, [session]);  const appendAuditLog = useCallback(
+    (entry: AuditLogInput) => {
+      const actor = entry.actorOverride ?? session ?? SYSTEM_ACTOR;
+      const impersonated =
+        entry.impersonatedOverride ?? impersonation?.target ?? null;
+      const id = auditIdRef.current;
+      auditIdRef.current += 1;
+
+      const nextEntry: AuditLogEntry = {
+        id,
+        actorUserId: actor.id,
+        actorUsername: actor.username,
+        actorDisplayName: actor.displayName,
+        impersonatedUserId: impersonated?.id ?? null,
+        impersonatedUsername: impersonated?.username ?? null,
+        impersonatedDisplayName: impersonated?.displayName ?? null,
+        action: entry.action,
+        targetEntity: entry.targetEntity,
+        metadata: entry.metadata ?? {},
+        immutable: entry.immutable ?? false,
+        severity: entry.severity ?? "info",
+        timestamp: new Date().toISOString(),
+      };
+
+      setAuditLogs((previous) => [...previous, nextEntry]);
+    },
+    [impersonation?.target, session],
+  );
+
+  const isStepUpValid = useCallback(() => {
+    return isStepUpTimestampValid(stepUpState.lastVerifiedAt);
+  }, [stepUpState.lastVerifiedAt]);
+
   const verifyStepUp = useCallback(
-    async (action: StepUpAction, code: string): Promise<boolean> => {
-      try {
-        const { success } = await authApi.stepUp(action, code.trim());
-        if (success) {
-          setStepUpState({ lastVerifiedAt: new Date().toISOString() });
-          return true;
-        }
-        return false;
-      } catch (error) {
+    (code: string) => {
+      if (!session) {
         return false;
       }
+      const sanitized = code.trim();
+      const success = sanitized === STEP_UP_CODE;
+      appendAuditLog({
+        action: success ? "auth.step_up_verified" : "auth.step_up_failed",
+        targetEntity: "step-up",
+        metadata: { outcome: success ? "success" : "failed" },
+        severity: success ? "info" : "warning",
+      });
+      if (!success) {
+        return false;
+      }
+      setStepUpState({ lastVerifiedAt: new Date().toISOString() });
+      return true;
     },
+    [appendAuditLog, session],
   );
 
-  const isStepUpValid = useCallback(
-    () => isStepUpTimestampValid(stepUpState.lastVerifiedAt),
-    [stepUpState.lastVerifiedAt],
+  const login = useCallback(
+    async (username: string, password: string) => {
+      const normalizedUsername = username.trim().toLowerCase();
+      const normalizedPassword = password.trim();
+      const match = DEMO_USERS.find(
+        (user) =>
+          user.username === normalizedUsername &&
+          user.password === normalizedPassword,
+      );
+
+      if (!match) {
+        return { success: false, error: "Invalid username or password" } as const;
+      }
+
+      const nextSession = stripToSession(match);
+      setSession(nextSession);
+      setImpersonation(null);
+      setStepUpState({ lastVerifiedAt: null });
+      appendAuditLog({
+        action: "auth.login",
+        targetEntity: nextSession.id,
+        metadata: { role: nextSession.role, tier: nextSession.tier },
+        actorOverride: nextSession,
+      });
+
+      return { success: true, session: nextSession } as const;
+    },
+    [appendAuditLog],
   );
+
+  const logout = useCallback(() => {
+    if (session) {
+      appendAuditLog({
+        action: "auth.logout",
+        targetEntity: session.id,
+      });
+    }
+    setSession(null);
+    setImpersonation(null);
+    setStepUpState({ lastVerifiedAt: null });
+  }, [appendAuditLog, session]);
 
   const startImpersonation = useCallback(
-    async (userId: string, reason?: string): Promise<OperationResult> => {
-      const currentSession = sessionRef.current;
-      if (!currentSession || currentSession.role !== "owner") {
+    (userId: string, reason?: string) => {
+      if (!session || session.role !== "owner") {
         return {
           success: false,
           message: "Only the Owner can impersonate other users.",
@@ -564,52 +674,59 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           message: "Step-up verification is required before impersonating.",
         };
       }
-      try {
-        await authApi.impersonate(userId, reason);
-        const user = await loadSessionAndBootstrap();
-        if (user) {
-          return { success: true, message: "Impersonation active." };
-        }
+      const target = DIRECTORY_USERS.find((user) => user.id === userId);
+      if (!target) {
+        return { success: false, message: "Target user not found." };
+      }
+      if (target.id === session.id) {
         return {
           success: false,
-          message: "Failed to refresh session after impersonation.",
-        };
-      } catch (error) {
-        return {
-          success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to impersonate user.",
+          message: "You cannot impersonate your own account.",
         };
       }
+
+      const nextImpersonation: ImpersonationState = {
+        target: stripToSession(target),
+        reason,
+        startedAt: new Date().toISOString(),
+      };
+
+      setImpersonation(nextImpersonation);
+      appendAuditLog({
+        action: "auth.impersonation_started",
+        targetEntity: userId,
+        metadata: { reason: reason ?? "support" },
+        severity: "warning",
+        impersonatedOverride: nextImpersonation.target,
+      });
+
+      return { success: true, message: "Impersonation active." };
     },
-    [isStepUpValid, loadSessionAndBootstrap],
+    [appendAuditLog, isStepUpValid, session],
   );
 
-  const stopImpersonation = useCallback(async () => {
-    try {
-      await authApi.stopImpersonation();
-    } finally {
-      await loadSessionAndBootstrap();
+  const stopImpersonation = useCallback(() => {
+    if (!impersonation) {
+      return;
     }
-  }, [loadSessionAndBootstrap]);
-
-  const updateFeatureFlag = useCallback(
-    async (
-      key: FeatureFlagKey,
-      value: boolean,
-      options?: { reason?: string },
-    ): Promise<OperationResult> => {
-      const currentSession = sessionRef.current;
-      if (!currentSession) {
+    appendAuditLog({
+      action: "auth.impersonation_stopped",
+      targetEntity: impersonation.target.id,
+      severity: "info",
+      impersonatedOverride: impersonation.target,
+    });
+    setImpersonation(null);
+  }, [appendAuditLog, impersonation]);  const updateFeatureFlag = useCallback(
+    (key: FeatureFlagKey, value: boolean, options?: { reason?: string }) => {
+      if (!session) {
         return { success: false, message: "Not authenticated." };
       }
+
       const record = featureFlags[key];
       if (!record) {
         return { success: false, message: "Unknown feature flag." };
       }
-      if (!record.overridableBy.includes(currentSession.role)) {
+      if (!record.overridableBy.includes(session.role)) {
         return {
           success: false,
           message: "You do not have permission to modify this flag.",
@@ -621,37 +738,35 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           message: "Disable impersonation before modifying feature flags.",
         };
       }
-      try {
-        const updated = await adminApi.updateFeatureFlag(key, {
-          value,
-          notes: options?.reason,
-        });
-        setFeatureFlags((prev) => ({
-          ...prev,
-          [key]: updated,
-        }));
-        return { success: true, message: "Feature flag updated." };
-      } catch (error) {
-        return {
-          success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to update feature flag.",
-        };
-      }
+
+      const nextRecord: FeatureFlagRecord = {
+        ...record,
+        value,
+        lastChangedAt: new Date().toISOString(),
+        overriddenByUserId: session.id,
+        notes: options?.reason ?? record.notes,
+      };
+
+      setFeatureFlags((previous) => ({
+        ...previous,
+        [key]: nextRecord,
+      }));
+
+      appendAuditLog({
+        action: "feature.toggle",
+        targetEntity: key,
+        metadata: { value, reason: options?.reason },
+        severity: "info",
+      });
+
+      return { success: true, message: "Feature flag updated." };
     },
-    [featureFlags, impersonation],
+    [appendAuditLog, featureFlags, impersonation, session],
   );
 
   const updateConfigItem = useCallback(
-    async (
-      key: string,
-      value: string,
-      options?: { note?: string },
-    ): Promise<OperationResult> => {
-      const currentSession = sessionRef.current;
-      if (!currentSession || currentSession.role !== "owner") {
+    (key: string, value: string, options?: { note?: string }) => {
+      if (!session || session.role !== "owner") {
         return {
           success: false,
           message: "Only the Owner can update configuration.",
@@ -663,6 +778,7 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           message: "Disable impersonation before editing configuration.",
         };
       }
+
       const item = configItems.find((config) => config.key === key);
       if (!item) {
         return { success: false, message: "Configuration key not found." };
@@ -673,59 +789,61 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           message: "Step-up verification required to edit this secret.",
         };
       }
-      try {
-        const updated = await adminApi.updateConfig(key, {
-          value,
-          masked: item.masked,
-        });
-        setConfigItems((prev) =>
-          prev.map((config) => (config.key === key ? updated : config)),
-        );
-        await adminApi
-          .appendAudit({
-            action: "config.updated",
-            targetEntity: key,
-            severity: "warning",
-            metadata: { note: options?.note ?? null },
-          })
-          .catch(() => undefined);
-        return { success: true, message: "Configuration updated." };
-      } catch (error) {
-        return {
-          success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to update configuration.",
-        };
-      }
+
+      const nextItem: ConfigItem = {
+        ...item,
+        value,
+        lastUpdatedAt: new Date().toISOString(),
+        lastUpdatedByUserId: session.id,
+      };
+
+      setConfigItems((previous) =>
+        previous.map((config) => (config.key === key ? nextItem : config)),
+      );
+
+      appendAuditLog({
+        action: "config.updated",
+        targetEntity: key,
+        metadata: { note: options?.note ?? null, masked: item.masked },
+        severity: "warning",
+      });
+
+      return { success: true, message: "Configuration updated." };
     },
-    [configItems, impersonation, isStepUpValid],
+    [appendAuditLog, configItems, impersonation, isStepUpValid, session],
   );
 
-  const refreshMonitoring = useCallback(async (): Promise<OperationResult> => {
-    try {
-      const snapshot = await adminApi.refreshMonitoring();
-      setMonitoring(snapshot);
-      return { success: true, message: "Monitoring refreshed." };
-    } catch (error) {
-      return {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to refresh monitoring.",
-      };
-    }
-  }, []);
+  const refreshMonitoring = useCallback(() => {
+    const jitter = () => Math.round(Math.random() * 4 - 2);
+    setMonitoring((previous) => ({
+      ...previous,
+      lastUpdatedAt: new Date().toISOString(),
+      cpuUtilization: Math.min(
+        95,
+        Math.max(10, previous.cpuUtilization + jitter()),
+      ),
+      memoryUtilization: Math.min(
+        95,
+        Math.max(20, previous.memoryUtilization + jitter()),
+      ),
+      queueBacklog: Math.max(
+        0,
+        previous.queueBacklog + Math.round(Math.random() * 2 - 1),
+      ),
+    }));
+    appendAuditLog({
+      action: "monitoring.refreshed",
+      targetEntity: "infrastructure",
+      severity: "info",
+    });
+  }, [appendAuditLog]);
 
   const triggerBackup = useCallback(
-    async (mode: "manual" | "scheduled"): Promise<OperationResult> => {
-      const currentSession = sessionRef.current;
-      if (!currentSession) {
+    (mode: "manual" | "scheduled") => {
+      if (!session) {
         return { success: false, message: "Not authenticated." };
       }
-      if (!["owner", "manager"].includes(currentSession.role)) {
+      if (!["owner", "manager"].includes(session.role)) {
         return {
           success: false,
           message: "Only Owners or Managers can initiate backups.",
@@ -737,31 +855,27 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           message: "Disable impersonation before running backups.",
         };
       }
-      try {
-        const status = await adminApi.triggerBackup(mode);
-        setInfrastructure(status);
-        return { success: true, message: "Backup request recorded." };
-      } catch (error) {
-        return {
-          success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to trigger backup.",
-        };
-      }
+
+      const timestamp = new Date().toISOString();
+      setInfrastructure((previous) => ({
+        ...previous,
+        lastBackupAt: timestamp,
+        lastBackupMode: mode,
+      }));
+      appendAuditLog({
+        action: "infrastructure.backup",
+        targetEntity: mode,
+        metadata: { mode },
+        severity: "info",
+      });
+      return { success: true, message: "Backup request recorded." };
     },
-    [impersonation],
+    [appendAuditLog, impersonation, session],
   );
 
   const triggerRestore = useCallback(
-    async (options: {
-      dryRun: boolean;
-      backupId: string;
-      note?: string;
-    }): Promise<OperationResult> => {
-      const currentSession = sessionRef.current;
-      if (!currentSession || currentSession.role !== "owner") {
+    (options: { dryRun: boolean; backupId: string; note?: string }) => {
+      if (!session || session.role !== "owner") {
         return {
           success: false,
           message: "Only the Owner can trigger restore operations.",
@@ -779,41 +893,37 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           message: "Disable impersonation before restoring data.",
         };
       }
-      if (!options.backupId.trim()) {
-        return {
-          success: false,
-          message: "Backup identifier is required.",
-        };
-      }
-      try {
-        const status = await adminApi.triggerRestore({
-          dryRun: options.dryRun,
-        });
-        setInfrastructure(status);
-        return { success: true, message: "Restore request recorded." };
-      } catch (error) {
-        return {
-          success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to trigger restore.",
-        };
-      }
+
+      const timestamp = new Date().toISOString();
+      setInfrastructure((previous) => ({
+        ...previous,
+        lastRestoreAt: options.dryRun ? previous.lastRestoreAt : timestamp,
+        lastRestoreDryRunAt: options.dryRun
+          ? timestamp
+          : previous.lastRestoreDryRunAt,
+      }));
+      appendAuditLog({
+        action: "infrastructure.restore",
+        targetEntity: options.backupId,
+        metadata: { dryRun: options.dryRun, note: options.note ?? null },
+        severity: options.dryRun ? "info" : "warning",
+      });
+      return {
+        success: true,
+        message: options.dryRun
+          ? "Restore dry-run recorded."
+          : "Restore scheduled.",
+      };
     },
-    [impersonation, isStepUpValid],
+    [appendAuditLog, impersonation, isStepUpValid, session],
   );
 
   const scheduleDeletion = useCallback(
-    async (options: {
-      confirmationText: string;
-      requestedAt: string;
-    }): Promise<OperationResult> => {
-      const currentSession = sessionRef.current;
-      if (!currentSession || currentSession.role !== "owner") {
+    (options: { confirmationText: string; requestedAt: string }) => {
+      if (!session || session.role !== "owner") {
         return {
           success: false,
-          message: "Only the Owner can schedule deletion.",
+          message: "Only the Owner can schedule full deletion.",
         };
       }
       if (!isStepUpValid()) {
@@ -822,117 +932,124 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           message: "Step-up verification required before scheduling deletion.",
         };
       }
-      if (options.confirmationText.trim() !== INSTANCE_CONFIRMATION_TOKEN) {
+      if (impersonation) {
         return {
           success: false,
-          message: "Confirmation token does not match the instance identifier.",
+          message: "Disable impersonation before scheduling deletion.",
         };
       }
-      try {
-        const status = await adminApi.scheduleDeletion({
-          confirmationToken: options.confirmationText.trim(),
-          scheduledFor: options.requestedAt,
-        });
-        setInfrastructure(status);
-        return { success: true, message: "Deletion scheduled." };
-      } catch (error) {
+      if (
+        options.confirmationText.trim().toLowerCase() !==
+        INSTANCE_CONFIRMATION_TOKEN
+      ) {
         return {
           success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to schedule deletion.",
+          message: "Confirmation text does not match the instance token.",
         };
       }
+
+      const timestamp = options.requestedAt || new Date().toISOString();
+      setInfrastructure((previous) => ({
+        ...previous,
+        deletionScheduledFor: timestamp,
+      }));
+      appendAuditLog({
+        action: "infrastructure.full_deletion_scheduled",
+        targetEntity: INSTANCE_NAME,
+        metadata: { requestedAt: timestamp },
+        severity: "critical",
+        immutable: true,
+      });
+      return { success: true, message: "Full deletion scheduled." };
     },
-    [isStepUpValid],
+    [appendAuditLog, impersonation, isStepUpValid, session],
   );
 
-  const cancelDeletion = useCallback(async (): Promise<OperationResult> => {
-    try {
-      const status = await adminApi.cancelDeletion();
-      setInfrastructure(status);
-      return { success: true, message: "Deletion cancelled." };
-    } catch (error) {
-      return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Failed to cancel deletion.",
-      };
+  const cancelDeletion = useCallback(() => {
+    if (!session || session.role !== "owner") {
+      return;
     }
-  }, []);
+    setInfrastructure((previous) => ({
+      ...previous,
+      deletionScheduledFor: null,
+    }));
+    appendAuditLog({
+      action: "infrastructure.full_deletion_cancelled",
+      targetEntity: INSTANCE_NAME,
+      severity: "warning",
+    });
+  }, [appendAuditLog, session]);
 
   const overrideLicenseTier = useCallback(
-    async (tier: LicenseTier | null): Promise<OperationResult> => {
-      const currentSession = sessionRef.current;
-      if (!currentSession || currentSession.role !== "owner") {
+    (tier: LicenseTier | null) => {
+      if (!session || session.role !== "owner") {
         return {
           success: false,
-          message: "Only the Owner can override license tier.",
+          message: "Only the Owner can override license tiers.",
         };
       }
-      if (!isStepUpValid()) {
+      if (impersonation) {
         return {
           success: false,
-          message:
-            "Step-up verification required before overriding the license.",
+          message: "Disable impersonation before overriding the license.",
         };
       }
-      try {
-        const updated = await adminApi.updateLicenseOverride({
-          overrideActive: tier !== null,
-          overrideTier: tier ?? undefined,
-        });
-        setLicense(updated);
-        return { success: true, message: "License override updated." };
-      } catch (error) {
+      if (tier && !isStepUpValid()) {
         return {
           success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to override license tier.",
+          message: "Step-up verification required for tier override.",
         };
       }
-    },
-    [isStepUpValid],
-  );
+      if (tier && !["free", "advanced", "premium", "family"].includes(tier)) {
+        return { success: false, message: "Unknown tier override." };
+      }
 
-  const appendAuditLog = useCallback(
-    async (entry: AuditLogInput): Promise<void> => {
-      try {
-        const created = await adminApi.appendAudit({
-          action: entry.action,
-          targetEntity: entry.targetEntity,
-          severity: entry.severity,
-          metadata: entry.metadata,
-          immutable: entry.immutable,
-        });
-        setAuditLogs((previous) => sortAuditLogs([created, ...previous]));
-      } catch (error) {
-        // swallow on failure in demo mode
-      }
+      setLicense((previous) => ({
+        ...previous,
+        overrideActive: tier !== null,
+        overrideTier: tier ?? undefined,
+        lastValidatedAt: new Date().toISOString(),
+      }));
+      appendAuditLog({
+        action: "license.override",
+        targetEntity: license.licenseId,
+        metadata: { tier: tier ?? "none" },
+        severity: "warning",
+      });
+      return { success: true, message: "License override updated." };
     },
-  );
+    [appendAuditLog, impersonation, isStepUpValid, license.licenseId, session],
+  );  const effectiveSession = impersonation?.target ?? session;
+  const ownerOverrideActive = session?.role === "owner" && !impersonation;
+  const appliedLicenseTier =
+    license.overrideActive && ownerOverrideActive
+      ? license.overrideTier ?? license.tier
+      : license.tier;
+  const hasPremiumTier = effectiveSession
+    ? tierFromPremiumFlag(effectiveSession.tier)
+    : false;
+  const licenseSupportsPremium = tierFromPremiumFlag(appliedLicenseTier);
+  const hasPremiumAccess =
+    ownerOverrideActive || (hasPremiumTier && licenseSupportsPremium);
+
+  const effectiveTier = effectiveSession?.tier ?? "free";
 
   const featureAvailability = useCallback(
-    (featureKey: FeatureFlagKey): boolean => {
-      const record = featureFlags[featureKey];
-      if (!record || !record.value) {
-        return false;
-      }
-      const effective = impersonation?.target ?? sessionRef.current;
-      const effectiveTier = effective?.tier ?? license.tier;
-      const appliedLicenseTier =
-        license.overrideActive && license.overrideTier
-          ? license.overrideTier
-          : license.tier;
-      const ownerOverrideActive = license.overrideActive;
-
+    (featureKey: FeatureFlagKey) => {
       if (ownerOverrideActive) {
         return true;
       }
-
+      const flagEnabled = featureFlags[featureKey]?.value ?? false;
+      if (!flagEnabled) {
+        return false;
+      }
+      const licenseFeatureKey = FEATURE_LICENSE_MAP[featureKey];
+      if (
+        licenseFeatureKey &&
+        license.features[licenseFeatureKey] === false
+      ) {
+        return false;
+      }
       if (featureKey === "family_features_enabled") {
         return (
           effectiveTier === "family" &&
@@ -957,13 +1074,15 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
       }
       return false;
     },
-    [featureFlags, impersonation, license],
+    [
+      appliedLicenseTier,
+      effectiveTier,
+      featureFlags,
+      license.features,
+      ownerOverrideActive,
+    ],
   );
 
-  const effectiveSession = impersonation?.target ?? session;
-  const hasPremiumAccess = Boolean(
-    effectiveSession && tierFromPremiumFlag(effectiveSession.tier),
-  );
   const canAccessAdmin = Boolean(
     session && ["owner", "manager"].includes(session.role),
   );
@@ -971,19 +1090,16 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
     session && ["owner", "manager"].includes(session.role) && !impersonation,
   );
   const canModifyConfig = Boolean(session?.role === "owner" && !impersonation);
-  const canRunCriticalOps = Boolean(
-    session?.role === "owner" && !impersonation,
-  );
+  const canRunCriticalOps = Boolean(session?.role === "owner" && !impersonation);
 
   const value = useMemo<AdminFoundationContextValue>(
     () => ({
       session,
       effectiveSession,
       impersonation,
-      users,
+      users: DIRECTORY_USERS.map((user) => ({ ...user })),
       hasPremiumAccess,
       login,
-      completeTwoFactor,
       logout,
       startImpersonation,
       stopImpersonation,
@@ -1030,7 +1146,6 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
       infrastructure,
       license,
       login,
-      completeTwoFactor,
       logout,
       monitoring,
       overrideLicenseTier,
@@ -1039,16 +1154,13 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
       session,
       startImpersonation,
       stepUpState,
-      stopImpersonation,
       triggerBackup,
       triggerRestore,
       updateConfigItem,
       updateFeatureFlag,
       verifyStepUp,
       isStepUpValid,
-      users,
       effectiveSession,
-      cancelDeletion,
     ],
   );
 
@@ -1062,9 +1174,7 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
 export const useAdminFoundation = (): AdminFoundationContextValue => {
   const context = useContext(AdminFoundationContext);
   if (!context) {
-    throw new Error(
-      "useAdminFoundation must be used within AdminFoundationProvider",
-    );
+    throw new Error("useAdminFoundation must be used within AdminFoundationProvider");
   }
   return context;
 };

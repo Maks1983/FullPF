@@ -4,9 +4,7 @@
 
 import { useMemo } from "react";
 import { useAuthContext } from "../context/AuthContext";
-import type { FeatureFlagKey } from "../context/AdminFoundation";
-
-type LicenseTier = 'free' | 'advanced' | 'premium' | 'family';
+import type { LicenseTier, FeatureFlagKey } from "../context/AdminFoundation";
 
 type LicenseFeatureKey =
   | "smartInsights"
@@ -41,17 +39,21 @@ const FEATURE_REQUIREMENTS: Record<LicenseFeatureKey, LicenseTier> = {
 export const useLicenseGating = () => {
   const {
     effectiveSession,
+    license,
     featureAvailability,
   } = useAuthContext();
 
   return useMemo(() => {
     const effectiveTier = effectiveSession?.tier ?? "free";
-    const appliedTier = effectiveTier; // Simplified for now
+    const appliedTier =
+      license.overrideActive && license.overrideTier
+        ? license.overrideTier
+        : license.tier;
 
     const features = Object.keys(FEATURE_REQUIREMENTS).reduce((acc, key) => {
       const featureKey = key as LicenseFeatureKey;
       const requiredTier = FEATURE_REQUIREMENTS[featureKey];
-      const tierAllows = compareTier(effectiveTier, requiredTier);
+      const tierAllows = compareTier(effectiveTier, requiredTier) && compareTier(appliedTier, requiredTier);
       const flagKey = FEATURE_FLAG_MAP[featureKey];
       const flagAllows = flagKey ? featureAvailability(flagKey) : tierAllows;
       acc[featureKey] = Boolean(tierAllows && flagAllows);
@@ -69,17 +71,12 @@ export const useLicenseGating = () => {
     };
 
     return {
+      license,
       effectiveTier,
       appliedTier,
       features,
-      // Individual feature access methods
-      canUseSmartInsights: hasFeature('smartInsights'),
-      canUseSmartSuggestions: hasFeature('smartSuggestions'),
-      canUseAdvancedAnalytics: hasFeature('advancedAnalytics'),
-      canUsePremiumReports: hasFeature('premiumReports'),
-      canUseBankIntegration: hasFeature('bankIntegration'),
       hasFeature,
       getUpgradeMessage,
     };
-  }, [effectiveSession?.tier, featureAvailability]);
+  }, [effectiveSession?.tier, featureAvailability, license]);
 };

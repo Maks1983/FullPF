@@ -7,7 +7,6 @@ import GoalsSettings from './settings/GoalsSettings';
 import NotificationsSettings from './settings/NotificationsSettings';
 import { LoanSettingsProvider } from '../features/loans/SettingsProvider';
 import { LoanList } from '../features/loans/components/LoanList';
-import BankIntegrationSettings from './settings/BankIntegrationSettings';
 import SecuritySettings from './settings/SecuritySettings';
 import PreferencesSettings from './settings/PreferencesSettings';
 import DataSettings from './settings/DataSettings';
@@ -15,7 +14,6 @@ import DataSettings from './settings/DataSettings';
 const settingsSections = [
   { id: 'profile', name: 'Profile', icon: '👤' },
   { id: 'accounts', name: 'Accounts', icon: '🏦' },
-  { id: 'bank-integration', name: 'Bank Integration', icon: '🔗' },
   { id: 'loans', name: 'Loans', icon: '💳' },
   { id: 'categories', name: 'Categories', icon: '📊' },
   { id: 'goals', name: 'Goals', icon: '🎯' },
@@ -42,7 +40,6 @@ const SettingsPage = () => {
     switch (activeSection) {
       case 'profile': return <ProfileSettings onChanged={() => setHasUnsavedChanges(true)} />;
       case 'accounts': return <AccountsSettings onChanged={() => setHasUnsavedChanges(true)} />;
-      case 'bank-integration': return <BankIntegrationSettings onChanged={() => setHasUnsavedChanges(true)} />;
       case 'loans':
         return (
           <LoanSettingsProvider>
