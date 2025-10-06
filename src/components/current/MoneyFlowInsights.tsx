@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { PieChart, TrendingUp, Compass } from 'lucide-react';
+import { PieChart, TrendingUp, Compass, Star } from 'lucide-react';
 import type { SpendingCategory, RecentTransaction } from '../../types/current';
+import { useLicenseGating } from '../../hooks/useLicenseGating';
 
 interface MoneyFlowInsightsProps {
   monthlyIncome: number;
@@ -17,6 +18,48 @@ const MoneyFlowInsights: React.FC<MoneyFlowInsightsProps> = ({
   todaySpending,
   recentTransactions
 }) => {
+  const { canUseSmartSuggestions, getUpgradeMessage } = useLicenseGating();
+
+  if (!canUseSmartSuggestions) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-purple-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Star className="h-6 w-6 text-purple-600 mr-2" />
+            <h3 className="text-lg font-semibold text-purple-900">
+              Money Flow Insights
+            </h3>
+            <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
+              ADVANCED
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-purple-50 rounded-lg p-6 mb-4 border border-purple-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2].map((index) => (
+              <div key={index} className="p-4 bg-gray-100 rounded-lg border border-gray-200">
+                <div className="flex items-start space-x-3">
+                  <div className="w-5 h-5 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                    <div className="h-3 bg-gray-300 rounded animate-pulse w-3/4"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="mb-4 text-purple-800">
+          {getUpgradeMessage('smartSuggestions')}
+        </p>
+        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+          Upgrade to Advanced
+        </button>
+      </div>
+    );
+  }
   const categories = spendingCategories ?? [];
   const transactions = recentTransactions ?? [];
 

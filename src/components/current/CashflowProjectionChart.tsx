@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { TrendingDown, AlertTriangle } from 'lucide-react';
+import { TrendingDown, AlertTriangle, Star } from 'lucide-react';
 import type { CashflowProjection } from '../../types/current';
+import { useLicenseGating } from '../../hooks/useLicenseGating';
 
 interface CashflowProjectionChartProps {
   projections: CashflowProjection[];
@@ -15,6 +16,41 @@ const CashflowProjectionChart: React.FC<CashflowProjectionChartProps> = ({
   projections,
   daysUntilDeficit
 }) => {
+  const { canUseSmartSuggestions, getUpgradeMessage } = useLicenseGating();
+
+  if (!canUseSmartSuggestions) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-purple-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Star className="h-6 w-6 text-purple-600 mr-2" />
+            <h3 className="text-lg font-semibold text-purple-900">
+              Cashflow Projection
+            </h3>
+            <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
+              ADVANCED
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-purple-50 rounded-lg p-6 mb-4 border border-purple-100">
+          <div className="h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div className="text-center">
+              <TrendingDown className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <div className="h-4 bg-gray-300 rounded animate-pulse w-48 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+
+        <p className="mb-4 text-purple-800">
+          {getUpgradeMessage('smartSuggestions')}
+        </p>
+        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+          Upgrade to Advanced
+        </button>
+      </div>
+    );
+  }
   const visibleProjections = useMemo(
     () => projections.slice(0, MAX_VISIBLE_POINTS),
     [projections]
