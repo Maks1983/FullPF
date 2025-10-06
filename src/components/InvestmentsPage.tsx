@@ -3,9 +3,11 @@ import { TrendingUp, TrendingDown, Star, Plus, Filter } from "lucide-react";
 import MetricCard from "./common/MetricCard";
 import PieChart from "./charts/PieChart";
 import Table from "./common/Table";
+import { useLicenseGating } from "../hooks/useLicenseGating";
 
 const InvestmentsPage = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const { canUseAdvancedAnalytics } = useLicenseGating();
 
   const investmentMetrics = [
     {
@@ -235,31 +237,52 @@ const InvestmentsPage = () => {
             </span>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <h4 className="font-semibold text-gray-900 mb-2">Sharpe Ratio</h4>
-            <p className="text-2xl font-bold text-blue-600">1.42</p>
-            <p className="text-sm text-gray-600">Risk-adjusted return</p>
+        {canUseAdvancedAnalytics ? (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <h4 className="font-semibold text-gray-900 mb-2">Sharpe Ratio</h4>
+              <p className="text-2xl font-bold text-blue-600">1.42</p>
+              <p className="text-sm text-gray-600">Risk-adjusted return</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <h4 className="font-semibold text-gray-900 mb-2">Beta</h4>
+              <p className="text-2xl font-bold text-purple-600">0.89</p>
+              <p className="text-sm text-gray-600">Market correlation</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <h4 className="font-semibold text-gray-900 mb-2">Volatility</h4>
+              <p className="text-2xl font-bold text-orange-600">14.2%</p>
+              <p className="text-sm text-gray-600">Standard deviation</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <h4 className="font-semibold text-gray-900 mb-2">Max Drawdown</h4>
+              <p className="text-2xl font-bold text-red-600">-8.5%</p>
+              <p className="text-sm text-gray-600">Largest loss</p>
+            </div>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <h4 className="font-semibold text-gray-900 mb-2">Beta</h4>
-            <p className="text-2xl font-bold text-purple-600">0.89</p>
-            <p className="text-sm text-gray-600">Market correlation</p>
+        ) : (
+          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 mb-4 border border-purple-100">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((index) => (
+                <div key={index} className="p-4 bg-gray-100 rounded-lg border border-gray-200">
+                  <div className="h-4 bg-gray-300 rounded animate-pulse w-24 mb-2"></div>
+                  <div className="h-8 bg-gray-300 rounded animate-pulse w-16 mb-2"></div>
+                  <div className="h-3 bg-gray-300 rounded animate-pulse w-32"></div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <h4 className="font-semibold text-gray-900 mb-2">Volatility</h4>
-            <p className="text-2xl font-bold text-orange-600">14.2%</p>
-            <p className="text-sm text-gray-600">Standard deviation</p>
-          </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <h4 className="font-semibold text-gray-900 mb-2">Max Drawdown</h4>
-            <p className="text-2xl font-bold text-red-600">-8.5%</p>
-            <p className="text-sm text-gray-600">Largest loss</p>
-          </div>
-        </div>
-        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-          Upgrade to Premium
-        </button>
+        )}
+        {!canUseAdvancedAnalytics && (
+          <>
+            <p className="mb-4 text-purple-800">
+              Unlock advanced portfolio analytics including Sharpe ratio, Beta, volatility metrics, and drawdown analysis.
+            </p>
+            <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+              Upgrade to Premium
+            </button>
+          </>
+        )}
       </div>
 
       {/* Benchmark Comparison (Premium Feature) */}
@@ -272,23 +295,45 @@ const InvestmentsPage = () => {
             PREMIUM
           </span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-4 border border-gray-200 rounded-lg">
-            <h4 className="font-semibold text-gray-900 mb-2">Your Portfolio</h4>
-            <p className="text-3xl font-bold text-green-600">+11.4%</p>
-            <p className="text-sm text-gray-600">YTD Return</p>
+        {canUseAdvancedAnalytics ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 border border-gray-200 rounded-lg bg-white">
+              <h4 className="font-semibold text-gray-900 mb-2">Your Portfolio</h4>
+              <p className="text-3xl font-bold text-green-600">+11.4%</p>
+              <p className="text-sm text-gray-600">YTD Return</p>
+            </div>
+            <div className="text-center p-4 border border-gray-200 rounded-lg bg-white">
+              <h4 className="font-semibold text-gray-900 mb-2">S&P 500</h4>
+              <p className="text-3xl font-bold text-blue-600">+9.8%</p>
+              <p className="text-sm text-gray-600">YTD Return</p>
+            </div>
+            <div className="text-center p-4 border border-gray-200 rounded-lg bg-white">
+              <h4 className="font-semibold text-gray-900 mb-2">Outperformance</h4>
+              <p className="text-3xl font-bold text-green-600">+1.6%</p>
+              <p className="text-sm text-gray-600">vs S&P 500</p>
+            </div>
           </div>
-          <div className="text-center p-4 border border-gray-200 rounded-lg">
-            <h4 className="font-semibold text-gray-900 mb-2">S&P 500</h4>
-            <p className="text-3xl font-bold text-blue-600">+9.8%</p>
-            <p className="text-sm text-gray-600">YTD Return</p>
-          </div>
-          <div className="text-center p-4 border border-gray-200 rounded-lg">
-            <h4 className="font-semibold text-gray-900 mb-2">Outperformance</h4>
-            <p className="text-3xl font-bold text-green-600">+1.6%</p>
-            <p className="text-sm text-gray-600">vs S&P 500</p>
-          </div>
-        </div>
+        ) : (
+          <>
+            <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 mb-4 border border-purple-100">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[1, 2, 3].map((index) => (
+                  <div key={index} className="text-center p-4 bg-gray-100 rounded-lg border border-gray-200">
+                    <div className="h-4 bg-gray-300 rounded animate-pulse w-32 mx-auto mb-2"></div>
+                    <div className="h-8 bg-gray-300 rounded animate-pulse w-20 mx-auto mb-2"></div>
+                    <div className="h-3 bg-gray-300 rounded animate-pulse w-24 mx-auto"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <p className="mb-4 text-purple-800">
+              Compare your portfolio performance against major market benchmarks like S&P 500, NASDAQ, and custom indices.
+            </p>
+            <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+              Upgrade to Premium
+            </button>
+          </>
+        )}
       </div>
 
       {/* Recent Transactions */}
