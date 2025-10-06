@@ -274,10 +274,10 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({
             <h3 className="text-lg font-semibold text-purple-900">
               Smart Suggestions
             </h3>
+            <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-white text-purple-700">
+              PREMIUM
+            </span>
           </div>
-          <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-purple-700 shadow-sm">
-            Premium intelligence
-          </span>
         </div>
         <p className="text-sm text-purple-700">
           Personalized tips to improve your finances.

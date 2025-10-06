@@ -296,10 +296,10 @@ const SmartSavingsSuggestions: React.FC<SmartSavingsSuggestionsProps> = ({
             <h3 className="text-lg font-semibold text-purple-900">
               Smart Suggestions
             </h3>
+            <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-white text-purple-700">
+              PREMIUM
+            </span>
           </div>
-          <button className="inline-flex items-center rounded-full border border-purple-200 bg-white/70 px-3 py-1 text-sm font-medium text-purple-700 shadow-sm transition-colors hover:bg-white">
-            View All
-          </button>
         </div>
         <p className="text-sm text-purple-700">
           Guided savings opportunities tailored to your goals and emergency

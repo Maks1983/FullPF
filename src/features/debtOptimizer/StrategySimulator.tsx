@@ -10,11 +10,13 @@ import { formatCurrency, formatPercentage, formatDate } from '../loans/calculati
 import { generateAmortizationSchedule } from '../loans/calculations';
 import { format } from 'date-fns';
 import { Loan, UserPriorities } from '../loans/types';
-import { TrendingUp, Clock, DollarSign, Zap, Calculator, Target } from 'lucide-react';
+import { TrendingUp, Clock, DollarSign, Zap, Calculator, Target, Star, Lock } from 'lucide-react';
+import { useLicenseGating } from '../../hooks/useLicenseGating';
 
 export const StrategySimulator: React.FC = () => {
   const { loans } = useLoans();
   const { settings } = useSettingsContext();
+  const { canUseSmartSuggestions } = useLicenseGating();
   const [selectedLoanId, setSelectedLoanId] = useState('');
   const [extraPayment, setExtraPayment] = useState<number>(0);
   const [lumpSum, setLumpSum] = useState<number>(0);
@@ -59,10 +61,74 @@ export const StrategySimulator: React.FC = () => {
   }, [selectedLoan]);
 
 
+  if (!canUseSmartSuggestions) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-900">Strategy Simulator</h1>
+            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
+              PREMIUM
+            </span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-200 p-8 text-purple-900 shadow-sm">
+          <div className="text-center">
+            <Lock className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-purple-900 mb-4">Premium Feature</h2>
+            <p className="text-lg text-purple-800 mb-6">
+              The Strategy Simulator is a premium feature that helps you compare different debt payoff strategies.
+            </p>
+
+            <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 mb-6 border border-purple-100 max-w-2xl mx-auto">
+              <h3 className="font-semibold text-gray-900 mb-4">What you'll get with Premium:</h3>
+              <ul className="text-left space-y-3 text-gray-700">
+                <li className="flex items-start">
+                  <Calculator className="h-5 w-5 text-purple-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span>Compare multiple debt payoff strategies side-by-side</span>
+                </li>
+                <li className="flex items-start">
+                  <DollarSign className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span>See exactly how much interest you'll save with different approaches</span>
+                </li>
+                <li className="flex items-start">
+                  <Clock className="h-5 w-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span>Calculate time saved with extra payments and lump sum strategies</span>
+                </li>
+                <li className="flex items-start">
+                  <Zap className="h-5 w-5 text-yellow-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span>Advanced "scrapes" feature that compounds your savings automatically</span>
+                </li>
+                <li className="flex items-start">
+                  <TrendingUp className="h-5 w-5 text-orange-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span>Full amortization schedules for each strategy</span>
+                </li>
+                <li className="flex items-start">
+                  <Target className="h-5 w-5 text-purple-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <span>Personalized recommendations based on your priorities</span>
+                </li>
+              </ul>
+            </div>
+
+            <button className="px-6 py-3 bg-purple-600 text-white text-lg rounded-lg hover:bg-purple-700 transition-colors shadow-lg">
+              Upgrade to Premium
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Strategy Simulator</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900">Strategy Simulator</h1>
+          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
+            PREMIUM
+          </span>
+        </div>
       </div>
 
       {/* Loan Selection */}
