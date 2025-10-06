@@ -288,12 +288,15 @@ const InvestmentsPage = () => {
       {/* Benchmark Comparison (Premium Feature) */}
       <div className="rounded-2xl bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-200 p-6 text-purple-900 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-purple-900">
-            Portfolio vs Benchmarks
-          </h3>
-          <span className="px-2 py-1 text-xs font-semibold rounded-full bg-white text-purple-700">
-            PREMIUM
-          </span>
+          <div className="flex items-center">
+            <Star className="h-6 w-6 text-purple-600 mr-2" />
+            <h3 className="text-lg font-semibold text-purple-900">
+              Portfolio vs Benchmarks
+            </h3>
+            <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-white text-purple-700">
+              PREMIUM
+            </span>
+          </div>
         </div>
         {canUseAdvancedAnalytics ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

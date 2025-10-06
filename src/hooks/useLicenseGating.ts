@@ -30,7 +30,7 @@ const FEATURE_FLAG_MAP: Partial<Record<LicenseFeatureKey, FeatureFlagKey>> = {
 
 const FEATURE_REQUIREMENTS: Record<LicenseFeatureKey, LicenseTier> = {
   smartInsights: "premium",
-  smartSuggestions: "advanced",
+  smartSuggestions: "premium",
   advancedAnalytics: "premium",
   premiumReports: "premium",
   bankIntegration: "premium",
