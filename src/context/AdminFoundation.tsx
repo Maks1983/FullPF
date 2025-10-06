@@ -1062,9 +1062,16 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           license.features.detailed_reports !== false
         );
       }
+      // strategy_simulator_enabled is for Smart Suggestions (requires advanced+)
+      if (featureKey === "strategy_simulator_enabled") {
+        return (
+          (effectiveTier === "advanced" || effectiveTier === "premium" || effectiveTier === "family") &&
+          license.features.strategy_simulator !== false
+        );
+      }
+      // debt_optimizer and bank_api require premium or family
       if (
         featureKey === "debt_optimizer_enabled" ||
-        featureKey === "strategy_simulator_enabled" ||
         featureKey === "bank_api_enabled"
       ) {
         return (
