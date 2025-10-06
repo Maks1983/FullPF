@@ -1056,9 +1056,10 @@ export const AdminFoundationProvider: React.FC<{ children: ReactNode }> = ({
           license.features.family_accounts !== false
         );
       }
+      // reports_enabled is for Smart Insights (requires premium+)
       if (featureKey === "reports_enabled") {
         return (
-          effectiveTier !== "free" &&
+          tierFromPremiumFlag(effectiveTier) &&
           license.features.detailed_reports !== false
         );
       }
