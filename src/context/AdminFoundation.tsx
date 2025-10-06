@@ -301,10 +301,10 @@ const INITIAL_FEATURE_FLAGS: Record<FeatureFlagKey, FeatureFlagRecord> = {
   strategy_simulator_enabled: {
     key: "strategy_simulator_enabled",
     description: "Enable what-if strategy simulator.",
-    value: false,
+    value: true,
     overridableBy: ["owner"],
     lastChangedAt: "2025-09-01T10:15:00.000Z",
-    notes: "Hidden until premium rollout.",
+    notes: "Enabled for advanced and premium tiers.",
   },
   bank_api_enabled: {
     key: "bank_api_enabled",

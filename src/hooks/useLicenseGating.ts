@@ -77,6 +77,12 @@ export const useLicenseGating = () => {
       features,
       hasFeature,
       getUpgradeMessage,
+      // Convenience properties for common features
+      canUseSmartInsights: features.smartInsights,
+      canUseSmartSuggestions: features.smartSuggestions,
+      canUseAdvancedAnalytics: features.advancedAnalytics,
+      canUsePremiumReports: features.premiumReports,
+      canUseBankIntegration: features.bankIntegration,
     };
   }, [effectiveSession?.tier, featureAvailability, license]);
 };
