@@ -1,7 +1,6 @@
 import React from 'react';
 import { TrendingUp, BarChart3, Star } from 'lucide-react';
 import LineChart from '../charts/LineChart';
-import { useLicenseGating } from '../../hooks/useLicenseGating';
 
 interface SmartProjectionChartProps {
   currentSavings: number;
@@ -16,41 +15,6 @@ const SmartProjectionChart: React.FC<SmartProjectionChartProps> = ({
   projectionMode,
   onProjectionModeChange
 }) => {
-  const { canUseAdvancedAnalytics, getUpgradeMessage } = useLicenseGating();
-
-  if (!canUseAdvancedAnalytics) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm border border-purple-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <Star className="h-6 w-6 text-purple-600 mr-2" />
-            <h3 className="text-lg font-semibold text-purple-900">
-              Smart Projection Chart
-            </h3>
-            <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
-              PREMIUM
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-purple-50 rounded-lg p-6 mb-4 border border-purple-100">
-          <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <div className="h-4 bg-gray-300 rounded animate-pulse w-48 mx-auto"></div>
-            </div>
-          </div>
-        </div>
-
-        <p className="mb-4 text-purple-800">
-          {getUpgradeMessage('advancedAnalytics')}
-        </p>
-        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-          Upgrade to Premium
-        </button>
-      </div>
-    );
-  }
   // Generate projection scenarios
   const generateProjections = () => {
     const baseGrowth = 8000; // Current monthly average
@@ -129,8 +93,8 @@ const SmartProjectionChart: React.FC<SmartProjectionChartProps> = ({
         ))}
       </div>
 
-      {/* Chart with Scenario Bands */}
-      <div className="relative">
+      {/* Chart */}
+      <div>
         <LineChart
           data={selectedData}
           dataKey="value"
@@ -138,35 +102,6 @@ const SmartProjectionChart: React.FC<SmartProjectionChartProps> = ({
           height={300}
           showGrid={true}
         />
-        
-        {/* Scenario Bands Overlay */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          <svg width="100%" height="100%" className="opacity-20">
-            {/* Conservative band */}
-            <path
-              d={`M 0 ${300 - ((projectionData[0].conservative - currentSavings) / (projectionData[5].optimistic - currentSavings)) * 250} ${projectionData.map((item, index) => {
-                const x = (index / (projectionData.length - 1)) * 100;
-                const y = 300 - ((item.conservative - currentSavings) / (projectionData[5].optimistic - currentSavings)) * 250;
-                return `L ${x}% ${y}`;
-              }).join(' ')}`}
-              fill="rgba(239, 68, 68, 0.1)"
-              stroke="rgba(239, 68, 68, 0.3)"
-              strokeWidth="1"
-            />
-            
-            {/* Optimistic band */}
-            <path
-              d={`M 0 ${300 - ((projectionData[0].optimistic - currentSavings) / (projectionData[5].optimistic - currentSavings)) * 250} ${projectionData.map((item, index) => {
-                const x = (index / (projectionData.length - 1)) * 100;
-                const y = 300 - ((item.optimistic - currentSavings) / (projectionData[5].optimistic - currentSavings)) * 250;
-                return `L ${x}% ${y}`;
-              }).join(' ')}`}
-              fill="rgba(16, 185, 129, 0.1)"
-              stroke="rgba(16, 185, 129, 0.3)"
-              strokeWidth="1"
-            />
-          </svg>
-        </div>
       </div>
 
       {/* Projection Summary */}
